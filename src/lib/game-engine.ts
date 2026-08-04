@@ -22,7 +22,7 @@ const BANKRUPTCY_DURATION = 3;
 // ============================================
 // A. BAKIM MALİYETLERİ
 // ============================================
-export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = []): number {
+export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0): number {
   // Temel lineer maliyetler (artırıldı)
   let cost = (military * 3.0) + (health * 2.5) + (education * 2.0);
   
@@ -33,6 +33,17 @@ export function calculateMaintenanceCost(military: number, health: number, educa
   
   if (eventFlags.includes("LEADER_GENERAL")) {
     cost = cost * 0.8; // General: Tüm bakım masrafları %20 daha ucuz
+  }
+
+  // Sağlık düşükse askeriye masrafı (hasta askerler/salgın) artar
+  if (health < 40) {
+    cost += (40 - health) * 2;
+  }
+
+  // Yolsuzluk / Bürokrasi Cezası: Kasa çok dolarsa para israfı başlar
+  if (budget > 15000) {
+    const corruptionPenalty = (budget - 15000) * 0.05; // Fazlalığın %5'i havaya uçar
+    cost += corruptionPenalty;
   }
 
   return Math.round(cost);
@@ -219,7 +230,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   }
 
   // 2. Bakım Maliyeti
-  const maintenanceCost = calculateMaintenanceCost(state.military, state.health, state.education, eventFlags);
+  const maintenanceCost = calculateMaintenanceCost(state.military, state.health, state.education, eventFlags, state.budget);
   state.budget -= maintenanceCost;
 
   // 3. Vergi ve Ticaret
@@ -258,7 +269,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   }
   activeCrises = remainingCrises;
 
-  // 6. Fraksiyon Domino Etkileri (Eski basit dominolar yerine)
+  // 6. Fraksiyon Domino Etkileri ve Radikalleşme
   if (state.happiness < 40) {
     factions = modifyFactionSupport(factions, { workers: -2, intellectuals: -1 });
     turnReports.push(`📉 Halkın mutsuzluğu işçileri ve aydınları tedirgin ediyor.`);
@@ -269,6 +280,18 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   if (state.budget < 0) {
     factions = modifyFactionSupport(factions, { capitalists: -2 }); // -5'ti, iflas ölüm sarmalını engellemek için -2 yapıldı.
     turnReports.push(`📉 Bütçe açığı sermayedarları korkutuyor.`);
+  }
+
+  // Radikalleşme: Desteği %20'nin altına düşen fraksiyonlar istikrarı bozar
+  let radicalizationPenalty = 0;
+  for (const fId in factions) {
+    if (factions[fId as keyof typeof factions].support < 20) {
+      radicalizationPenalty += 2;
+    }
+  }
+  if (radicalizationPenalty > 0) {
+    state.stability = clampStat(state.stability - radicalizationPenalty);
+    turnReports.push(`⚠️ MARJİNALLEŞME: Destek bulamayan fraksiyonların radikalleşmesi istikrarı sarsıyor (-${radicalizationPenalty}).`);
   }
 
   // 7. İflas Kontrolü
@@ -286,9 +309,15 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     }
   }
 
-  // 8. Doğal Yıpranma (Dengelenmiş)
+  // 8. Doğal Yıpranma ve Pasif Bonuslar
   state.military = clampStat(state.military - 1);
   state.stability = clampStat(state.stability - 1);
+  
+  // Çevre bonusu: Temiz çevre sağlığı iyileştirir
+  if (state.environment > 70) {
+    state.health = clampStat(state.health + 1);
+  }
+  
   // Mutluluk ve sağlık her 2 turda 1 düşer, çevre doğal olarak düşmez (sadece krizlerle)
   if (state.turn % 2 === 0) {
     state.happiness = clampStat(state.happiness - 1);

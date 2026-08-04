@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { processNextTurn, clampStat, calculateRelationship } from "@/lib/game-engine";
 import { GameState, MarketState } from "@/lib/types";
+import { INITIAL_FACTIONS, modifyFactionSupport, FactionsState } from "@/lib/factions";
 
 export async function POST(request: Request) {
   try {
@@ -58,11 +59,18 @@ export async function POST(request: Request) {
 
     let totalAiAttackDamage = 0;
     let aiFinancialAid = 0;
+    let totalWarExhaustion = 0;
+    let isAtWar = false;
     let aiMessages: string[] = [];
 
     // Diplomacy ve Market State'lerini parse et
     let diplomacyState: Record<string, { type: 'war' | 'alliance', turnsRemaining: number }> = {};
     try { diplomacyState = JSON.parse(game.diplomacyState); } catch {}
+    
+    // Fraksiyonları parse et (Savaş domino etkileri için)
+    let factions: FactionsState = INITIAL_FACTIONS;
+    try { factions = JSON.parse(game.factions); } catch { factions = INITIAL_FACTIONS; }
+    if (Object.keys(factions).length === 0) factions = INITIAL_FACTIONS;
 
     let marketState: MarketState = { prices: { energy: 100, food: 50, tech: 200 }, inventory: { energy: 0, food: 0, tech: 0 } };
     try {
@@ -86,15 +94,35 @@ export async function POST(request: Request) {
         const dip = diplomacyState[ai.name];
 
         if (dip?.type === 'war') {
-          // Devam eden savaş - her AI için izole hasar hesabı
-          const warDamage = 10;
+          isAtWar = true;
+          // Devam eden savaş - Dinamik hasar hesabı
+          dip.turnsRemaining--; // Starts at -1, goes more negative
+          const warDuration = Math.abs(dip.turnsRemaining);
+
+          // Güç oranı (Ratio)
+          const playerMil = Math.max(1, game.military);
+          const aiMil = Math.max(1, newMilitary);
+          const ratio = aiMil / playerMil; // AI güçlü ise ratio > 1
+
+          // Hasar hesaplama (Düşman güçlüyse daha çok hasar verir)
+          const baseDamage = 10;
+          const warDamage = Math.round(baseDamage * Math.min(3, Math.max(0.3, ratio)));
+          
           totalAiAttackDamage += warDamage;
           aiFinancialAid -= 500; // Savaş maliyeti
-          newMilitary -= 5;
+          
+          // AI'nın kayıpları (Oyuncu güçlüyse AI daha çok kayıp verir)
+          const aiLossMultiplier = 1 / Math.min(3, Math.max(0.3, ratio));
+          newMilitary -= Math.round(10 * aiLossMultiplier);
           newBudget -= 300;
-          newStability -= 5;
+          newStability -= Math.round(10 * aiLossMultiplier);
 
-          // Savaşın sonucunu kontrol et (izole: sadece bu AI'nın hasarları ve gücü)
+          // Savaş Yorgunluğu (War Exhaustion)
+          if (warDuration > 3) {
+            totalWarExhaustion += (warDuration - 3);
+          }
+
+          // Savaşın sonucunu kontrol et
           const playerEffectiveMilitary = game.military - warDamage;
           if (playerEffectiveMilitary > newMilitary + 30) {
             // Oyuncu savaşı kazandı
@@ -149,6 +177,15 @@ export async function POST(request: Request) {
 
     let currentReports: string[] = [];
     try { currentReports = JSON.parse(game.turnReports); } catch {}
+    
+    if (totalWarExhaustion > 0) {
+      aiMessages.push(`⚠️ SAVAŞ YORGUNLUĞU: Uzayan savaşlar halkı canından bezdirdi (İstikrar ve Mutluluk -${totalWarExhaustion}).`);
+    }
+
+    if (isAtWar) {
+      factions = modifyFactionSupport(factions, { military: 2, nationalists: 1, intellectuals: -2 });
+    }
+
     currentReports.push(...aiMessages);
 
     const currentState: GameState = {
@@ -157,11 +194,11 @@ export async function POST(request: Request) {
       turn: game.turn,
       budget: game.budget + aiFinancialAid,
       military: clampStat(game.military - Math.min(100, Math.max(0, totalAiAttackDamage))),
-      happiness: game.happiness,
+      happiness: clampStat(game.happiness - totalWarExhaustion),
       health: game.health,
       environment: game.environment,
       education: game.education,
-      stability: clampStat(game.stability - Math.min(100, Math.max(0, totalAiAttackDamage / 2))),
+      stability: clampStat(game.stability - Math.min(100, Math.max(0, totalAiAttackDamage / 2)) - totalWarExhaustion),
       foreignRelations: game.foreignRelations,
       popularity: game.popularity,
       politicalCapital: game.politicalCapital,
@@ -174,7 +211,7 @@ export async function POST(request: Request) {
       currentEventId: game.currentEventId,
       turnReports: JSON.stringify(currentReports),
       activeCrises: game.activeCrises,
-      factions: game.factions,
+      factions: JSON.stringify(factions),
       activeLaws: game.activeLaws,
       megaProjects: game.megaProjects,
       ministers: game.ministers,

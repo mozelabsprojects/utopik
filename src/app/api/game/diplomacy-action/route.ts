@@ -25,8 +25,12 @@ export async function POST(request: Request) {
       diplomacyState = JSON.parse(game.diplomacyState);
     } catch {}
 
-    if (diplomacyState[partnerName]) {
+    if (action !== "peace" && diplomacyState[partnerName]) {
       return NextResponse.json({ error: "Bu ülkeyle zaten aktif bir savaş/ittifak durumu var." }, { status: 400 });
+    }
+    
+    if (action === "peace" && diplomacyState[partnerName]?.type !== "war") {
+      return NextResponse.json({ error: "Barış ilan etmek için bu ülkeyle savaşta olmalısınız." }, { status: 400 });
     }
 
     let updatedBudget = game.budget;
@@ -57,6 +61,16 @@ export async function POST(request: Request) {
       updatedPoliticalCapital -= 10;
       updatedBudget -= 500;
       diplomacyState[partnerName] = { type: 'alliance', turnsRemaining: 20 }; // Alliances last 20 turns
+    } else if (action === "peace") {
+      if (game.politicalCapital < 30) {
+        return NextResponse.json({ error: "Barış antlaşması imzalamak için en az 30 Siyasi Sermaye gerekiyor." }, { status: 400 });
+      }
+      if (game.budget < 1000) {
+        return NextResponse.json({ error: "Savaş tazminatı ve antlaşma masrafları için en az $1000 bütçe gerekiyor." }, { status: 400 });
+      }
+      updatedPoliticalCapital -= 30;
+      updatedBudget -= 1000;
+      delete diplomacyState[partnerName]; // Savaşı bitir
     } else {
       return NextResponse.json({ error: "Geçersiz işlem." }, { status: 400 });
     }
