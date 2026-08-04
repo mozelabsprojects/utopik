@@ -14,7 +14,7 @@ import { MEGA_PROJECTS } from "./mega-projects";
 // ============================================
 // SABITLER
 // ============================================
-const BASE_INCOME = 3500;
+const BASE_INCOME = 4500; // Artırıldı (Eskiden 3500)
 const CRITICAL_THRESHOLD = 30;
 const BANKRUPTCY_BUDGET_LIMIT = -5000;
 const BANKRUPTCY_DURATION = 3;
@@ -23,16 +23,18 @@ const BANKRUPTCY_DURATION = 3;
 // A. BAKIM MALİYETLERİ
 import { COUNTRIES } from "./countries-data";
 
-export function getDetailedMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta") {
+export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta") {
   let militaryCost = military * 1.5;
   let healthCost = health * 1.0;
   let educationCost = education * 1.0;
+  let environmentCost = environment * 0.5; // Çevre koruma maliyeti
   
-  if (military > 50) militaryCost += Math.pow(military - 50, 1.2) * 0.8;
-  if (health > 50) healthCost += Math.pow(health - 50, 1.2) * 0.5;
-  if (education > 50) educationCost += Math.pow(education - 50, 1.2) * 0.5;
+  if (military > 50) militaryCost += Math.pow(military - 50, 1.2) * 0.7; // Ölçekleme biraz yumuşatıldı
+  if (health > 50) healthCost += Math.pow(health - 50, 1.2) * 0.4;
+  if (education > 50) educationCost += Math.pow(education - 50, 1.2) * 0.4;
+  if (environment > 50) environmentCost += Math.pow(environment - 50, 1.2) * 0.3;
 
-  let total = militaryCost + healthCost + educationCost;
+  let total = militaryCost + healthCost + educationCost + environmentCost;
   
   let leaderDiscount = 0;
   if (eventFlags.includes("LEADER_GENERAL")) {
@@ -70,6 +72,7 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
     militaryCost: Math.round(militaryCost),
     healthCost: Math.round(healthCost),
     educationCost: Math.round(educationCost),
+    environmentCost: Math.round(environmentCost),
     leaderDiscount: Math.round(leaderDiscount),
     sickPenalty: Math.round(sickPenalty),
     corruptionPenalty: Math.round(corruptionPenalty),
@@ -77,8 +80,8 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   };
 }
 
-export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta"): number {
-  return getDetailedMaintenanceCost(military, health, education, eventFlags, budget, difficulty).total;
+export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta"): number {
+  return getDetailedMaintenanceCost(military, health, education, environment, eventFlags, budget, difficulty).total;
 }
 
 // ============================================
@@ -86,18 +89,28 @@ export function calculateMaintenanceCost(military: number, health: number, educa
 // ============================================
 export function getDetailedTaxIncome(
   education: number,
+  health: number,
+  environment: number,
+  military: number,
   stability: number,
   happiness: number,
   capitalistsSupport: number,
   eventFlags: string[] = [],
   difficulty: string = "Orta"
 ) {
-  const educationBonus = education > 60 ? (education - 60) * 15 : 0;
+  // Statların kalıcı getiri (Passive Income) sağlaması
+  const educationBonus = education > 50 ? (education - 50) * 15 : 0; // İnovasyon
+  const healthBonus = health > 50 ? (health - 50) * 12 : 0; // Sağlıklı iş gücü verimliliği
+  const environmentBonus = environment > 50 ? (environment - 50) * 10 : 0; // Yeşil ekonomi / Eko Turizm
+  const militaryBonus = military > 60 ? (military - 60) * 8 : 0; // Silah sanayisi ihracatı
+
+  const statBonusTotal = educationBonus + healthBonus + environmentBonus + militaryBonus;
+
   const stabilityMultiplier = 0.5 + (stability / 200); 
   const happinessMultiplier = 0.5 + (happiness / 200); 
   const capitalistsBonus = capitalistsSupport > 70 ? 1.2 : (capitalistsSupport < 30 ? 0.8 : 1);
 
-  const baseTotal = BASE_INCOME + educationBonus;
+  const baseTotal = BASE_INCOME + statBonusTotal;
   let total = baseTotal * stabilityMultiplier * happinessMultiplier * capitalistsBonus;
 
   let leaderBonus = 0;
@@ -117,6 +130,9 @@ export function getDetailedTaxIncome(
     total: Math.round(total),
     baseIncome: BASE_INCOME,
     educationBonus: Math.round(educationBonus),
+    healthBonus: Math.round(healthBonus),
+    environmentBonus: Math.round(environmentBonus),
+    militaryBonus: Math.round(militaryBonus),
     stabilityMultiplier: Number(stabilityMultiplier.toFixed(2)),
     happinessMultiplier: Number(happinessMultiplier.toFixed(2)),
     capitalistsBonus: Number(capitalistsBonus.toFixed(2)),
@@ -128,13 +144,16 @@ export function getDetailedTaxIncome(
 
 export function calculateTaxIncome(
   education: number,
+  health: number,
+  environment: number,
+  military: number,
   stability: number,
   happiness: number,
   capitalistsSupport: number,
   eventFlags: string[] = [],
   difficulty: string = "Orta"
 ): number {
-  return getDetailedTaxIncome(education, stability, happiness, capitalistsSupport, eventFlags, difficulty).total;
+  return getDetailedTaxIncome(education, health, environment, military, stability, happiness, capitalistsSupport, eventFlags, difficulty).total;
 }
 
 // ============================================
@@ -296,13 +315,29 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     turnReports.push(`🤝 Popülist Yönetim: Mutluluk +1, Siyasi Sermaye -2.`);
   }
 
-  // 2. Bakım Maliyeti
-  const maintenanceCost = calculateMaintenanceCost(state.military, state.health, state.education, eventFlags, state.budget, difficulty);
-  state.budget -= maintenanceCost;
-
-  // 3. Vergi ve Ticaret
-  const taxIncome = calculateTaxIncome(state.education, state.stability, state.happiness, factions.capitalists?.support || 50, eventFlags, difficulty);
+  // 3. Vergi ve Bakım Hesaplamaları
+  const taxIncome = calculateTaxIncome(
+    state.education,
+    state.health,
+    state.environment,
+    state.military,
+    state.stability,
+    state.happiness,
+    factions.capitalists?.support || 50,
+    eventFlags,
+    difficulty
+  );
+  const maintenanceCost = calculateMaintenanceCost(
+    state.military, 
+    state.health, 
+    state.education, 
+    state.environment,
+    eventFlags, 
+    state.budget, 
+    difficulty
+  );
   state.budget += taxIncome;
+  state.budget -= maintenanceCost;
   state.budget += tradeIncome;
   turnReports.push(`💰 Vergi ve Ticaret gelirleri toplandı: +$${taxIncome + tradeIncome}`);
   turnReports.push(`🏢 Devlet altyapı bakım giderleri: -$${maintenanceCost}`);
