@@ -3,6 +3,7 @@
 import StatBar from "./StatBar";
 import BudgetDisplay from "./BudgetDisplay";
 import FinanceAnalysis from "./FinanceAnalysis";
+import ImpactGraph from "./ImpactGraph";
 
 interface GameData {
   budget: number;
@@ -64,23 +65,27 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
           <FinanceAnalysis game={game} />
         </div>
 
-        {/* Stats */}
-        <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
-          {STATS.map((stat) => (
-            <StatBar
-              key={stat.key}
-              label={stat.label}
-              value={game[stat.key as keyof GameData] as number}
-              icon={stat.icon}
-              color={stat.color}
-              previousValue={
-                previousGame
-                  ? (previousGame[stat.key as keyof GameData] as number)
-                  : undefined
-              }
-              projectedGain={projectedInvestments?.[stat.key]}
-            />
-          ))}
+        {/* Stats and Graphs */}
+        <div className="lg:col-span-3 flex flex-col gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
+            {STATS.map((stat) => (
+              <StatBar
+                key={stat.key}
+                label={stat.label}
+                value={game[stat.key as keyof GameData] as number}
+                icon={stat.icon}
+                color={stat.color}
+                previousValue={
+                  previousGame
+                    ? (previousGame[stat.key as keyof GameData] as number)
+                    : undefined
+                }
+                projectedGain={projectedInvestments?.[stat.key]}
+              />
+            ))}
+          </div>
+
+          <ImpactGraph currentGame={game} previousGame={previousGame} />
         </div>
       </div>
     </div>

@@ -85,9 +85,20 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
                 </span>
 
                 <div className="flex-1">
-                  <p className={`text-[13px] ${isSelected ? "text-cyan-100 font-semibold" : "text-slate-200"}`}>
-                    {choice.text}
-                  </p>
+                  <div className="flex justify-between items-start gap-2">
+                    <p className={`text-[13px] ${isSelected ? "text-cyan-100 font-semibold" : "text-slate-200"}`}>
+                      {choice.text}
+                    </p>
+                    {choice.effects.budget !== undefined && choice.effects.budget !== 0 && (
+                      <span className={`flex-shrink-0 text-[11px] px-2 py-0.5 rounded font-bold ${
+                        choice.effects.budget > 0 
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+                          : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      }`}>
+                        {choice.effects.budget > 0 ? `+$${choice.effects.budget}` : `-$${Math.abs(choice.effects.budget)}`}
+                      </span>
+                    )}
+                  </div>
                   
                   {/* Hint is always visible but subtle */}
                   <p className="text-[11px] text-slate-500 italic mt-2">
