@@ -58,6 +58,9 @@ function GameContent() {
   // Phase: "event" | "invest"
   const [phase, setPhase] = useState<"event" | "invest">("event");
 
+  // Projected Investments
+  const [projectedInvestments, setProjectedInvestments] = useState<Record<string, number>>({});
+
   // Tutorial modal state
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
@@ -123,6 +126,10 @@ function GameContent() {
     playClickSound();
     setActionLoading(true);
 
+    // OPTIMISTIC UI: Anında tepki ver
+    setCurrentEvent(null);
+    setPhase("invest");
+
     try {
       const res = await fetch("/api/game/choice", {
         method: "POST",
@@ -171,6 +178,16 @@ function GameContent() {
   const handleNextTurn = async () => {
     if (!game || actionLoading) return;
     setActionLoading(true);
+
+    // OPTIMISTIC UI: Sunucuyu beklemeden geçiş ekranını başlat
+    setTurnData({
+      turnNumber: game.turn + 1,
+      taxIncome: 0,
+      maintenanceCost: 0,
+      dominoEffects: [],
+      tradeIncome: 0,
+    });
+    setShowTransition(true);
 
     try {
       playTurnSound();
@@ -346,7 +363,7 @@ function GameContent() {
         {/* DASHBOARD */}
         {activeTab === "dashboard" && (
           <div className="animate-fade-in flex flex-col gap-4">
-            <Dashboard game={game} previousGame={previousGame || undefined} />
+            <Dashboard game={game} previousGame={previousGame || undefined} projectedInvestments={projectedInvestments} />
           </div>
         )}
 
@@ -375,6 +392,8 @@ function GameContent() {
             <div>
               <InvestmentPanel
                 budget={game.budget}
+                gameData={game}
+                onProjectedGainsChange={setProjectedInvestments}
                 onInvest={handleInvest}
                 onNextTurn={handleNextTurn}
                 disabled={actionLoading || (phase === "event" && !!currentEvent)}

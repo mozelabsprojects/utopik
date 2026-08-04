@@ -6,9 +6,10 @@ interface StatBarProps {
   icon: string;
   color: string;
   previousValue?: number;
+  projectedGain?: number;
 }
 
-export default function StatBar({ label, value, icon, color, previousValue }: StatBarProps) {
+export default function StatBar({ label, value, icon, color, previousValue, projectedGain }: StatBarProps) {
   const isCritical = value < 30;
   const diff = previousValue !== undefined ? value - previousValue : 0;
 
@@ -41,6 +42,11 @@ export default function StatBar({ label, value, icon, color, previousValue }: St
               } animate-fade-in`}
             >
               {diff > 0 ? `+${diff}` : diff}
+            </span>
+          )}
+          {projectedGain !== undefined && projectedGain > 0 && (
+            <span className="text-xs font-bold text-green-300 animate-pulse drop-shadow-md">
+              +{projectedGain}
             </span>
           )}
           <span

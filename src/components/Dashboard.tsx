@@ -21,6 +21,7 @@ interface GameData {
 interface DashboardProps {
   game: GameData;
   previousGame?: GameData;
+  projectedInvestments?: Record<string, number>;
 }
 
 const STATS = [
@@ -33,7 +34,7 @@ const STATS = [
   { key: "foreignRelations", label: "Dış İlişkiler", icon: "🌍", color: "#06b6d4" },
 ];
 
-export default function Dashboard({ game, previousGame }: DashboardProps) {
+export default function Dashboard({ game, previousGame, projectedInvestments }: DashboardProps) {
   return (
     <div className="tutorial-dashboard glass-strong rounded-2xl p-5 animate-slide-up">
       {/* Header */}
@@ -74,6 +75,7 @@ export default function Dashboard({ game, previousGame }: DashboardProps) {
                   ? (previousGame[stat.key as keyof GameData] as number)
                   : undefined
               }
+              projectedGain={projectedInvestments?.[stat.key]}
             />
           ))}
         </div>

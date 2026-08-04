@@ -23,13 +23,13 @@ const BANKRUPTCY_DURATION = 3;
 // A. BAKIM MALİYETLERİ
 // ============================================
 export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0): number {
-  // Temel lineer maliyetler (artırıldı)
-  let cost = (military * 3.0) + (health * 2.5) + (education * 2.0);
+  // Temel lineer maliyetler (düşürüldü - daha oynanabilir)
+  let cost = (military * 2.0) + (health * 1.5) + (education * 1.5);
   
-  // 50'yi aşan her stat için üstel (exponential) maliyet - Kartopu etkisini engeller
-  if (military > 50) cost += Math.pow(military - 50, 1.8) * 1.5;
-  if (health > 50) cost += Math.pow(health - 50, 1.8) * 1.2;
-  if (education > 50) cost += Math.pow(education - 50, 1.8) * 1.0;
+  // 50'yi aşan her stat için üstel (exponential) maliyet - Kartopu etkisini engeller (yumuşatıldı)
+  if (military > 50) cost += Math.pow(military - 50, 1.5) * 1.0;
+  if (health > 50) cost += Math.pow(health - 50, 1.5) * 0.8;
+  if (education > 50) cost += Math.pow(education - 50, 1.5) * 0.7;
   
   if (eventFlags.includes("LEADER_GENERAL")) {
     cost = cost * 0.8; // General: Tüm bakım masrafları %20 daha ucuz
@@ -305,14 +305,22 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   if (state.budget < 0 && !state.isBankrupt) {
     state.isBankrupt = true;
     state.bankruptTurns = BANKRUPTCY_DURATION;
-    turnReports.push(`☠️ DEVLET İFLAS ETTİ! Maliyetler arttı.`);
+    state.happiness = clampStat(state.happiness - 15);
+    state.stability = clampStat(state.stability - 15);
+    turnReports.push(`☠️ DEVLET İFLAS ETTİ! Memur maaşları ödenemiyor, halk isyan eşiğinde (Mutluluk ve İstikrar -15).`);
   } else if (state.isBankrupt) {
+    if (state.budget < 0) {
+      state.happiness = clampStat(state.happiness - 10);
+      state.stability = clampStat(state.stability - 10);
+      turnReports.push(`🚨 İFLAS SÜRÜYOR: Ülke iflas durumunda olduğu için halk çok mutsuz (Mutluluk ve İstikrar -10).`);
+    }
+    
     if (state.bankruptTurns > 0) {
       state.bankruptTurns--;
     }
     if (state.bankruptTurns === 0 && state.budget >= 0) {
       state.isBankrupt = false;
-      turnReports.push(`✅ İflas dönemi sona erdi.`);
+      turnReports.push(`✅ İflas dönemi sona erdi. Ekonomi toparlanıyor.`);
     }
   }
 

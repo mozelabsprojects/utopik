@@ -62,7 +62,8 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.values(POLICIES).map((policy) => {
           const isActive = activeLaws.includes(policy.id);
-          const canAfford = gameState.politicalCapital >= policy.politicalCost;
+          const cost = isActive ? Math.max(1, Math.round(policy.politicalCost / 2)) : policy.politicalCost;
+          const canAfford = gameState.politicalCapital >= cost;
 
           return (
             <div key={policy.id} className={`p-5 rounded-xl border transition-all ${isActive ? 'bg-cyan-900/30 border-cyan-500/50' : 'bg-white/5 border-white/10 hover:border-white/30'}`}>
@@ -71,21 +72,22 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
                   {policy.name} {isActive && "✓"}
                 </h3>
                 <span className="text-xs bg-black/50 px-2 py-1 rounded text-gray-400">
-                  Maliyet: {policy.politicalCost}
+                  Maliyet: {policy.politicalCost} | İptal: {Math.max(1, Math.round(policy.politicalCost / 2))}
                 </span>
               </div>
               <p className="text-sm text-gray-400 mb-4 h-10">{policy.description}</p>
               
               <button
                 onClick={() => handlePolicyAction(policy.id, isActive ? "repeal" : "enact")}
-                disabled={isProcessing || (!isActive && !canAfford)}
+                disabled={isProcessing || !canAfford}
                 className={`w-full py-2 rounded-lg font-bold text-sm transition-colors ${
+                  !canAfford ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' :
                   isActive 
                     ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
-                    : 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed'
+                    : 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30'
                 }`}
               >
-                {isProcessing ? "İşleniyor..." : (isActive ? "Yasayı İptal Et" : "Yasayı Geçir")}
+                {isProcessing ? "İşleniyor..." : (isActive ? `Yasayı İptal Et (Maliyet: ${cost})` : `Yasayı Geçir (Maliyet: ${cost})`)}
               </button>
             </div>
           );

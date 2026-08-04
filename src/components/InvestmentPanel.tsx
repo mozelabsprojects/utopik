@@ -27,6 +27,8 @@ interface InvestmentPanelProps {
   onInvest: (sector: Sector, amount: number) => void;
   onNextTurn: () => void;
   disabled?: boolean;
+  gameData?: any;
+  onProjectedGainsChange?: (gains: Record<string, number>) => void;
 }
 
 export default function InvestmentPanel({
@@ -34,6 +36,8 @@ export default function InvestmentPanel({
   onInvest,
   onNextTurn,
   disabled,
+  gameData,
+  onProjectedGainsChange,
 }: InvestmentPanelProps) {
   const [investments, setInvestments] = useState<Record<Sector, number>>({
     military: 0,
@@ -53,10 +57,30 @@ export default function InvestmentPanel({
     const maxForThis = Math.max(0, budget - otherTotal);
     const clampedValue = Math.min(value, maxForThis);
 
-    setInvestments((prev) => ({
-      ...prev,
-      [sector]: clampedValue,
-    }));
+    const newInvestments = { ...investments, [sector]: clampedValue };
+    setInvestments(newInvestments);
+
+    if (gameData && onProjectedGainsChange) {
+      const efficiencyMultiplier = 1 + (gameData.education > 50 ? (gameData.education - 50) / 100 : 0);
+      const gains: Record<string, number> = {};
+      
+      for (const [sec, amount] of Object.entries(newInvestments)) {
+        if (amount <= 0) continue;
+        const effectiveAmount = amount * efficiencyMultiplier;
+        let currentStat = 50;
+        switch(sec) {
+          case "military": currentStat = gameData.military; break;
+          case "health": currentStat = gameData.health; break;
+          case "education": currentStat = gameData.education; break;
+          case "environment": currentStat = gameData.environment; break;
+          case "stability": currentStat = gameData.stability; break;
+          case "foreignRelations": currentStat = gameData.foreignRelations; break;
+        }
+        const costPerPoint = 100 + Math.pow(currentStat, 1.2) * 4;
+        gains[sec] = Math.round(effectiveAmount / costPerPoint);
+      }
+      onProjectedGainsChange(gains);
+    }
   };
 
   const handleInvestAll = async () => {
@@ -73,6 +97,7 @@ export default function InvestmentPanel({
       stability: 0,
       foreignRelations: 0,
     });
+    if (onProjectedGainsChange) onProjectedGainsChange({});
   };
 
   const sectors = Object.keys(SECTOR_LABELS) as Sector[];
