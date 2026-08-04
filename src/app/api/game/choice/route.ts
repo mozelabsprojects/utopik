@@ -7,7 +7,7 @@ import { INITIAL_FACTIONS, modifyFactionSupport } from "@/lib/factions";
 
 export async function POST(request: Request) {
   try {
-    const { gameId, choiceLabel } = await request.json();
+    const { gameId, choiceLabel, eventId } = await request.json();
 
     const game = await prisma.game.findUnique({ where: { id: gameId } });
     if (!game) {
@@ -22,7 +22,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Aktif olay yok" }, { status: 400 });
     }
 
-    const event = getEventById(game.currentEventId);
+    let currentEventIds: string[] = [];
+    try {
+      currentEventIds = JSON.parse(game.currentEventId);
+      if (!Array.isArray(currentEventIds)) {
+        currentEventIds = [game.currentEventId];
+      }
+    } catch (e) {
+      // Geriye dönük uyumluluk: eski save'lerde JSON formatında değildi
+      currentEventIds = [game.currentEventId];
+    }
+
+    if (eventId && !currentEventIds.includes(eventId)) {
+       return NextResponse.json({ error: "Bu olay mevcut aktif olaylar arasında değil" }, { status: 400 });
+    }
+
+    // Eğer eventId gönderilmediyse, backward compatibility için ilkini al
+    const targetEventId = eventId || currentEventIds[0];
+
+    const event = getEventById(targetEventId);
     if (!event) {
       return NextResponse.json({ error: "Olay bulunamadı" }, { status: 400 });
     }
@@ -87,6 +105,10 @@ export async function POST(request: Request) {
       eventFlagsStr = JSON.stringify(newFlags);
     }
 
+    // Listeden çözülen eventi çıkar
+    const remainingEventIds = currentEventIds.filter(id => id !== targetEventId);
+    const newCurrentEventIdValue = remainingEventIds.length > 0 ? JSON.stringify(remainingEventIds) : null;
+
     // Veritabanını güncelle
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
@@ -103,7 +125,7 @@ export async function POST(request: Request) {
         politicalCapital: newState.politicalCapital,
         factions: factionsStr,
         eventFlags: eventFlagsStr,
-        currentEventId: null, // Olay çözüldü
+        currentEventId: newCurrentEventIdValue,
       },
     });
 

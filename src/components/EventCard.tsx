@@ -43,8 +43,7 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="tutorial-event bg-slate-900/80 rounded-3xl p-5 shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-slate-700 backdrop-blur-md relative overflow-hidden"
+      className="tutorial-event bg-slate-900/80 rounded-3xl p-4 shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-700 backdrop-blur-md relative overflow-hidden"
     >
       {/* Holographic accent */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 opacity-50"></div>
@@ -58,12 +57,12 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
       </div>
 
       {/* Title */}
-      <h3 className="text-2xl font-bold text-slate-100 mb-4 leading-tight">
+      <h3 className="text-xl font-bold text-slate-100 mb-2 leading-tight">
         {event.title}
       </h3>
 
       {/* Description */}
-      <p className="text-slate-300 leading-relaxed mb-4 text-sm border-l-2 border-slate-600 pl-4 py-1">
+      <p className="text-slate-300 leading-relaxed mb-3 text-[13px] border-l-2 border-slate-600 pl-3 py-1">
         {event.description}
       </p>
 
@@ -144,7 +143,7 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
                     animate={{ scale: 1, opacity: 1, rotate: -5 }}
                     className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
                   >
-                    <div className="border-4 border-red-500 text-red-500 text-3xl font-black uppercase tracking-widest p-2 rounded shadow-[0_0_15px_rgba(239,68,68,0.5)] bg-slate-900/40 backdrop-blur-sm transform -rotate-12">
+                    <div className="border-[3px] border-red-500 text-red-500 text-xl font-black uppercase tracking-widest px-2 py-1 rounded shadow-[0_0_10px_rgba(239,68,68,0.5)] bg-slate-900/40 backdrop-blur-sm transform -rotate-12">
                       ONAYLANDI
                     </div>
                   </motion.div>

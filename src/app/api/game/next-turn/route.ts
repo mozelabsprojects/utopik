@@ -237,8 +237,8 @@ export async function POST(request: Request) {
     const newState = turnResult.gameState;
 
     // Kullanılmış olay ID'lerini güncelle
-    if (turnResult.newEvent) {
-      usedIds.push(turnResult.newEvent.id);
+    if (turnResult.newEvents && turnResult.newEvents.length > 0) {
+      turnResult.newEvents.forEach(e => usedIds.push(e.id));
     }
 
     // Veritabanını güncelle
@@ -305,7 +305,7 @@ export async function POST(request: Request) {
         maintenanceCost: turnResult.maintenanceCost,
         dominoEffects: turnResult.dominoEffects,
         tradeIncome: turnResult.tradeIncome,
-        newEvent: turnResult.newEvent,
+        newEvents: turnResult.newEvents,
       },
     });
   } catch (error) {

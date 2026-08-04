@@ -30,9 +30,22 @@ export async function GET(request: Request) {
       );
     }
 
-    const currentEvent = game.currentEventId
-      ? getEventById(game.currentEventId)
-      : null;
+    let currentEvents = [];
+    if (game.currentEventId) {
+      try {
+        const parsedIds = JSON.parse(game.currentEventId);
+        if (Array.isArray(parsedIds)) {
+          currentEvents = parsedIds.map(id => getEventById(id)).filter(e => e !== undefined);
+        } else {
+          const ev = getEventById(game.currentEventId);
+          if (ev) currentEvents = [ev];
+        }
+      } catch (e) {
+        // Eski kayıtlarda doğrudan ID olarak tutuluyordu
+        const ev = getEventById(game.currentEventId);
+        if (ev) currentEvents = [ev];
+      }
+    }
 
     // Oyuncunun güncel statlerini WorldCountry listesine anlık olarak (in-memory) yansıt (Sıralama Bug'ı Çözümü)
     const playerWC = game.worldCountries.find(c => c.isPlayer);
@@ -47,7 +60,7 @@ export async function GET(request: Request) {
       playerWC.foreignRelations = game.foreignRelations;
     }
 
-    return NextResponse.json({ game, currentEvent });
+    return NextResponse.json({ game, currentEvents });
   } catch (error) {
     console.error("Oyun durumu hatası:", error);
     return NextResponse.json(

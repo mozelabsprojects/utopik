@@ -1469,6 +1469,147 @@ export const EVENTS: GameEvent[] = [
         hint: "Devlet çöküşün eşiğine gelir ama insanlığın onuru kurtulur."
       }
     ]
+  },
+  // ==========================================
+  // MODERN, SOSYAL MEDYA VE GÜNDEM OLAYLARI
+  // ==========================================
+  {
+    id: "evt_tiktok_trend",
+    title: "Tehlikeli Sosyal Medya Akımı",
+    description: "Gençler arasında yayılan yeni bir TikTok akımı nedeniyle acil servisler dolup taşıyor. Okullar ve hastaneler alarma geçti.",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Uygulamayı geçici olarak yasakla",
+        effects: { happiness: -15, popularity: -10, stability: 5 },
+        hint: "Gençler öfkeli ama kazalar durdu.",
+      },
+      {
+        label: "B",
+        text: "Kamu spotu yayınla ve uyar",
+        effects: { budget: -1000, education: 5, health: -5 },
+        hint: "Masraflı ama özgürlüklere dokunulmadı.",
+      },
+      {
+        label: "C",
+        text: "Fenomenlerle anlaşıp karşı akım başlat",
+        effects: { budget: -2000, popularity: 15, happiness: 10 },
+        hint: "Z kuşağının dilinden anlayan bir lider!",
+      }
+    ]
+  },
+  {
+    id: "evt_kpop_concert",
+    title: "K-Pop Konseri İzdihamı",
+    description: "Dünyaca ünlü bir K-Pop grubu ülkemize geldi ancak konser alanındaki organizasyon eksikliği nedeniyle büyük bir izdiham yaşanıyor.",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Polis ve askeri birliği stadyuma yolla",
+        effects: { military: -5, stability: 10, happiness: -5 },
+        hint: "Sert müdahale düzeni sağlar ama tepki çeker.",
+      },
+      {
+        label: "B",
+        text: "Belediye bütçesinden acil destek sağla",
+        effects: { budget: -1500, health: 5, popularity: 5 },
+        hint: "Yaralılar hızlıca tedavi edildi.",
+      }
+    ]
+  },
+  {
+    id: "evt_ai_copyright",
+    title: "Yapay Zeka Telif Krizi",
+    description: "Ülkedeki sanatçılar ve yazarlar, eserlerinin yapay zeka modelleri tarafından izinsiz kullanıldığını iddia ederek dev bir eylem başlattı.",
+    category: "ic_politika",
+    choices: [
+      {
+        label: "A",
+        text: "Sanatçıları koruyan katı bir yasa çıkar",
+        effects: { education: -10, happiness: 5, stability: 5 },
+        hint: "Teknolojik gelişim yavaşlayabilir ama sanatçılar mutlu.",
+      },
+      {
+        label: "B",
+        text: "YZ şirketlerine tam destek ver",
+        effects: { education: 15, happiness: -10, popularity: -10 },
+        hint: "Gelecek teknolojide, ancak halkın bir kısmı işsiz kalmaktan korkuyor.",
+      },
+      {
+        label: "C",
+        text: "Özel bir 'YZ Telif Fonu' kur (Sanatçılara ödeme yap)",
+        effects: { budget: -5000, happiness: 10, education: 5 },
+        hint: "Pahalı ama herkesi memnun eden bir orta yol.",
+      }
+    ]
+  },
+  {
+    id: "evt_crypto_crash",
+    title: "Kripto Borsası Çöktü",
+    description: "Ülkenin en büyük yerel kripto borsasının kurucusu, milyarlarca dolarlık fonla yurt dışına kaçtı. Yüz binlerce genç yatırımcı mağdur.",
+    category: "ekonomi",
+    choices: [
+      {
+        label: "A",
+        text: "Zararları devlet kasasından karşıla",
+        effects: { budget: -10000, popularity: 15, happiness: 15 },
+        hint: "Ekonomi ağır darbe alır ama oylar garanti.",
+      },
+      {
+        label: "B",
+        text: "Sadece hukuki süreç başlat",
+        effects: { stability: -10, happiness: -15, foreignRelations: 5 },
+        hint: "Halk öfkeli, protestolar başlıyor.",
+      },
+      {
+        label: "C",
+        text: "Kripto paraları tamamen yasakla",
+        effects: { stability: 15, education: -5, popularity: -15 },
+        hint: "Radikal bir çözüm, yenilikçiler ülkeyi terk edebilir.",
+      }
+    ]
+  },
+  {
+    id: "evt_influencer_scandal",
+    title: "Fenomen Skandalı",
+    description: "Hükümetin gençlik projelerini tanıtan en ünlü Influencer'ın, gizli kamera görüntüleri ve yasa dışı bahis reklamları sızdırıldı.",
+    category: "ic_politika",
+    choices: [
+      {
+        label: "A",
+        text: "Anlaşmayı derhal iptal et ve dava aç",
+        effects: { stability: 5, popularity: 5, happiness: 5 },
+        hint: "Doğru olanı yaptın, itibar kurtarıldı.",
+      },
+      {
+        label: "B",
+        text: "Olayı örtbas etmeye çalış",
+        effects: { budget: -2000, stability: -15, popularity: -20 },
+        hint: "Medya her şeyi öğrendi, büyük bir fiyasko!",
+      }
+    ]
+  },
+  {
+    id: "evt_esports_world",
+    title: "E-Spor Dünya Şampiyonası",
+    description: "Ülkemizin takımı E-Spor Dünya Şampiyonası'nda finale çıktı. Gençler sokaklara döküldü, dev ekranlar kurulmasını istiyorlar.",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Şehir meydanlarına dev ekranlar kur",
+        effects: { budget: -1500, happiness: 20, popularity: 15 },
+        hint: "Milli gurur yaşandı, Z kuşağı seni çok seviyor.",
+      },
+      {
+        label: "B",
+        text: "Bütçe ayıramayız, evlerinden izlesinler",
+        effects: { happiness: -10, popularity: -5 },
+        hint: "Küçük bir bütçe tasarrufu, ama büyük bir halkla ilişkiler hezimeti.",
+      }
+    ]
   }
 ];
 
@@ -1518,6 +1659,64 @@ export function getRandomEvent(usedEventIds: string[], eventFlags: string[] = []
 
   const randomIndex = Math.floor(Math.random() * availableEvents.length);
   return availableEvents[randomIndex];
+}
+
+/**
+ * Birden fazla rastgele olay çeken yeni fonksiyon (Çoklu etkinlik sistemi için)
+ */
+export function getRandomEvents(count: number, usedEventIds: string[] = [], eventFlags: string[] = [], state?: GameState): GameEvent[] {
+  const availableEvents = EVENTS.filter((e) => {
+    // 1. Daha önce kullanılmış mı?
+    if (usedEventIds.includes(e.id)) return false;
+
+    // 2. Olayın gerektirdiği bayraklar (flags) var mı?
+    if (e.requiredFlags && e.requiredFlags.length > 0) {
+      const hasAllRequired = e.requiredFlags.every(flag => eventFlags.includes(flag));
+      if (!hasAllRequired) return false;
+    }
+
+    // 3. Olayın yasakladığı bayraklar var mı?
+    if (e.forbiddenFlags && e.forbiddenFlags.length > 0) {
+      const hasAnyForbidden = e.forbiddenFlags.some(flag => eventFlags.includes(flag));
+      if (hasAnyForbidden) return false;
+    }
+
+    // 4. Özel şart (Condition) kontrolü
+    if (e.condition && state) {
+      if (!e.condition(state)) return false;
+    }
+
+    return true;
+  });
+
+  const selectedEvents: GameEvent[] = [];
+  
+  // Eğer hiç uygun event yoksa veya istenenden azsa, fallback havuzundan çek
+  let pool = [...availableEvents];
+  
+  for (let i = 0; i < count; i++) {
+    if (pool.length === 0) {
+      // Fallback havuzunu oluştur
+      const recentEvents = usedEventIds.slice(-5);
+      let fallbackPool = EVENTS.filter(e => (!e.requiredFlags || e.requiredFlags.length === 0) && !recentEvents.includes(e.id) && !selectedEvents.find(se => se.id === e.id));
+      
+      if (fallbackPool.length === 0) {
+        fallbackPool = EVENTS.filter(e => (!e.requiredFlags || e.requiredFlags.length === 0) && !selectedEvents.find(se => se.id === e.id));
+      }
+      
+      if (fallbackPool.length > 0) {
+        const randomIndex = Math.floor(Math.random() * fallbackPool.length);
+        selectedEvents.push(fallbackPool[randomIndex]);
+        pool = pool.filter(e => e.id !== fallbackPool[randomIndex].id); // Yedek havuzdan aynı şeyi çekmesin
+      }
+    } else {
+      const randomIndex = Math.floor(Math.random() * pool.length);
+      selectedEvents.push(pool[randomIndex]);
+      pool.splice(randomIndex, 1); // Çekilen olayı havuzdan çıkar
+    }
+  }
+  
+  return selectedEvents;
 }
 
 /**

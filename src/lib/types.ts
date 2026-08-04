@@ -118,7 +118,7 @@ export interface TurnResult {
   maintenanceCost: number;
   dominoEffects: DominoEffect[];
   tradeIncome: number;
-  newEvent: GameEvent | null;
+  newEvents: GameEvent[];
   gameState: GameState;
 }
 

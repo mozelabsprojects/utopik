@@ -3,7 +3,7 @@
 // Tüm hesaplamalar, domino etkileri ve denge
 // =============================================
 import { StatEffects, DominoEffect, TurnResult, GameState } from "./types";
-import { getRandomEvent, EVENTS } from "./events-data";
+import { getRandomEvents, EVENTS } from "./events-data";
 import { FactionsState, modifyFactionSupport, INITIAL_FACTIONS, FactionId } from "./factions";
 import { CRISES, CrisisId } from "./crises-missions";
 import { POLICIES, PolicyId } from "./policies";
@@ -466,19 +466,24 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // 11. Tur sayısını artır
   state.turn += 1;
 
-  // 12. Yeni olay seç (artık gerçekten kullanılmış olay ID'leri filtreleniyor ve şartlar kontrol ediliyor)
-  let newEvent = getRandomEvent(usedEventIds, eventFlags, state);
+  // 12. Yeni olayları seç (1 ila 4 arası)
+  const eventCount = Math.floor(Math.random() * 4) + 1; // 1, 2, 3 veya 4
+  let newEvents = getRandomEvents(eventCount, usedEventIds, eventFlags, state);
 
   // --- BLACK SWAN (SİYAH KUĞU) ETKİNLİKLERİ TETİKLEYİCİLERİ ---
   if (state.bankruptTurns === 2 && !usedEventIds.includes("omnicorp_buyout")) {
     const omniCorp = EVENTS.find(e => e.id === "omnicorp_buyout");
-    if (omniCorp) newEvent = omniCorp;
+    if (omniCorp && !newEvents.find(e => e.id === "omnicorp_buyout")) newEvents.unshift(omniCorp);
   } else if (state.military >= 90 && !usedEventIds.includes("global_embargo")) {
     const embargo = EVENTS.find(e => e.id === "global_embargo");
-    if (embargo) newEvent = embargo;
+    if (embargo && !newEvents.find(e => e.id === "global_embargo")) newEvents.unshift(embargo);
   }
 
-  state.currentEventId = newEvent.id;
+  // Maksimum 4 olay tutmak için Black Swan gelirse listeyi 4'e kırpabiliriz (opsiyonel, şimdilik böyle kalabilir)
+  if (newEvents.length > 4) newEvents = newEvents.slice(0, 4);
+
+  // Artık currentEventId yerine array olarak stringleştirip yazacağız (api tarafında da parse edeceğiz)
+  state.currentEventId = JSON.stringify(newEvents.map(e => e.id));
 
   // 13. Yeni Dilekçe Ekle (Her 3 turda bir)
   if (state.turn % 3 === 0 && activePetitions.length < 3) {
@@ -502,7 +507,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     maintenanceCost,
     dominoEffects: [],
     tradeIncome,
-    newEvent,
+    newEvents,
     gameState: state,
   };
 }

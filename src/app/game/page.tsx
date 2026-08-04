@@ -35,7 +35,7 @@ function GameContent() {
 
   const [game, setGame] = useState<GameData | null>(null);
   const [previousGame, setPreviousGame] = useState<GameData | null>(null);
-  const [currentEvent, setCurrentEvent] = useState<GameEvent | null>(null);
+  const [currentEvents, setCurrentEvents] = useState<GameEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -93,7 +93,7 @@ function GameContent() {
       } else {
         localStorage.removeItem("utopik_save_id");
       }
-      setCurrentEvent(data.currentEvent);
+      setCurrentEvents(data.currentEvents || []);
 
       if (data.game.currentEventId) {
         setPhase("event");
@@ -165,22 +165,24 @@ function GameContent() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [gameId]);
 
-  const handleChoice = async (label: string) => {
+  const handleChoice = async (eventId: string, label: string) => {
     if (!game || actionLoading) return;
     playClickSound();
     setActionLoading(true);
 
     // OPTIMISTIC UI: Anında tepki ver
-    const previousEvent = currentEvent;
+    const previousEvents = [...currentEvents];
     const previousPhase = phase;
-    setCurrentEvent(null);
-    setPhase("invest");
+    
+    const remainingEvents = currentEvents.filter(e => e.id !== eventId);
+    setCurrentEvents(remainingEvents);
+    if (remainingEvents.length === 0) setPhase("invest");
 
     try {
       const res = await fetch("/api/game/choice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameId: game.id, choiceLabel: label }),
+        body: JSON.stringify({ gameId: game.id, choiceLabel: label, eventId }),
       });
 
       if (!res.ok) throw new Error("Seçim uygulanamadı");
@@ -188,12 +190,15 @@ function GameContent() {
 
       setPreviousGame(game);
       setGame(data.game);
-      setCurrentEvent(null);
-      setPhase("invest");
+      // Backend'den currentEventId stringini alıp parse edebiliriz ama optimistic update yeterli.
+      // Sadece veritabanından gelen game state'i güncelliyoruz.
+      if (!data.game.currentEventId) {
+        setPhase("invest");
+      }
     } catch (error) {
       console.error("Seçim hatası:", error);
       // HATA DURUMUNDA ARAYÜZÜ GERİ AL (F5 Atmaya gerek kalmaz)
-      setCurrentEvent(previousEvent);
+      setCurrentEvents(previousEvents);
       setPhase(previousPhase);
       alert("Seçim işlenirken bir ağ hatası oluştu, lütfen tekrar deneyin.");
     } finally {
@@ -284,7 +289,7 @@ function GameContent() {
         localStorage.removeItem("utopik_save_id");
       }
 
-      setCurrentEvent(data.turnResult.newEvent);
+      setCurrentEvents(data.turnResult.newEvents || []);
       setPhase("event");
 
       try {
@@ -424,12 +429,17 @@ function GameContent() {
         {activeTab === "decisions" && (
           <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
-              {phase === "event" && currentEvent ? (
-                <EventCard
-                  event={currentEvent}
-                  onChoice={handleChoice}
-                  disabled={actionLoading}
-                />
+              {phase === "event" && currentEvents.length > 0 ? (
+                <div className="space-y-4">
+                  {currentEvents.map(event => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      onChoice={(label) => handleChoice(event.id, label)}
+                      disabled={actionLoading}
+                    />
+                  ))}
+                </div>
               ) : phase === "invest" ? (
                 <div className="glass-strong rounded-2xl p-4 animate-slide-up flex flex-col items-center justify-center h-full min-h-[200px]">
                   <div className="text-4xl mb-2">✅</div>
