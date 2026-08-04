@@ -5,6 +5,7 @@ import { DominoEffect } from "@/lib/types";
 
 interface TurnTransitionProps {
   isVisible: boolean;
+  isDataReady: boolean;
   turnNumber: number;
   taxIncome: number;
   maintenanceCost: number;
@@ -14,6 +15,7 @@ interface TurnTransitionProps {
 
 export default function TurnTransition({
   isVisible,
+  isDataReady,
   turnNumber,
   taxIncome,
   maintenanceCost,
@@ -25,17 +27,25 @@ export default function TurnTransition({
   useEffect(() => {
     if (isVisible) {
       setPhase("loading");
-      const timer1 = setTimeout(() => setPhase("results"), 1500);
-      const timer2 = setTimeout(() => {
+    }
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (phase === "loading" && isDataReady) {
+      const timer = setTimeout(() => setPhase("results"), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, isDataReady]);
+
+  useEffect(() => {
+    if (phase === "results") {
+      const timer = setTimeout(() => {
         setPhase("hidden");
         onComplete();
-      }, 4500);
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-      };
+      }, 3500);
+      return () => clearTimeout(timer);
     }
-  }, [isVisible, onComplete]);
+  }, [phase, onComplete]);
 
   if (phase === "hidden") return null;
 

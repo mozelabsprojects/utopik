@@ -44,6 +44,7 @@ function GameContent() {
 
   // Turn transition state
   const [showTransition, setShowTransition] = useState(false);
+  const [isTransitionDataReady, setIsTransitionDataReady] = useState(false);
   const [turnData, setTurnData] = useState({
     turnNumber: 0,
     taxIncome: 0,
@@ -235,13 +236,8 @@ function GameContent() {
     setActionLoading(true);
 
     // OPTIMISTIC UI: Sunucuyu beklemeden geçiş ekranını başlat
-    setTurnData({
-      turnNumber: game.turn + 1,
-      taxIncome: 0,
-      maintenanceCost: 0,
-      dominoEffects: [],
-      tradeIncome: 0,
-    });
+    // Data henüz hazır değil.
+    setIsTransitionDataReady(false);
     setShowTransition(true);
 
     try {
@@ -277,7 +273,7 @@ function GameContent() {
         dominoEffects: data.turnResult.dominoEffects,
         tradeIncome: data.turnResult.tradeIncome || 0,
       });
-      setShowTransition(true);
+      setIsTransitionDataReady(true);
 
       // Update game state after transition
       setPreviousGame(game);
@@ -559,6 +555,7 @@ function GameContent() {
       {/* Turn transition overlay */}
       <TurnTransition
         isVisible={showTransition}
+        isDataReady={isTransitionDataReady}
         turnNumber={turnData.turnNumber}
         taxIncome={turnData.taxIncome}
         maintenanceCost={turnData.maintenanceCost}
