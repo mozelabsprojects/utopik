@@ -109,6 +109,22 @@ export async function POST(request: Request) {
     const remainingEventIds = currentEventIds.filter(id => id !== targetEventId);
     const newCurrentEventIdValue = remainingEventIds.length > 0 ? JSON.stringify(remainingEventIds) : null;
 
+    // Piyasayı (Borsayı) Etkile (Kelebek Etkisi / Piyasa Manipülasyonu)
+    let marketStateStr = game.marketState;
+    if (choice.marketEffects) {
+      try {
+        const marketState = JSON.parse(game.marketState);
+        for (const [key, multiplier] of Object.entries(choice.marketEffects)) {
+          if (marketState.prices[key]) {
+            marketState.prices[key] = Math.round(Math.max(10, marketState.prices[key] * (multiplier as number)));
+          }
+        }
+        marketStateStr = JSON.stringify(marketState);
+      } catch (e) {
+        console.error("Market state parse error:", e);
+      }
+    }
+
     // Veritabanını güncelle
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
@@ -126,6 +142,7 @@ export async function POST(request: Request) {
         factions: factionsStr,
         eventFlags: eventFlagsStr,
         currentEventId: newCurrentEventIdValue,
+        marketState: marketStateStr
       },
     });
 

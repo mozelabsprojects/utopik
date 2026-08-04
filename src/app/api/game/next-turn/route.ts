@@ -73,16 +73,68 @@ export async function POST(request: Request) {
     try { factions = JSON.parse(game.factions); } catch { factions = INITIAL_FACTIONS; }
     if (Object.keys(factions).length === 0) factions = INITIAL_FACTIONS;
 
-    let marketState: MarketState = { prices: { energy: 100, food: 50, tech: 200 }, inventory: { energy: 0, food: 0, tech: 0 } };
+    let marketState: MarketState = { 
+      prices: { energy: 100, food: 50, tech: 200, medical: 150, arms: 300, minerals: 80 }, 
+      inventory: { energy: 0, food: 0, tech: 0, medical: 0, arms: 0, minerals: 0 },
+      history: []
+    };
     try {
       const parsedMarket = JSON.parse(game.marketState);
-      if (parsedMarket.prices && parsedMarket.inventory) marketState = parsedMarket;
+      if (parsedMarket.prices && parsedMarket.inventory) {
+        marketState = {
+          ...parsedMarket,
+          prices: { ...marketState.prices, ...parsedMarket.prices },
+          inventory: { ...marketState.inventory, ...parsedMarket.inventory },
+          history: parsedMarket.history || []
+        };
+      }
     } catch {}
 
-    // Borsa Fiyat Dalgalanması (±%20) ve Limitler
-    marketState.prices.energy = Math.min(250, Math.max(20, marketState.prices.energy * (0.8 + Math.random() * 0.4)));
-    marketState.prices.food = Math.min(150, Math.max(10, marketState.prices.food * (0.8 + Math.random() * 0.4)));
-    marketState.prices.tech = Math.min(500, Math.max(50, marketState.prices.tech * (0.8 + Math.random() * 0.4)));
+    let eventFlags: string[] = [];
+    try { eventFlags = JSON.parse(game.eventFlags || "[]"); } catch {}
+
+    // Borsa Fiyat Dalgalanması (Event'lere Göre Dinamik)
+    let multipliers = { energy: 1, food: 1, tech: 1, medical: 1, arms: 1, minerals: 1 };
+    
+    // Rastgele hafif dalgalanma (±%10)
+    for (const key of Object.keys(multipliers) as (keyof typeof multipliers)[]) {
+      multipliers[key] = 0.9 + Math.random() * 0.2;
+    }
+
+    // Event etkileri
+    if (eventFlags.includes("ENERGY_CRISIS")) multipliers.energy *= 1.5;
+    if (eventFlags.includes("WAR_PREPARATION") || isAtWar) multipliers.arms *= 1.6;
+    if (eventFlags.includes("WAR_PREPARATION") || isAtWar) multipliers.food *= 1.3;
+    if (eventFlags.includes("PANDEMIC") || eventFlags.includes("VIRUS_OUTBREAK")) multipliers.medical *= 1.8;
+    if (eventFlags.includes("TECH_BOOM")) multipliers.tech *= 1.4;
+    if (eventFlags.includes("MINING_STRIKE")) multipliers.minerals *= 1.5;
+    if (eventFlags.includes("ECONOMIC_BOOM")) {
+      multipliers.energy *= 1.2;
+      multipliers.minerals *= 1.3;
+      multipliers.tech *= 1.2;
+    }
+
+    marketState.prices.energy = Math.min(300, Math.max(20, marketState.prices.energy * multipliers.energy));
+    marketState.prices.food = Math.min(200, Math.max(10, marketState.prices.food * multipliers.food));
+    marketState.prices.tech = Math.min(800, Math.max(50, marketState.prices.tech * multipliers.tech));
+    marketState.prices.medical = Math.min(500, Math.max(30, marketState.prices.medical * multipliers.medical));
+    marketState.prices.arms = Math.min(1000, Math.max(50, marketState.prices.arms * multipliers.arms));
+    marketState.prices.minerals = Math.min(400, Math.max(20, marketState.prices.minerals * multipliers.minerals));
+
+    // Tam sayıya yuvarlama
+    for (const key of Object.keys(marketState.prices) as (keyof typeof marketState.prices)[]) {
+      marketState.prices[key] = Math.round(marketState.prices[key]);
+    }
+
+    // Geçmişe (History) kaydet
+    marketState.history.push({
+      turn: game.turn + 1, // Bir sonraki turun başı
+      prices: { ...marketState.prices }
+    });
+    // Sadece son 30 turu tut (optimizasyon)
+    if (marketState.history.length > 30) {
+      marketState.history.shift();
+    }
 
     // AI Ülkeleri ve Diplomasi simülasyonu
     for (const ai of game.worldCountries) {
@@ -232,7 +284,6 @@ export async function POST(request: Request) {
 
     // Tur hesaplamalarını çalıştır (usedEventIds ve eventFlags aktarılıyor)
     const usedIds: string[] = JSON.parse(game.usedEventIds || '[]');
-    const eventFlags: string[] = JSON.parse(game.eventFlags || '[]');
     const turnResult = processNextTurn(currentState, tradeIncome, usedIds, eventFlags);
     const newState = turnResult.gameState;
 

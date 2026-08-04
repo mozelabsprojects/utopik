@@ -18,7 +18,8 @@ export const EVENTS: GameEvent[] = [
         text: "Madeni devlet işletsin — Tüm gelir hazineye kalsın.",
         effects: { budget: 3000, stability: 5, environment: -10 },
         factionEffects: { workers: 10, capitalists: -10, nationalists: 10 },
-        hint: "Büyük gelir, ancak çevre kirliliği artar."
+        marketEffects: { minerals: 0.7 },
+        hint: "Büyük gelir, ancak çevre kirliliği artar. Mineral fiyatları düşer."
       },
       {
         label: "B",
@@ -1061,13 +1062,15 @@ export const EVENTS: GameEvent[] = [
         label: "A",
         text: "Nükleer santrali inşa et — enerji bağımsızlığı.",
         effects: { budget: -2000, environment: -12, education: 10, stability: 5, happiness: -8 }, factionEffects: { capitalists: -5, workers: -10, intellectuals: 0, nationalists: 10 },
-        hint: "Çok pahalı, çevre riski ama enerji güvenliği",
+        marketEffects: { energy: 0.5 },
+        hint: "Çok pahalı, çevre riski ama Enerji fiyatları borsada yarı yarıya düşer.",
       },
       {
         label: "B",
         text: "Yenilenebilir enerji yatırımı yap — güneş+rüzgar.",
         effects: { budget: -1200, environment: 15, education: 8, happiness: 8, stability: 3 }, factionEffects: { capitalists: -5, workers: 10, intellectuals: 10, nationalists: 10 },
-        hint: "Pahalı ama herkes memnun",
+        marketEffects: { energy: 0.8 },
+        hint: "Pahalı ama herkes memnun. Enerji fiyatları ucuzlar.",
       },
       {
         label: "C",
@@ -1696,12 +1699,22 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
   
   for (let i = 0; i < count; i++) {
     if (pool.length === 0) {
-      // Fallback havuzunu oluştur
+      // Fallback havuzunu oluştur (Özel hikayeleri ve büyük krizleri tekrar ettirme)
       const recentEvents = usedEventIds.slice(-5);
-      let fallbackPool = EVENTS.filter(e => (!e.requiredFlags || e.requiredFlags.length === 0) && !recentEvents.includes(e.id) && !selectedEvents.find(se => se.id === e.id));
+      let fallbackPool = EVENTS.filter(e => 
+        (!e.requiredFlags || e.requiredFlags.length === 0) && 
+        !e.id.includes("chain") && 
+        e.category !== "kriz" && 
+        !recentEvents.includes(e.id) && 
+        !selectedEvents.find(se => se.id === e.id)
+      );
       
       if (fallbackPool.length === 0) {
-        fallbackPool = EVENTS.filter(e => (!e.requiredFlags || e.requiredFlags.length === 0) && !selectedEvents.find(se => se.id === e.id));
+        fallbackPool = EVENTS.filter(e => 
+          (!e.requiredFlags || e.requiredFlags.length === 0) && 
+          !e.id.includes("chain") && 
+          !selectedEvents.find(se => se.id === e.id)
+        );
       }
       
       if (fallbackPool.length > 0) {

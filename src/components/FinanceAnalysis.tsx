@@ -46,6 +46,7 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
     game.health,
     game.education,
     game.environment,
+    game.stability,
     eventFlags,
     game.budget,
     difficulty
@@ -89,11 +90,54 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
             <span className="font-bold text-green-400 text-sm">+${totalIncome.toLocaleString()}</span>
           </div>
           <div className="text-[11px] text-slate-400 space-y-1.5">
-            <div className="flex justify-between"><span>Temel Vergi (Base):</span> <span>+${taxDetails.baseIncome.toLocaleString()}</span></div>
-            {taxDetails.educationBonus > 0 && <div className="flex justify-between text-green-300"><span>Eğitim Seviyesi Bonusu:</span> <span>+${taxDetails.educationBonus.toLocaleString()}</span></div>}
-            {taxDetails.healthBonus > 0 && <div className="flex justify-between text-green-300"><span>Sağlıklı İşgücü Bonusu:</span> <span>+${taxDetails.healthBonus.toLocaleString()}</span></div>}
-            {taxDetails.environmentBonus > 0 && <div className="flex justify-between text-green-300"><span>Yeşil Ekonomi / Turizm:</span> <span>+${taxDetails.environmentBonus.toLocaleString()}</span></div>}
-            {taxDetails.militaryBonus > 0 && <div className="flex justify-between text-green-300"><span>Silah İhracatı Bonusu:</span> <span>+${taxDetails.militaryBonus.toLocaleString()}</span></div>}
+            <div className="flex justify-between items-center group relative cursor-help">
+              <span className="flex items-center gap-1">Temel Vergi (Base) <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>+${taxDetails.baseIncome.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute left-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-green-300">Neden Kazanıyorum?</p>
+                <p>Ülkenizin temel geliridir. Nüfusun günlük ticari faaliyetlerinden toplanır.</p>
+              </div>
+            </div>
+
+            {taxDetails.educationBonus > 0 && 
+            <div className="flex justify-between items-center text-green-300 group relative cursor-help">
+              <span className="flex items-center gap-1">Eğitim Seviyesi Bonusu <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>+${taxDetails.educationBonus.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute left-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-green-300">Neden Kazanıyorum?</p>
+                <p>Yüksek eğitim seviyesi inovasyon ve teknolojik ihracatı artırır. <b>Nasıl Artırılır:</b> Eğitimi yükselt.</p>
+              </div>
+            </div>}
+            
+            {taxDetails.healthBonus > 0 && 
+            <div className="flex justify-between items-center text-green-300 group relative cursor-help">
+              <span className="flex items-center gap-1">Sağlıklı İşgücü Bonusu <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>+${taxDetails.healthBonus.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute left-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-green-300">Neden Kazanıyorum?</p>
+                <p>Halk sağlıklı olduğunda iş gücü verimliliği artar. <b>Nasıl Artırılır:</b> Sağlığı yükselt.</p>
+              </div>
+            </div>}
+
+            {taxDetails.environmentBonus > 0 && 
+            <div className="flex justify-between items-center text-green-300 group relative cursor-help">
+              <span className="flex items-center gap-1">Yeşil Ekonomi / Turizm <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>+${taxDetails.environmentBonus.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute left-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-green-300">Neden Kazanıyorum?</p>
+                <p>Doğa korundukça eko-turizm ve yenilenebilir enerji gelirleri artar. <b>Nasıl Artırılır:</b> Çevreyi koru.</p>
+              </div>
+            </div>}
+
+            {taxDetails.militaryBonus > 0 && 
+            <div className="flex justify-between items-center text-green-300 group relative cursor-help">
+              <span className="flex items-center gap-1">Silah İhracatı Bonusu <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>+${taxDetails.militaryBonus.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute left-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-green-300">Neden Kazanıyorum?</p>
+                <p>Güçlü ordu, savunma sanayii ihracatını tetikler. <b>Nasıl Artırılır:</b> Askeriyeyi güçlendir.</p>
+              </div>
+            </div>}
             
             <div className="flex justify-between mt-1 pt-1 border-t border-slate-800">
               <span>Mutluluk/İstikrar/Sermaye Çarpanı:</span> 
@@ -121,13 +165,64 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
             <span className="font-bold text-red-400 text-sm">-${totalExpense.toLocaleString()}</span>
           </div>
           <div className="text-[11px] text-slate-400 space-y-1.5">
-            <div className="flex justify-between"><span>Askeriye & Savunma:</span> <span>-${maintDetails.militaryCost.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Sağlık & Altyapı:</span> <span>-${maintDetails.healthCost.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span>Eğitim Sistemi:</span> <span>-${maintDetails.educationCost.toLocaleString()}</span></div>
-            {maintDetails.environmentCost > 0 && <div className="flex justify-between"><span>Çevre Koruması:</span> <span>-${maintDetails.environmentCost.toLocaleString()}</span></div>}
+            <div className="flex justify-between items-center group relative cursor-help">
+              <span className="flex items-center gap-1">Askeriye & Savunma <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>-${maintDetails.militaryCost.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-red-300">Neden Ödüyorum?</p>
+                <p>Askeri personelin maaşları ve mühimmat maliyetidir. Ordu büyüdükçe katlanarak artar.</p>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center group relative cursor-help">
+              <span className="flex items-center gap-1">Sağlık & Altyapı <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>-${maintDetails.healthCost.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-red-300">Neden Ödüyorum?</p>
+                <p>Hastaneler ve kamu sağlığının korunması maliyetidir.</p>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center group relative cursor-help">
+              <span className="flex items-center gap-1">Eğitim Sistemi <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>-${maintDetails.educationCost.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-red-300">Neden Ödüyorum?</p>
+                <p>Okullar ve akademilerin bakım maliyetidir.</p>
+              </div>
+            </div>
+
+            {maintDetails.environmentCost > 0 && 
+            <div className="flex justify-between items-center group relative cursor-help">
+              <span className="flex items-center gap-1">Çevre Koruması <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>-${maintDetails.environmentCost.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-red-300">Neden Ödüyorum?</p>
+                <p>Doğal parkların ve yeşil projelerin devlete olan yüküdür.</p>
+              </div>
+            </div>}
             
-            {maintDetails.sickPenalty > 0 && <div className="flex justify-between text-red-300"><span>Salgın/Hastalık Ek Gideri:</span> <span>-${maintDetails.sickPenalty.toLocaleString()}</span></div>}
-            {maintDetails.corruptionPenalty > 0 && <div className="flex justify-between text-orange-300"><span>Bürokrasi ve Yolsuzluk (Kasa Doluysa):</span> <span>-${maintDetails.corruptionPenalty.toLocaleString()}</span></div>}
+            {maintDetails.sickPenalty > 0 && 
+            <div className="flex justify-between items-center text-red-300 group relative cursor-help">
+              <span className="flex items-center gap-1">Salgın/Hastalık Ek Gideri <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>-${maintDetails.sickPenalty.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-red-300">Neden Ödüyorum?</p>
+                <p>Ülkede salgın hastalık olduğu için acil müdahale fonları tüketiliyor. <b>Nasıl Çözülür:</b> Sağlığı artırarak salgını bitirin.</p>
+              </div>
+            </div>}
+
+            {maintDetails.corruptionPenalty > 0 && 
+            <div className="flex justify-between items-center text-orange-300 group relative cursor-help">
+              <span className="flex items-center gap-1">Yolsuzluk (Bürokratik Kayıp) <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>-${maintDetails.corruptionPenalty.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-56 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-red-300">Neden Ödüyorum?</p>
+                <p>İstikrar seviyesi (Stability) çok düşük olduğu için devlet görevlileri kasadaki parayı hortumluyor. Hukuksuzluk hakim.</p>
+                <p className="font-bold mt-1 text-green-300">Nasıl Çözülür?</p>
+                <p>Ülkedeki İstikrarı (Stability) 50'nin üzerine çıkarın, yolsuzluk tamamen bitecektir.</p>
+              </div>
+            </div>}
 
             {maintDetails.difficultyMultiplier !== 1 && (
               <div className="flex justify-between text-indigo-300">

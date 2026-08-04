@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { WorldCountryState, GameState } from "@/lib/types";
-import { calculateRelationship } from "@/lib/game-engine";
+import { calculateRelationship, calculateTradeRiskProfile } from "@/lib/game-engine";
 
 interface WorldMapProps {
   countries: WorldCountryState[];
@@ -122,21 +122,37 @@ export default function WorldMap({ countries, gameState, onTrade, onUpdate }: Wo
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm mt-4 border-t border-white/5 pt-4">
                 <div>
-                  <div className="text-gray-400">{selectedCountry.isPlayer ? "Tahmini Başarı Şansı" : "Diplomatik Durum"}</div>
+                  <div className="text-gray-400">Tahmini Başarı Şansı</div>
                   <div className="font-bold text-yellow-400">
-                    {selectedCountry.isPlayer 
-                      ? `%${Math.round(gameState.stability)}` 
-                      : (
-                        calculateRelationship(gameState, selectedCountry) < 20 ? <span className="text-red-400">Düşmancıl</span> :
-                        calculateRelationship(gameState, selectedCountry) > 80 ? <span className="text-green-400">Müttefik</span> : 
-                        <span className="text-gray-300">Tarafsız</span>
-                      )}
+                    %{Math.round(calculateTradeRiskProfile(
+                      selectedCountry.isPlayer, 
+                      selectedCountry.stability, 
+                      selectedCountry.military, 
+                      selectedCountry.isPlayer ? gameState.stability : calculateRelationship(gameState, selectedCountry)
+                    ).successChance * 100)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-gray-400">Olası Getiri / Zarar</div>
+                  <div className="text-gray-400">Risk Profili</div>
                   <div className="font-bold text-yellow-400">
-                    {selectedCountry.isPlayer ? "-%50 ile +%50" : "-%50 ile +%60"}
+                    {(() => {
+                      const profile = calculateTradeRiskProfile(
+                        selectedCountry.isPlayer, 
+                        selectedCountry.stability, 
+                        selectedCountry.military, 
+                        selectedCountry.isPlayer ? gameState.stability : calculateRelationship(gameState, selectedCountry)
+                      );
+                      return (
+                        <div className="flex flex-col">
+                          <span className={`${profile.level === 'Düşük' ? 'text-green-400' : profile.level === 'Çok Yüksek' ? 'text-red-500' : 'text-orange-400'}`}>
+                            {profile.level} Risk
+                          </span>
+                          <span className="text-xs text-gray-400 mt-1">
+                            -%{Math.round(profile.minLoss * 100)} ile +%{Math.round(profile.maxReturn * 100)}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

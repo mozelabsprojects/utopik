@@ -2,9 +2,22 @@
 // YourUtopia — Core Type Definitions
 // =============================================
 
+export interface MarketPrices {
+  energy: number;
+  food: number;
+  tech: number;
+  medical: number;
+  arms: number;
+  minerals: number;
+}
+
 export interface MarketState {
-  prices: { energy: number; food: number; tech: number };
-  inventory: { energy: number; food: number; tech: number };
+  prices: MarketPrices;
+  inventory: MarketPrices;
+  history: {
+    turn: number;
+    prices: MarketPrices;
+  }[];
 }
 
 export type EventCategory =
@@ -46,6 +59,7 @@ export interface Choice {
   text: string;
   effects: StatEffects;
   factionEffects?: Partial<Record<FactionId, number>>;
+  marketEffects?: Partial<Record<keyof MarketPrices, number>>;
   flagsToSet?: string[]; // Kelebek Etkisi: Bu seçim yapılırsa hangi bayraklar eklenecek
   hint: string;
 }

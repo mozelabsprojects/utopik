@@ -70,8 +70,9 @@ export async function POST(request: Request) {
         activePetitions: "[]",
         diplomacyState: "{}",
         marketState: JSON.stringify({
-          prices: { energy: 100, food: 50, tech: 200 },
-          inventory: { energy: 0, food: 0, tech: 0 }
+          prices: { energy: 100, food: 50, tech: 200, medical: 150, arms: 300, minerals: 80 },
+          inventory: { energy: 0, food: 0, tech: 0, medical: 0, arms: 0, minerals: 0 },
+          history: []
         }),
         eventFlags: JSON.stringify(eventFlags),
         worldCountries: {

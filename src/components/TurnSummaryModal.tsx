@@ -37,7 +37,7 @@ export default function TurnSummaryModal({
 
   useEffect(() => {
     if (phase === "loading" && isDataReady) {
-      const timer = setTimeout(() => setPhase("results"), 1200);
+      const timer = setTimeout(() => setPhase("results"), 400); // 1200ms -> 400ms (Oyun akıcılığı için hızlandırıldı)
       return () => clearTimeout(timer);
     }
   }, [phase, isDataReady]);
@@ -59,7 +59,7 @@ export default function TurnSummaryModal({
             <div
               className="h-full bg-gradient-to-r from-[var(--color-neon-cyan)] to-[var(--color-neon-blue)] rounded-full"
               style={{
-                animation: "loadingBar 1.2s ease-out forwards",
+                animation: "loadingBar 0.4s ease-out forwards",
               }}
             />
           </div>

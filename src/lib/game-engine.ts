@@ -23,7 +23,7 @@ const BANKRUPTCY_DURATION = 3;
 // A. BAKIM MALİYETLERİ
 import { COUNTRIES } from "./countries-data";
 
-export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta") {
+export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta") {
   let militaryCost = military * 1.5;
   let healthCost = health * 1.0;
   let educationCost = education * 1.0;
@@ -49,13 +49,11 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   }
 
   let corruptionPenalty = 0;
-  if (budget > 15000) {
-    if (budget > 25000) {
-      corruptionPenalty += (budget - 25000) * 0.10; 
-      corruptionPenalty += 10000 * 0.05; 
-    } else {
-      corruptionPenalty += (budget - 15000) * 0.05;
-    }
+  // Yeni Yolsuzluk Mekaniği: İstikrar 50'nin altındaysa direkt olarak sabit yüksek bir ceza (ülkenin gelirlerine çöküyorlar).
+  // Kasada para olmasa bile eksiye düşürebilir (borçlandırır).
+  if (stability < 50) {
+    const instabilityFactor = (50 - stability); // 1 ile 50 arası
+    corruptionPenalty = instabilityFactor * 150; // Max 7500$ ceza (İstikrar 0 ise)
     total += corruptionPenalty;
   }
 
@@ -80,8 +78,8 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   };
 }
 
-export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta"): number {
-  return getDetailedMaintenanceCost(military, health, education, environment, eventFlags, budget, difficulty).total;
+export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta"): number {
+  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty).total;
 }
 
 // ============================================
@@ -211,9 +209,14 @@ export function applyEffects(
           value < 0
             ? Math.round(value * costMultiplier)
             : Math.round(value * benefitMultiplier);
-        (newState[statKey] as number) = clampStat(
-          (newState[statKey] as number) + adjustedValue
-        );
+        
+        if (statKey === "politicalCapital") {
+          (newState[statKey] as number) = Math.min(999, Math.max(0, (newState[statKey] as number) + adjustedValue));
+        } else {
+          (newState[statKey] as number) = clampStat(
+            (newState[statKey] as number) + adjustedValue
+          );
+        }
       }
     }
   }
@@ -332,6 +335,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     state.health, 
     state.education, 
     state.environment,
+    state.stability,
     eventFlags, 
     state.budget, 
     difficulty
@@ -594,10 +598,10 @@ export function applyInvestment(
     case "foreignRelations": currentStat = state.foreignRelations; break;
   }
 
-  // Azalan Getiri (Diminishing Returns)
-  // Formül: 100 (taban) + (currentStat^1.2) * 4
-  // 10 Stat -> ~160$ / 50 Stat -> ~536$ / 90 Stat -> ~980$ 
-  const costPerPoint = 100 + Math.pow(currentStat, 1.2) * 4;
+  // Üstel Azalan Getiri (Exponential Diminishing Returns)
+  // Maliyetler statü yükseldikçe inanılmaz bir hızla artar. Fulleme hilesini engeller.
+  // 10 Stat -> ~179$, 50 Stat -> ~1842$, 90 Stat -> ~18946$, 99 Stat -> ~32000$
+  const costPerPoint = 100 * Math.pow(1.06, currentStat);
   const pointsGained = Math.round(effectiveAmount / costPerPoint);
 
   switch (sector) {
@@ -609,11 +613,11 @@ export function applyInvestment(
     case "foreignRelations": newState.foreignRelations = clampStat(newState.foreignRelations + pointsGained); break;
   }
 
-  // Yatırım yapıldığında fraksiyonlara anlık destek ver (miktara oranla)
+  // Yatırım yapıldığında fraksiyonlara anlık destek ver (Kazanılan statü puanına oranla)
   let factions: FactionsState = INITIAL_FACTIONS;
   try { factions = JSON.parse(newState.factions); } catch { factions = INITIAL_FACTIONS; }
   
-  const factionGain = Math.floor(actualAmount / 250); // Her 250$ için 1 puan
+  const factionGain = Math.floor(pointsGained / 2); // Her 2 puan için 1 fraksiyon desteği
   if (factionGain > 0) {
     if (sector === "military") factions = modifyFactionSupport(factions, { military: factionGain, nationalists: Math.floor(factionGain / 2) });
     if (sector === "health" || sector === "education") factions = modifyFactionSupport(factions, { workers: factionGain, intellectuals: Math.floor(factionGain / 2) });
@@ -646,4 +650,79 @@ export function checkVictory(state: GameState): string | null {
   }
 
   return null;
+}
+
+// ============================================
+// I. DİNAMİK TİCARET VE RİSK PROFİLİ
+// ============================================
+
+export interface TradeRiskProfile {
+  level: "Düşük" | "Orta" | "Yüksek" | "Çok Yüksek";
+  successChance: number;
+  minReturn: number; 
+  maxReturn: number; 
+  minLoss: number;   
+  maxLoss: number;   
+  diplomaticCost: number; 
+}
+
+export function calculateTradeRiskProfile(
+  isPlayer: boolean, 
+  stability: number, 
+  military: number, 
+  relationship: number
+): TradeRiskProfile {
+  let successChance = 0;
+  
+  if (isPlayer) {
+    // İç Ticaret (Yerel)
+    successChance = 0.5 + (stability / 200); // %50 ile %100 arası başarı
+    return {
+      level: stability > 70 ? "Düşük" : (stability < 40 ? "Yüksek" : "Orta"),
+      successChance,
+      minReturn: 0.10, // %10
+      maxReturn: 0.30, // %30
+      minLoss: 0.20,
+      maxLoss: 0.50,
+      diplomaticCost: 0
+    };
+  }
+
+  // Dış Ticaret (Yabancı)
+  successChance = relationship / 100;
+
+  if (stability > 75) {
+    // Güvenli ama düşük kar
+    return {
+      level: "Düşük",
+      successChance: Math.min(0.95, successChance + 0.15),
+      minReturn: 0.05,
+      maxReturn: 0.20,
+      minLoss: 0.10,
+      maxLoss: 0.25,
+      diplomaticCost: 5
+    };
+  } else if (stability < 40 || military > 80) {
+    // Yüksek risk, yüksek getiri
+    return {
+      level: "Çok Yüksek",
+      successChance: Math.max(0.1, successChance - 0.25), // Çok riskli
+      minReturn: 0.50,
+      maxReturn: 1.50, // %150 kar
+      minLoss: 0.60,
+      maxLoss: 1.00,   // %100 zarar
+      diplomaticCost: 5
+    };
+  } else {
+    // Ortalama
+    return {
+      level: "Orta",
+      successChance: successChance,
+      minReturn: 0.20,
+      maxReturn: 0.50,
+      minLoss: 0.30,
+      maxLoss: 0.70,
+      diplomaticCost: 5
+    };
+  }
 }

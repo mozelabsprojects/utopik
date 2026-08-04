@@ -15,12 +15,20 @@ export async function POST(request: Request) {
     }
 
     let marketState: MarketState = {
-      prices: { energy: 100, food: 50, tech: 200 },
-      inventory: { energy: 0, food: 0, tech: 0 }
+      prices: { energy: 100, food: 50, tech: 200, medical: 150, arms: 300, minerals: 80 },
+      inventory: { energy: 0, food: 0, tech: 0, medical: 0, arms: 0, minerals: 0 },
+      history: []
     };
     try {
-      const parsed = JSON.parse(game.marketState);
-      if (parsed.prices && parsed.inventory) marketState = parsed;
+      const parsedMarket = JSON.parse(game.marketState);
+      if (parsedMarket.prices && parsedMarket.inventory) {
+        marketState = {
+          ...parsedMarket,
+          prices: { ...marketState.prices, ...parsedMarket.prices },
+          inventory: { ...marketState.inventory, ...parsedMarket.inventory },
+          history: parsedMarket.history || []
+        };
+      }
     } catch {}
 
     const pricePerUnit = marketState.prices[resource as keyof typeof marketState.prices];

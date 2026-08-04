@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Dashboard from "@/components/Dashboard";
 import EventCard from "@/components/EventCard";
 import InvestmentPanel from "@/components/InvestmentPanel";
@@ -34,7 +35,16 @@ function GameContent() {
   const gameId = searchParams.get("id");
 
   const [game, setGame] = useState<GameData | null>(null);
-  const [previousGame, setPreviousGame] = useState<GameData | null>(null);
+  const [previousGame, setPreviousGame] = useState<GameState | null>(null);
+  const [toasts, setToasts] = useState<{id: number, message: string}[]>([]);
+
+  const addToast = (message: string) => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, message }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4000);
+  };
   const [currentEvents, setCurrentEvents] = useState<GameEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -183,6 +193,27 @@ function GameContent() {
       if (!res.ok) throw new Error("Seçim uygulanamadı");
       const data = await res.json();
 
+      // Farkları hesapla ve Toast göster
+      const diffs: string[] = [];
+      const addDiff = (name: string, oldVal: number, newVal: number, prefix: string = "") => {
+        if (newVal > oldVal) diffs.push(`✅ ${name} +${prefix}${newVal - oldVal}`);
+        else if (newVal < oldVal) diffs.push(`❌ ${name} -${prefix}${oldVal - newVal}`);
+      };
+
+      addDiff("Bütçe", game.budget, data.game.budget, "$");
+      addDiff("İstikrar", game.stability, data.game.stability);
+      addDiff("Halk Desteği", game.popularity, data.game.popularity);
+      addDiff("Sağlık", game.health, data.game.health);
+      addDiff("Eğitim", game.education, data.game.education);
+      addDiff("Çevre", game.environment, data.game.environment);
+      addDiff("Askeriye", game.military, data.game.military);
+      addDiff("Dış İlişkiler", game.foreignRelations, data.game.foreignRelations);
+      addDiff("Siyasi Sermaye", game.politicalCapital, data.game.politicalCapital);
+
+      if (diffs.length > 0) {
+        addToast(diffs.join(' | '));
+      }
+
       setPreviousGame(game);
       setGame(data.game);
       // Backend'den currentEventId stringini alıp parse edebiliriz ama optimistic update yeterli.
@@ -256,7 +287,7 @@ function GameContent() {
       const oldCrises = JSON.parse(game.activeCrises || "[]");
       const newCrises = JSON.parse(data.game.activeCrises || "[]");
       if (newCrises.length > oldCrises.length || data.turnResult.newEvent) {
-        setTimeout(() => playAlertSound(), 600);
+        setTimeout(() => playAlertSound(), 400); // 600'den 400'e çekildi
       }
 
       // Generate hints for the new state
@@ -580,6 +611,22 @@ function GameContent() {
         uiScale={uiScale} 
         setUiScale={setUiScale} 
       />
+      {/* TOAST BİLDİRİMLERİ (Sağ Alt Köşe) */}
+      <div className="fixed bottom-4 right-4 z-[999] flex flex-col gap-2 pointer-events-none">
+        <AnimatePresence>
+          {toasts.map((toast) => (
+            <motion.div
+              key={toast.id}
+              initial={{ opacity: 0, x: 50, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-slate-900/90 backdrop-blur-md border border-slate-700/50 text-white px-4 py-3 rounded-xl shadow-2xl text-xs sm:text-sm font-medium flex items-center shadow-[0_0_20px_rgba(0,0,0,0.5)]"
+            >
+              {toast.message}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

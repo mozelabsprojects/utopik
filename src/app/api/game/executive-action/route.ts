@@ -24,6 +24,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Yetersiz siyasi sermaye" }, { status: 400 });
     }
 
+    let turnReports: string[] = [];
+    try { turnReports = JSON.parse(game.turnReports); } catch {}
+
+    // Bu turda daha önce bu kararname kullanılmış mı kontrol et (Spam/Exploit engeli)
+    if (turnReports.some(r => r.includes(`KARARNAME: ${execAction.name}`))) {
+      return NextResponse.json(
+        { error: "Bu kararnameyi bu turda yalnızca 1 kez kullanabilirsiniz!" },
+        { status: 400 }
+      );
+    }
+
     // Apply effects
     const newState = applyEffects(game, execAction.effects, game.isBankrupt);
 
@@ -31,8 +42,6 @@ export async function POST(request: Request) {
     newState.politicalCapital -= execAction.cost;
 
     // Add turn report
-    let turnReports: string[] = [];
-    try { turnReports = JSON.parse(game.turnReports); } catch {}
     turnReports.push(`🏛️ KARARNAME: ${execAction.name} uygulandı. (-${execAction.cost} Siyasi Sermaye)`);
 
     const updatedGame = await prisma.game.update({

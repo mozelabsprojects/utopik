@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { GameState, MarketState } from "@/lib/types";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface GlobalMarketPanelProps {
   gameId: string;
@@ -16,15 +17,23 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
 
   // Parse market state or use defaults
   let market: MarketState = {
-    prices: { energy: 100, food: 50, tech: 200 },
-    inventory: { energy: 0, food: 0, tech: 0 }
+    prices: { energy: 100, food: 50, tech: 200, medical: 150, arms: 300, minerals: 80 },
+    inventory: { energy: 0, food: 0, tech: 0, medical: 0, arms: 0, minerals: 0 },
+    history: []
   };
   try {
     const parsed = JSON.parse(marketStateStr);
-    if (parsed.prices && parsed.inventory) market = parsed;
+    if (parsed.prices && parsed.inventory) {
+      market = {
+        ...parsed,
+        prices: { ...market.prices, ...parsed.prices },
+        inventory: { ...market.inventory, ...parsed.inventory },
+        history: parsed.history || []
+      };
+    }
   } catch {}
 
-  const handleTrade = async (resource: 'energy' | 'food' | 'tech', action: 'buy' | 'sell', amount: number) => {
+  const handleTrade = async (resource: keyof typeof market.prices, action: 'buy' | 'sell', amount: number) => {
     if (loading) return;
     setLoading(true);
     setMessage(null);
@@ -50,11 +59,12 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
     }
   };
 
-  const ResourceCard = ({ id, name, icon, price, inventory }: { id: 'energy'|'food'|'tech', name: string, icon: string, price: number, inventory: number }) => (
-    <div className="glass p-6 rounded-2xl flex flex-col items-center">
-      <div className="text-4xl mb-2">{icon}</div>
-      <h3 className="text-xl font-bold text-white mb-2">{name}</h3>
-      <div className="w-full bg-white/5 rounded-lg p-3 mb-4 space-y-2 text-sm">
+  const ResourceCard = ({ id, name, icon, price, inventory }: { id: keyof typeof market.prices, name: string, icon: string, price: number, inventory: number }) => (
+    <div className="glass p-6 rounded-2xl flex flex-col items-center relative overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div className="text-4xl mb-2 z-10">{icon}</div>
+      <h3 className="text-xl font-bold text-white mb-2 z-10">{name}</h3>
+      <div className="w-full bg-white/5 rounded-lg p-3 mb-4 space-y-2 text-sm z-10">
         <div className="flex justify-between text-gray-300">
           <span>Birim Fiyat:</span>
           <span className="font-bold text-green-400">${Math.round(price)}</span>
@@ -69,7 +79,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
         </div>
       </div>
       
-      <div className="w-full grid grid-cols-2 gap-2 mt-auto">
+      <div className="w-full grid grid-cols-2 gap-2 mt-auto z-10">
         <div className="flex flex-col gap-2">
           {[1, 10, 50].map(amt => (
             <button 
@@ -98,26 +108,63 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
     </div>
   );
 
-  return (
-    <div className="animate-fade-in">
-      <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
-        <span className="text-3xl">📈</span> Küresel Borsa ve Kaynaklar
-      </h2>
-      <p className="text-gray-400 mb-6 text-sm">
-        Borsa fiyatları her tur dünya gündemine ve krizlere göre ±%20 oranında dalgalanır. 
-        Mevcut bütçeniz: <strong className="text-green-400">${Math.round(budget)}</strong>
-      </p>
+  // Format data for Recharts
+  const chartData = market.history.map(h => ({
+    turn: `Tur ${h.turn}`,
+    ...h.prices
+  }));
 
-      {message && (
-        <div className={`p-4 rounded-xl mb-6 text-sm ${message.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-300' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>
-          {message.text}
+  return (
+    <div className="animate-fade-in space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
+          <span className="text-3xl">📈</span> Küresel Borsa ve Emtialar
+        </h2>
+        <p className="text-gray-400 mb-6 text-sm">
+          Borsa fiyatları yaşanan krizlere, savaşlara ve ekonomik patlamalara göre sert dalgalanmalar gösterir. Fırsatları değerlendirin! 
+          Mevcut bütçeniz: <strong className="text-green-400">${Math.round(budget)}</strong>
+        </p>
+        
+        {message && (
+          <div className={`p-4 rounded-xl mb-6 text-sm ${message.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-300' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>
+            {message.text}
+          </div>
+        )}
+      </div>
+
+      {market.history.length > 0 && (
+        <div className="glass p-6 rounded-2xl">
+          <h3 className="text-lg font-bold text-white mb-4">Tarihsel Fiyat Grafiği</h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <XAxis dataKey="turn" stroke="#94a3b8" fontSize={12} />
+                <YAxis stroke="#94a3b8" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }}
+                  itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+                <Line type="monotone" dataKey="tech" name="Teknoloji" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="arms" name="Silah" stroke="#ef4444" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="medical" name="Medikal" stroke="#10b981" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="energy" name="Enerji" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="food" name="Gıda" stroke="#84cc16" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="minerals" name="Mineral" stroke="#64748b" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <ResourceCard id="energy" name="Enerji" icon="⚡" price={market.prices.energy} inventory={market.inventory.energy} />
         <ResourceCard id="food" name="Gıda" icon="🌾" price={market.prices.food} inventory={market.inventory.food} />
         <ResourceCard id="tech" name="Teknoloji" icon="💻" price={market.prices.tech} inventory={market.inventory.tech} />
+        <ResourceCard id="medical" name="Medikal" icon="🏥" price={market.prices.medical} inventory={market.inventory.medical} />
+        <ResourceCard id="arms" name="Silah / Mühimmat" icon="🛡️" price={market.prices.arms} inventory={market.inventory.arms} />
+        <ResourceCard id="minerals" name="Maden / Mineral" icon="🪨" price={market.prices.minerals} inventory={market.inventory.minerals} />
       </div>
     </div>
   );

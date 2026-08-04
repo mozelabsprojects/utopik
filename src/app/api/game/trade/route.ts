@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { calculateRelationship } from "@/lib/game-engine";
+import { calculateRelationship, calculateTradeRiskProfile } from "@/lib/game-engine";
 
 export async function POST(request: Request) {
   try {
@@ -25,23 +25,18 @@ export async function POST(request: Request) {
     }
 
     let relationship = 0;
-    let successChance = 0;
-    let relationCost = 0;
 
     if (partner.isPlayer) {
-      // İç Ticaret (Yerel Yatırım): İstikrara bağlıdır, dış ilişki düşürmez.
       relationship = game.stability;
-      successChance = relationship / 100;
-      relationCost = 0; // Kendi ülkene yatırım yapmanın diplomatik bedeli yoktur
     } else {
-      // Dış Ticaret: İlişkilere bağlıdır
       relationship = calculateRelationship(game, partner);
       if (relationship < 30) {
         return NextResponse.json({ error: "Bu ülke ile ilişkileriniz ticaret yapmak için çok kötü." }, { status: 400 });
       }
-      successChance = relationship / 100;
-      relationCost = 5; // Eskiden 2'ydi, artırıldı. Dış ticaret daha maliyetli.
     }
+
+    // Dinamik Risk Profili Hesaplama
+    const riskProfile = calculateTradeRiskProfile(partner.isPlayer, partner.stability, partner.military, relationship);
 
     // Maksimum aktif anlaşma kontrolü
     const activeAgreementsCount = await prisma.tradeAgreement.count({
@@ -51,17 +46,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Aynı anda maksimum 5 ticaret anlaşmanız olabilir." }, { status: 400 });
     }
 
-    const isSuccess = Math.random() < successChance;
+    const isSuccess = Math.random() < riskProfile.successChance;
     
     let totalExpectedReturn = 0;
     if (isSuccess) {
-      // Başarılı anlaşma: +%10 ile +%50 arası kar
-      const baseReturn = 1.10;
-      const variableReturn = Math.random() * 0.40;
+      // Başarılı anlaşma
+      const baseReturn = 1 + riskProfile.minReturn;
+      const variableReturn = Math.random() * (riskProfile.maxReturn - riskProfile.minReturn);
       totalExpectedReturn = investmentAmount * (baseReturn + variableReturn);
     } else {
-      // Başarısız anlaşma (Zarar): %20 ile %70 arası zarar (Risk artırıldı)
-      const lossSeverity = 0.2 + (Math.random() * 0.5); // 0.2 - 0.7
+      // Başarısız anlaşma (Zarar)
+      const lossSeverity = riskProfile.minLoss + (Math.random() * (riskProfile.maxLoss - riskProfile.minLoss));
       totalExpectedReturn = investmentAmount * (1 - lossSeverity);
     }
     const incomePerTurn = Math.round(totalExpectedReturn / 5);
@@ -71,7 +66,7 @@ export async function POST(request: Request) {
       where: { id: gameId },
       data: {
         budget: game.budget - investmentAmount,
-        foreignRelations: Math.max(0, game.foreignRelations - relationCost),
+        foreignRelations: Math.max(0, game.foreignRelations - riskProfile.diplomaticCost),
       }
     });
 
