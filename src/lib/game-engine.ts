@@ -21,8 +21,9 @@ const BANKRUPTCY_DURATION = 3;
 
 // ============================================
 // A. BAKIM MALİYETLERİ
-// ============================================
-export function getDetailedMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0) {
+import { COUNTRIES } from "./countries-data";
+
+export function getDetailedMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta") {
   let militaryCost = military * 1.5;
   let healthCost = health * 1.0;
   let educationCost = education * 1.0;
@@ -56,6 +57,14 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
     total += corruptionPenalty;
   }
 
+  let difficultyMultiplier = 1.0;
+  if (difficulty === "Kolay") difficultyMultiplier = 0.8;
+  if (difficulty === "Zor") difficultyMultiplier = 1.2;
+  if (difficulty === "Çok Zor") difficultyMultiplier = 1.5;
+
+  const baseTotal = total;
+  total = total * difficultyMultiplier;
+
   return {
     total: Math.round(total),
     militaryCost: Math.round(militaryCost),
@@ -63,12 +72,13 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
     educationCost: Math.round(educationCost),
     leaderDiscount: Math.round(leaderDiscount),
     sickPenalty: Math.round(sickPenalty),
-    corruptionPenalty: Math.round(corruptionPenalty)
+    corruptionPenalty: Math.round(corruptionPenalty),
+    difficultyMultiplier: Number(difficultyMultiplier.toFixed(2))
   };
 }
 
-export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0): number {
-  return getDetailedMaintenanceCost(military, health, education, eventFlags, budget).total;
+export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta"): number {
+  return getDetailedMaintenanceCost(military, health, education, eventFlags, budget, difficulty).total;
 }
 
 // ============================================
@@ -79,7 +89,8 @@ export function getDetailedTaxIncome(
   stability: number,
   happiness: number,
   capitalistsSupport: number,
-  eventFlags: string[] = []
+  eventFlags: string[] = [],
+  difficulty: string = "Orta"
 ) {
   const educationBonus = education > 60 ? (education - 60) * 15 : 0;
   const stabilityMultiplier = 0.5 + (stability / 200); 
@@ -95,6 +106,13 @@ export function getDetailedTaxIncome(
     total += leaderBonus;
   }
 
+  let difficultyMultiplier = 1.0;
+  if (difficulty === "Kolay") difficultyMultiplier = 1.2;
+  if (difficulty === "Zor") difficultyMultiplier = 0.8;
+  if (difficulty === "Çok Zor") difficultyMultiplier = 0.7;
+
+  total = total * difficultyMultiplier;
+
   return {
     total: Math.round(total),
     baseIncome: BASE_INCOME,
@@ -103,7 +121,8 @@ export function getDetailedTaxIncome(
     happinessMultiplier: Number(happinessMultiplier.toFixed(2)),
     capitalistsBonus: Number(capitalistsBonus.toFixed(2)),
     leaderBonus: Math.round(leaderBonus),
-    multipliersCombined: Number((stabilityMultiplier * happinessMultiplier * capitalistsBonus).toFixed(2))
+    multipliersCombined: Number((stabilityMultiplier * happinessMultiplier * capitalistsBonus).toFixed(2)),
+    difficultyMultiplier: Number(difficultyMultiplier.toFixed(2))
   };
 }
 
@@ -112,9 +131,10 @@ export function calculateTaxIncome(
   stability: number,
   happiness: number,
   capitalistsSupport: number,
-  eventFlags: string[] = []
+  eventFlags: string[] = [],
+  difficulty: string = "Orta"
 ): number {
-  return getDetailedTaxIncome(education, stability, happiness, capitalistsSupport, eventFlags).total;
+  return getDetailedTaxIncome(education, stability, happiness, capitalistsSupport, eventFlags, difficulty).total;
 }
 
 // ============================================
@@ -187,6 +207,9 @@ export function applyEffects(
 // ============================================
 export function processNextTurn(currentState: GameState, tradeIncome: number = 0, usedEventIds: string[] = [], eventFlags: string[] = []): TurnResult {
   let state = { ...currentState };
+  
+  const countryTemplate = COUNTRIES.find(c => c.name === state.countryName);
+  const difficulty = countryTemplate?.difficulty || "Orta";
   
   // JSON parse
   let factions: FactionsState = INITIAL_FACTIONS;
@@ -274,15 +297,28 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   }
 
   // 2. Bakım Maliyeti
-  const maintenanceCost = calculateMaintenanceCost(state.military, state.health, state.education, eventFlags, state.budget);
+  const maintenanceCost = calculateMaintenanceCost(state.military, state.health, state.education, eventFlags, state.budget, difficulty);
   state.budget -= maintenanceCost;
 
   // 3. Vergi ve Ticaret
-  const taxIncome = calculateTaxIncome(state.education, state.stability, state.happiness, factions.capitalists?.support || 50, eventFlags);
+  const taxIncome = calculateTaxIncome(state.education, state.stability, state.happiness, factions.capitalists?.support || 50, eventFlags, difficulty);
   state.budget += taxIncome;
   state.budget += tradeIncome;
   turnReports.push(`💰 Vergi ve Ticaret gelirleri toplandı: +$${taxIncome + tradeIncome}`);
   turnReports.push(`🏢 Devlet altyapı bakım giderleri: -$${maintenanceCost}`);
+
+  // ==========================================
+  // ZORLUK DERECESİNE GÖRE SİYASİ SERMAYE (POLITICAL CAPITAL) DEĞİŞİMİ
+  // ==========================================
+  let diffPoliticalCapitalGain = 0;
+  if (difficulty === "Kolay") diffPoliticalCapitalGain = 5;
+  else if (difficulty === "Zor") diffPoliticalCapitalGain = -2;
+  else if (difficulty === "Çok Zor") diffPoliticalCapitalGain = -5;
+  
+  if (diffPoliticalCapitalGain !== 0) {
+    state.politicalCapital = Math.max(0, Math.min(500, state.politicalCapital + diffPoliticalCapitalGain));
+  }
+  // ==========================================
 
   // 4. Kriz Kontrolü ve Etkileri
   const remainingCrises: CrisisId[] = [];

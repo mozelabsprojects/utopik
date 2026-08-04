@@ -2,6 +2,7 @@
 
 import { getDetailedTaxIncome, getDetailedMaintenanceCost } from "@/lib/game-engine";
 import { INITIAL_FACTIONS } from "@/lib/factions";
+import { COUNTRIES } from "@/lib/countries-data";
 import { POLICIES, PolicyId } from "@/lib/policies";
 import { MINISTERS, MinisterId } from "@/lib/ministers";
 
@@ -24,10 +25,13 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
   let eventFlags: string[] = [];
   try { eventFlags = JSON.parse(game.eventFlags); } catch {}
 
+  const countryTemplate = COUNTRIES.find(c => c.name === game.countryName);
+  const difficulty = countryTemplate?.difficulty || "Orta";
+
   const capitalistsSupport = factions.capitalists?.support || 50;
   
-  const taxDetails = getDetailedTaxIncome(game.education, game.stability, game.happiness, capitalistsSupport, eventFlags);
-  const maintDetails = getDetailedMaintenanceCost(game.military, game.health, game.education, eventFlags, game.budget);
+  const taxDetails = getDetailedTaxIncome(game.education, game.stability, game.happiness, capitalistsSupport, eventFlags, difficulty);
+  const maintDetails = getDetailedMaintenanceCost(game.military, game.health, game.education, eventFlags, game.budget, difficulty);
 
   // Pasif etkileri hesapla
   let lawsCost = 0;
@@ -74,6 +78,13 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
               <span>Mutluluk/İstikrar/Sermaye Çarpanı:</span> 
               <span className={taxDetails.multipliersCombined >= 1 ? "text-green-300" : "text-red-300"}>x{taxDetails.multipliersCombined}</span>
             </div>
+            
+            {taxDetails.difficultyMultiplier !== 1 && (
+              <div className="flex justify-between text-indigo-300">
+                <span>Zorluk Çarpanı ({difficulty}):</span> 
+                <span>x{taxDetails.difficultyMultiplier}</span>
+              </div>
+            )}
 
             {taxDetails.leaderBonus > 0 && <div className="flex justify-between text-yellow-300"><span>Lider Bonusu (Ekonomist):</span> <span>+${taxDetails.leaderBonus.toLocaleString()}</span></div>}
             
@@ -95,6 +106,13 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
             
             {maintDetails.sickPenalty > 0 && <div className="flex justify-between text-red-300"><span>Salgın/Hastalık Ek Gideri:</span> <span>-${maintDetails.sickPenalty.toLocaleString()}</span></div>}
             {maintDetails.corruptionPenalty > 0 && <div className="flex justify-between text-orange-300"><span>Bürokrasi ve Yolsuzluk (Kasa Doluysa):</span> <span>-${maintDetails.corruptionPenalty.toLocaleString()}</span></div>}
+
+            {maintDetails.difficultyMultiplier !== 1 && (
+              <div className="flex justify-between text-indigo-300">
+                <span>Zorluk Çarpanı ({difficulty}):</span> 
+                <span>x{maintDetails.difficultyMultiplier}</span>
+              </div>
+            )}
 
             {maintDetails.leaderDiscount > 0 && <div className="flex justify-between text-green-300 mt-1 pt-1 border-t border-slate-800"><span>Lider İndirimi (General):</span> <span>+${maintDetails.leaderDiscount.toLocaleString()} (Tasarruf)</span></div>}
             
