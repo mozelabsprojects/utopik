@@ -22,42 +22,91 @@ const BANKRUPTCY_DURATION = 3;
 // ============================================
 // A. BAKIM MALİYETLERİ
 // ============================================
-export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0): number {
-  // Temel lineer maliyetler (iyice düşürüldü)
-  let cost = (military * 1.5) + (health * 1.0) + (education * 1.0);
+export function getDetailedMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0) {
+  let militaryCost = military * 1.5;
+  let healthCost = health * 1.0;
+  let educationCost = education * 1.0;
   
-  // 50'yi aşan her stat için üstel (exponential) maliyet - (çok yumuşatıldı)
-  if (military > 50) cost += Math.pow(military - 50, 1.2) * 0.8;
-  if (health > 50) cost += Math.pow(health - 50, 1.2) * 0.5;
-  if (education > 50) cost += Math.pow(education - 50, 1.2) * 0.5;
+  if (military > 50) militaryCost += Math.pow(military - 50, 1.2) * 0.8;
+  if (health > 50) healthCost += Math.pow(health - 50, 1.2) * 0.5;
+  if (education > 50) educationCost += Math.pow(education - 50, 1.2) * 0.5;
+
+  let total = militaryCost + healthCost + educationCost;
   
+  let leaderDiscount = 0;
   if (eventFlags.includes("LEADER_GENERAL")) {
-    cost = cost * 0.8; // General: Tüm bakım masrafları %20 daha ucuz
+    leaderDiscount = total * 0.2;
+    total -= leaderDiscount; 
   }
 
-  // Sağlık düşükse askeriye masrafı (hasta askerler/salgın) artar
+  let sickPenalty = 0;
   if (health < 40) {
-    cost += (40 - health) * 2;
+    sickPenalty = (40 - health) * 2;
+    total += sickPenalty;
   }
 
-  // Yolsuzluk / Bürokrasi Cezası: Kasa çok dolarsa para israfı başlar
+  let corruptionPenalty = 0;
   if (budget > 15000) {
-    let corruptionPenalty = 0;
     if (budget > 25000) {
-      corruptionPenalty += (budget - 25000) * 0.10; // 25.000 üzerinin %10'u
-      corruptionPenalty += 10000 * 0.05; // 15.000 ile 25.000 arasının %5'i
+      corruptionPenalty += (budget - 25000) * 0.10; 
+      corruptionPenalty += 10000 * 0.05; 
     } else {
       corruptionPenalty += (budget - 15000) * 0.05;
     }
-    cost += corruptionPenalty;
+    total += corruptionPenalty;
   }
 
-  return Math.round(cost);
+  return {
+    total: Math.round(total),
+    militaryCost: Math.round(militaryCost),
+    healthCost: Math.round(healthCost),
+    educationCost: Math.round(educationCost),
+    leaderDiscount: Math.round(leaderDiscount),
+    sickPenalty: Math.round(sickPenalty),
+    corruptionPenalty: Math.round(corruptionPenalty)
+  };
+}
+
+export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0): number {
+  return getDetailedMaintenanceCost(military, health, education, eventFlags, budget).total;
 }
 
 // ============================================
 // B. VERGİ GELİRİ
 // ============================================
+export function getDetailedTaxIncome(
+  education: number,
+  stability: number,
+  happiness: number,
+  capitalistsSupport: number,
+  eventFlags: string[] = []
+) {
+  const educationBonus = education > 60 ? (education - 60) * 15 : 0;
+  const stabilityMultiplier = 0.5 + (stability / 200); 
+  const happinessMultiplier = 0.5 + (happiness / 200); 
+  const capitalistsBonus = capitalistsSupport > 70 ? 1.2 : (capitalistsSupport < 30 ? 0.8 : 1);
+
+  const baseTotal = BASE_INCOME + educationBonus;
+  let total = baseTotal * stabilityMultiplier * happinessMultiplier * capitalistsBonus;
+
+  let leaderBonus = 0;
+  if (eventFlags.includes("LEADER_ECONOMIST")) {
+    leaderBonus = total * 0.25; 
+    total += leaderBonus;
+  }
+
+  return {
+    total: Math.round(total),
+    baseIncome: BASE_INCOME,
+    educationBonus: Math.round(educationBonus),
+    stabilityMultiplier: Number(stabilityMultiplier.toFixed(2)),
+    happinessMultiplier: Number(happinessMultiplier.toFixed(2)),
+    capitalistsBonus: Number(capitalistsBonus.toFixed(2)),
+    leaderBonus: Math.round(leaderBonus),
+    multipliersCombined: Number((stabilityMultiplier * happinessMultiplier * capitalistsBonus).toFixed(2))
+  };
+}
+
 export function calculateTaxIncome(
   education: number,
   stability: number,
@@ -65,19 +114,7 @@ export function calculateTaxIncome(
   capitalistsSupport: number,
   eventFlags: string[] = []
 ): number {
-  const educationBonus = education > 60 ? (education - 60) * 15 : 0;
-  const stabilityMultiplier = 0.5 + (stability / 200); // 0.5 - 1.0 (Eskiden direkt stability / 100'dü, bu aşırı cezalandırıcıydı)
-  const happinessMultiplier = 0.5 + (happiness / 200); // 0.5 - 1.0
-  const capitalistsBonus = capitalistsSupport > 70 ? 1.2 : (capitalistsSupport < 30 ? 0.8 : 1);
-
-  let income =
-    (BASE_INCOME + educationBonus) * stabilityMultiplier * happinessMultiplier * capitalistsBonus;
-
-  if (eventFlags.includes("LEADER_ECONOMIST")) {
-    income = income * 1.25; // Ekonomist: Vergi gelirleri +%25
-  }
-
-  return Math.round(income);
+  return getDetailedTaxIncome(education, stability, happiness, capitalistsSupport, eventFlags).total;
 }
 
 // ============================================

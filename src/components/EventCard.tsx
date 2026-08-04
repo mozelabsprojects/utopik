@@ -14,6 +14,16 @@ const CATEGORY_LABELS: Record<string, string> = {
   sosyal: "Sosyal",
 };
 
+const STAT_ICONS: Record<string, string> = {
+  military: "⚔️",
+  happiness: "😊",
+  health: "🏥",
+  environment: "🌿",
+  education: "📚",
+  stability: "🏛️",
+  foreignRelations: "🌍",
+};
+
 interface EventCardProps {
   event: GameEvent;
   onChoice: (label: string) => void;
@@ -89,6 +99,7 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
                     <p className={`text-[13px] ${isSelected ? "text-cyan-100 font-semibold" : "text-slate-200"}`}>
                       {choice.text}
                     </p>
+                    {/* Budget Badge */}
                     {choice.effects.budget !== undefined && choice.effects.budget !== 0 && (
                       <span className={`flex-shrink-0 text-[11px] px-2 py-0.5 rounded font-bold ${
                         choice.effects.budget > 0 
@@ -98,6 +109,24 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
                         {choice.effects.budget > 0 ? `+$${choice.effects.budget}` : `-$${Math.abs(choice.effects.budget)}`}
                       </span>
                     )}
+                  </div>
+                  
+                  {/* Diğer Stat Etkileri (Gizemli Gösterim) */}
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {Object.entries(choice.effects).map(([key, val]) => {
+                      if (key === "budget" || val === 0) return null;
+                      const isPos = val > 0;
+                      const icon = STAT_ICONS[key] || "⚙️";
+                      return (
+                        <span key={key} title={isPos ? "Artması Bekleniyor" : "Düşmesi Bekleniyor"} className={`text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 ${
+                          isPos 
+                            ? 'bg-green-500/10 text-green-300 border border-green-500/20' 
+                            : 'bg-red-500/10 text-red-300 border border-red-500/20'
+                        }`}>
+                          {icon} ? {isPos ? '⬆️' : '⬇️'}
+                        </span>
+                      );
+                    })}
                   </div>
                   
                   {/* Hint is always visible but subtle */}
