@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { POLICIES, PolicyId } from "@/lib/policies";
+import { EXECUTIVE_ACTIONS } from "@/lib/executive-actions";
 import { GameState, StatEffects } from "@/lib/types";
 
 const STAT_LABELS: Record<string, string> = {
@@ -36,6 +37,7 @@ interface PoliciesPanelProps {
 
 export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isActionProcessing, setIsActionProcessing] = useState(false);
   const [message, setMessage] = useState<{text: string, type: 'success'|'error'}|null>(null);
 
   let activeLaws: PolicyId[] = [];
@@ -64,8 +66,29 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
     }
   };
 
+  const handleExecutiveAction = async (actionId: string) => {
+    setIsActionProcessing(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/game/executive-action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gameId: gameState.id, actionId })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      setMessage({ text: "Kararname başarıyla uygulandı.", type: 'success' });
+      onUpdate(); // state'i yenile
+    } catch (e: any) {
+      setMessage({ text: e.message || "İşlem başarısız.", type: 'error' });
+    } finally {
+      setIsActionProcessing(false);
+    }
+  };
+
   return (
-    <div className="glass p-6 rounded-2xl animate-fade-in">
+    <div className="animate-fade-in space-y-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white flex items-center gap-3">
           <span className="text-3xl">📜</span> Kanunlar ve Politikalar
@@ -74,15 +97,62 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
           Siyasi Sermaye: {Math.round(gameState.politicalCapital)}
         </div>
       </div>
-      <p className="text-gray-400 text-sm mb-6">
-        Yasa geçirmek siyasi sermaye (Political Capital) harcar ve ülkenin gidişatını, fraksiyon dengelerini pasif olarak etkiler.
-      </p>
 
       {message && (
-        <div className={`p-4 rounded-lg mb-6 text-sm ${message.type === 'success' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
+        <div className={`p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
           {message.text}
         </div>
       )}
+
+      {/* KARARNAMELER (EXECUTIVE ACTIONS) */}
+      <div className="glass p-6 rounded-2xl">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <span>🏛️</span> Hızlı Kararnameler
+        </h3>
+        <p className="text-gray-400 text-sm mb-4">
+          Siyasi sermayenizi anında harcayarak ülkenize geçici çözümler ve hızlı statü artışları sağlayabilirsiniz.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.values(EXECUTIVE_ACTIONS).map((action) => {
+            const canAfford = gameState.politicalCapital >= action.cost;
+            
+            return (
+              <div key={action.id} className="p-4 rounded-xl border bg-white/5 border-white/10 hover:border-cyan-500/30 transition-all flex flex-col h-full">
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="text-md font-bold text-cyan-300 flex items-center gap-2">
+                    <span>{action.icon}</span> {action.name}
+                  </h4>
+                  <span className="text-xs font-bold bg-cyan-900/50 text-cyan-200 px-2 py-1 rounded">
+                    {action.cost} PC
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 mb-3 flex-1">{action.description}</p>
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {renderEffects(action.effects)}
+                </div>
+                <button
+                  onClick={() => handleExecutiveAction(action.id)}
+                  disabled={isActionProcessing || !canAfford}
+                  className={`w-full py-2 rounded-lg font-bold text-xs transition-colors ${
+                    !canAfford ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' : 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/40'
+                  }`}
+                >
+                  {isActionProcessing ? "Uygulanıyor..." : "Kararnameyi Çıkar"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* KANUNLAR (POLICIES) */}
+      <div className="glass p-6 rounded-2xl">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <span>📜</span> Kalıcı Kanunlar
+        </h3>
+        <p className="text-gray-400 text-sm mb-6">
+          Yasa geçirmek siyasi sermaye (Political Capital) harcar ve ülkenin gidişatını, fraksiyon dengelerini pasif olarak etkiler.
+        </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.values(POLICIES).map((policy) => {
@@ -122,6 +192,7 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
             </div>
           );
         })}
+      </div>
       </div>
     </div>
   );
