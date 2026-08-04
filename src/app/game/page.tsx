@@ -81,7 +81,7 @@ function GameContent() {
       const data = await res.json();
       
       const hasSeenTutorial = localStorage.getItem("utopik_tutorial_seen");
-      if (!hasSeenTutorial || data.game.turn === 1) {
+      if (!hasSeenTutorial) {
         setIsTutorialOpen(true);
       }
 
