@@ -30,8 +30,26 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
 
   const capitalistsSupport = factions.capitalists?.support || 50;
   
-  const taxDetails = getDetailedTaxIncome(game.education, game.stability, game.happiness, capitalistsSupport, eventFlags, difficulty);
-  const maintDetails = getDetailedMaintenanceCost(game.military, game.health, game.education, eventFlags, game.budget, difficulty);
+  const taxDetails = getDetailedTaxIncome(
+    game.education,
+    game.health,
+    game.environment,
+    game.military,
+    game.stability,
+    game.happiness,
+    capitalistsSupport,
+    eventFlags,
+    difficulty
+  );
+  const maintDetails = getDetailedMaintenanceCost(
+    game.military,
+    game.health,
+    game.education,
+    game.environment,
+    eventFlags,
+    game.budget,
+    difficulty
+  );
 
   // Pasif etkileri hesapla
   let lawsCost = 0;
@@ -73,6 +91,9 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
           <div className="text-[11px] text-slate-400 space-y-1.5">
             <div className="flex justify-between"><span>Temel Vergi (Base):</span> <span>+${taxDetails.baseIncome.toLocaleString()}</span></div>
             {taxDetails.educationBonus > 0 && <div className="flex justify-between text-green-300"><span>Eğitim Seviyesi Bonusu:</span> <span>+${taxDetails.educationBonus.toLocaleString()}</span></div>}
+            {taxDetails.healthBonus > 0 && <div className="flex justify-between text-green-300"><span>Sağlıklı İşgücü Bonusu:</span> <span>+${taxDetails.healthBonus.toLocaleString()}</span></div>}
+            {taxDetails.environmentBonus > 0 && <div className="flex justify-between text-green-300"><span>Yeşil Ekonomi / Turizm:</span> <span>+${taxDetails.environmentBonus.toLocaleString()}</span></div>}
+            {taxDetails.militaryBonus > 0 && <div className="flex justify-between text-green-300"><span>Silah İhracatı Bonusu:</span> <span>+${taxDetails.militaryBonus.toLocaleString()}</span></div>}
             
             <div className="flex justify-between mt-1 pt-1 border-t border-slate-800">
               <span>Mutluluk/İstikrar/Sermaye Çarpanı:</span> 
@@ -103,6 +124,7 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
             <div className="flex justify-between"><span>Askeriye & Savunma:</span> <span>-${maintDetails.militaryCost.toLocaleString()}</span></div>
             <div className="flex justify-between"><span>Sağlık & Altyapı:</span> <span>-${maintDetails.healthCost.toLocaleString()}</span></div>
             <div className="flex justify-between"><span>Eğitim Sistemi:</span> <span>-${maintDetails.educationCost.toLocaleString()}</span></div>
+            {maintDetails.environmentCost > 0 && <div className="flex justify-between"><span>Çevre Koruması:</span> <span>-${maintDetails.environmentCost.toLocaleString()}</span></div>}
             
             {maintDetails.sickPenalty > 0 && <div className="flex justify-between text-red-300"><span>Salgın/Hastalık Ek Gideri:</span> <span>-${maintDetails.sickPenalty.toLocaleString()}</span></div>}
             {maintDetails.corruptionPenalty > 0 && <div className="flex justify-between text-orange-300"><span>Bürokrasi ve Yolsuzluk (Kasa Doluysa):</span> <span>-${maintDetails.corruptionPenalty.toLocaleString()}</span></div>}

@@ -1,7 +1,7 @@
 // =============================================
 // YourUtopia — 30+ Olay / Dilemma Verileri
 // =============================================
-import { GameEvent } from "./types";
+import { GameEvent, GameState } from "./types";
 
 export const EVENTS: GameEvent[] = [
   // ============================================

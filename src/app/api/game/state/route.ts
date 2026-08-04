@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getEventById } from "@/lib/events-data";
+import { GameEvent } from "@/lib/types";
 
 export async function GET(request: Request) {
   try {
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
       );
     }
 
-    let currentEvents = [];
+    let currentEvents: GameEvent[] = [];
     if (game.currentEventId) {
       try {
         const parsedIds = JSON.parse(game.currentEventId);
