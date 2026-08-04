@@ -459,7 +459,7 @@ function GameContent() {
                 onProjectedGainsChange={setProjectedInvestments}
                 onInvest={handleInvest}
                 onNextTurn={handleNextTurn}
-                disabled={actionLoading || (phase === "event" && !!currentEvent)}
+                disabled={actionLoading || (phase === "event" && currentEvents.length > 0)}
               />
             </div>
           </div>
