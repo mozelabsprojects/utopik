@@ -2,7 +2,32 @@
 
 import { useState } from "react";
 import { MINISTERS, Minister, MinisterId, MinistryType } from "@/lib/ministers";
-import { GameState } from "@/lib/types";
+import { GameState, StatEffects } from "@/lib/types";
+
+const STAT_LABELS: Record<string, string> = {
+  budget: "Bütçe",
+  military: "Askeriye",
+  happiness: "Mutluluk",
+  health: "Sağlık",
+  environment: "Çevre",
+  education: "Eğitim",
+  stability: "İstikrar",
+  foreignRelations: "Dış İlişkiler",
+};
+
+const renderEffects = (effects: StatEffects) => {
+  return Object.entries(effects).map(([key, val]) => {
+    if (!val) return null;
+    const isPositive = val > 0;
+    const prefix = key === "budget" ? (isPositive ? "+$" : "-$") : (isPositive ? "+" : "");
+    const valueStr = key === "budget" ? Math.abs(val) : val;
+    return (
+      <span key={key} className={`text-[10px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${isPositive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+        {prefix}{valueStr} {STAT_LABELS[key] || key}
+      </span>
+    );
+  });
+};
 
 export default function MinistersPanel({
   gameId,
@@ -81,7 +106,10 @@ export default function MinistersPanel({
                     <span className="text-2xl">{current.avatar}</span>
                     <div>
                       <p className="font-bold text-slate-100">{current.name}</p>
-                      <p className="text-xs text-blue-400">{current.title}</p>
+                      <p className="text-xs text-blue-400 mb-1">{current.title}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {renderEffects(current.passiveEffects)}
+                      </div>
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 mt-2">{current.description}</p>
@@ -98,7 +126,10 @@ export default function MinistersPanel({
                       <span className="text-xl">{candidate.avatar}</span>
                       <div>
                         <p className="text-sm font-medium text-slate-200">{candidate.name}</p>
-                        <p className="text-[10px] text-slate-400">{candidate.title} (📜 {candidate.hireCost})</p>
+                        <p className="text-[10px] text-slate-400 mb-1">{candidate.title} (📜 {candidate.hireCost})</p>
+                        <div className="flex flex-wrap gap-1">
+                          {renderEffects(candidate.passiveEffects)}
+                        </div>
                       </div>
                     </div>
                     <button

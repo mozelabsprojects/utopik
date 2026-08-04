@@ -5,6 +5,104 @@ import { GameEvent } from "./types";
 
 export const EVENTS: GameEvent[] = [
   // ============================================
+  // POZİTİF OLAYLAR (SÜRPRİZ KAZANÇLAR)
+  // ============================================
+  {
+    id: "poz_altin_madeni",
+    title: "Dev Altın Madeni Keşfedildi!",
+    description: "Kuzey dağlarında devasa ve yüksek rezervli bir altın madeni keşfedildi! Ekonomi bakanı bu kaynağın nasıl değerlendirileceğini soruyor.",
+    category: "ekonomi",
+    choices: [
+      {
+        label: "A",
+        text: "Madeni devlet işletsin — Tüm gelir hazineye kalsın.",
+        effects: { budget: 3000, stability: 5, environment: -10 },
+        factionEffects: { workers: 10, capitalists: -10, nationalists: 10 },
+        hint: "Büyük gelir, ancak çevre kirliliği artar."
+      },
+      {
+        label: "B",
+        text: "Özel sektöre ihale et — Yabancı yatırımcı gelsin.",
+        effects: { budget: 1500, foreignRelations: 10, environment: -5 },
+        factionEffects: { capitalists: 20, nationalists: -10 },
+        hint: "Orta düzey gelir, uluslararası ilişkiler ve sermaye güçlenir."
+      },
+      {
+        label: "C",
+        text: "Madeni çevreye zarar vermemek için kapalı tut.",
+        effects: { budget: 0, environment: 15, happiness: -5 },
+        factionEffects: { intellectuals: 20, capitalists: -20 },
+        hint: "Para kazanamazsınız ama doğayı korumak aydınları sevindirir."
+      }
+    ]
+  },
+  {
+    id: "poz_turizm_patlamasi",
+    title: "Turizm Patlaması!",
+    description: "Ülkenizin doğal güzellikleri ve tarihi yerleri uluslararası bir belgeselde yayınlandı. Milyonlarca turist akın ediyor!",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Turizm gelirini altyapıya ve devlete aktar.",
+        effects: { budget: 2000, foreignRelations: 5 },
+        factionEffects: { capitalists: 10, nationalists: 10 },
+        hint: "Bütçeye harika bir katkı sağlar."
+      },
+      {
+        label: "B",
+        text: "Geliri yerel esnafa ve halka kredi olarak dağıt.",
+        effects: { budget: 500, happiness: 15, stability: 5 },
+        factionEffects: { workers: 20, capitalists: -5 },
+        hint: "Daha az bütçe ama devasa mutluluk artışı."
+      }
+    ]
+  },
+  {
+    id: "poz_bilim_odulu",
+    title: "Uluslararası Teknoloji Başarısı!",
+    description: "Ulusal teknoloji enstitümüz, temiz enerji konusunda devrimsel bir patent aldı! Dünya ülkeleri bu teknolojiyi satın almak istiyor.",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Patenti satarak büyük bir bütçe geliri elde et.",
+        effects: { budget: 2500, foreignRelations: 5, education: 5 },
+        factionEffects: { capitalists: 15, intellectuals: -5 },
+        hint: "Bilimi paraya çevirirsiniz."
+      },
+      {
+        label: "B",
+        text: "Patenti satma, ücretsiz olarak ülkende kullan.",
+        effects: { budget: -500, environment: 15, health: 10, education: 15 },
+        factionEffects: { intellectuals: 20, capitalists: -10 },
+        hint: "Uzun vadede devasa bir eğitim ve sağlık sıçraması yaşanır."
+      }
+    ]
+  },
+  {
+    id: "poz_milli_bayram",
+    title: "Tarihi Yıldönümü Coşkusu",
+    description: "Ülkenin kuruluşunun tarihi yıldönümü yaklaşıyor. Halk kutlama bekliyor. Devlet bütçesinden ne kadar harcama yapalım?",
+    category: "ic_politika",
+    choices: [
+      {
+        label: "A",
+        text: "Devasa festivaller ve ücretsiz konserler düzenle.",
+        effects: { budget: -1000, happiness: 20, stability: 10 },
+        factionEffects: { nationalists: 15, workers: 15 },
+        hint: "Bütçeden biraz feda edip halkın kalbini fethedersiniz."
+      },
+      {
+        label: "B",
+        text: "Sadece resmi ve mütevazı bir tören yap.",
+        effects: { budget: -100, happiness: 5, stability: 5 },
+        factionEffects: { nationalists: 5 },
+        hint: "Bütçe dostu, küçük bir pozitif etki."
+      }
+    ]
+  },
+  // ============================================
   // BLACK SWAN (SİYAH KUĞU) & ÇARESİZLİK OLAYLARI
   // ============================================
   {

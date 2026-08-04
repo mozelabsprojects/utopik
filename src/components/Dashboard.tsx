@@ -2,6 +2,7 @@
 
 import StatBar from "./StatBar";
 import BudgetDisplay from "./BudgetDisplay";
+import FinanceAnalysis from "./FinanceAnalysis";
 
 interface GameData {
   budget: number;
@@ -52,13 +53,15 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
       {/* Budget + Stats Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Budget */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 flex flex-col h-full">
           <BudgetDisplay
             budget={game.budget}
             previousBudget={previousGame?.budget}
             isBankrupt={game.isBankrupt}
             bankruptTurns={game.bankruptTurns}
           />
+          {/* FİNANSAL ANALİZ PANELİ EKLENDİ */}
+          <FinanceAnalysis game={game} />
         </div>
 
         {/* Stats */}
