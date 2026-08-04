@@ -2,7 +2,32 @@
 
 import { useState } from "react";
 import { POLICIES, PolicyId } from "@/lib/policies";
-import { GameState } from "@/lib/types";
+import { GameState, StatEffects } from "@/lib/types";
+
+const STAT_LABELS: Record<string, string> = {
+  budget: "Bütçe",
+  military: "Askeriye",
+  happiness: "Mutluluk",
+  health: "Sağlık",
+  environment: "Çevre",
+  education: "Eğitim",
+  stability: "İstikrar",
+  foreignRelations: "Dış İlişkiler",
+};
+
+const renderEffects = (effects: StatEffects) => {
+  return Object.entries(effects).map(([key, val]) => {
+    if (!val) return null;
+    const isPositive = val > 0;
+    const prefix = key === "budget" ? (isPositive ? "+$" : "-$") : (isPositive ? "+" : "");
+    const valueStr = key === "budget" ? Math.abs(val) : val;
+    return (
+      <span key={key} className={`text-[10px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${isPositive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+        {prefix}{valueStr} {STAT_LABELS[key] || key}
+      </span>
+    );
+  });
+};
 
 interface PoliciesPanelProps {
   gameState: GameState;
@@ -75,7 +100,12 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
                   Maliyet: {policy.politicalCost} | İptal: {Math.max(1, Math.round(policy.politicalCost / 2))}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 mb-4 h-10">{policy.description}</p>
+              <div className="text-sm text-gray-400 mb-2 h-10 flex items-center">
+                <p>{policy.description}</p>
+              </div>
+              <div className="flex flex-wrap gap-1 mb-4 h-5">
+                {renderEffects(policy.passiveEffects)}
+              </div>
               
               <button
                 onClick={() => handlePolicyAction(policy.id, isActive ? "repeal" : "enact")}
