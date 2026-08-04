@@ -1503,7 +1503,15 @@ export function getRandomEvent(usedEventIds: string[], eventFlags: string[] = []
 
   if (availableEvents.length === 0) {
     // Şartları sağlayan olay kalmadı, acil durum için her zaman çıkabilecek olaylardan birini seç
-    const fallbackEvents = EVENTS.filter(e => !e.requiredFlags || e.requiredFlags.length === 0);
+    // Tekrarlamayı önlemek için en azından son 3 olayı filtrele
+    const recentEvents = usedEventIds.slice(-3);
+    let fallbackEvents = EVENTS.filter(e => (!e.requiredFlags || e.requiredFlags.length === 0) && !recentEvents.includes(e.id));
+    
+    // Eğer tüm fallback'ler de tükenmişse mecburen genel fallback yap
+    if (fallbackEvents.length === 0) {
+       fallbackEvents = EVENTS.filter(e => !e.requiredFlags || e.requiredFlags.length === 0);
+    }
+    
     const randomIndex = Math.floor(Math.random() * fallbackEvents.length);
     return fallbackEvents[randomIndex];
   }

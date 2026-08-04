@@ -30,7 +30,7 @@ export const MEGA_PROJECTS: Record<MegaProjectId, MegaProject> = {
     id: "space_program",
     name: "Mars Kolonizasyon Programı",
     description: "İnsanoğlunun Mars'a ilk adımını atması için devasa bir uzay programı. Muazzam bir prestij ve bilimsel ilerleme sağlar.",
-    cost: 50000,
+    cost: 100000,
     requiredTurn: 50,
     requiredStats: {
       education: 90,
@@ -52,7 +52,7 @@ export const MEGA_PROJECTS: Record<MegaProjectId, MegaProject> = {
     id: "nuclear_fusion",
     name: "Ticari Nükleer Füzyon",
     description: "Sınırsız ve temiz enerji. Ülkenin enerji sorununu sonsuza dek çözer ve çevre kirliliğini sıfıra indirir.",
-    cost: 40000,
+    cost: 80000,
     requiredTurn: 40,
     requiredStats: {
       education: 85,
@@ -75,7 +75,7 @@ export const MEGA_PROJECTS: Record<MegaProjectId, MegaProject> = {
     id: "utopia_city",
     name: "Ütopya Şehri",
     description: "Dünyanın en yaşanabilir, suç oranının sıfır olduğu, yapay zeka ile yönetilen mega şehri.",
-    cost: 60000,
+    cost: 120000,
     requiredTurn: 60,
     requiredStats: {
       health: 90,
@@ -99,7 +99,7 @@ export const MEGA_PROJECTS: Record<MegaProjectId, MegaProject> = {
     id: "world_peace",
     name: "Küresel Barış İttifakı",
     description: "Dünya ülkelerini tek bir bayrak altında, barış içinde yaşamak için birleştiren nihai diplomatik başarı.",
-    cost: 30000,
+    cost: 70000,
     requiredTurn: 50,
     requiredStats: {
       foreignRelations: 95,

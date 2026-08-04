@@ -14,7 +14,7 @@ import { MEGA_PROJECTS } from "./mega-projects";
 // ============================================
 // SABITLER
 // ============================================
-const BASE_INCOME = 1500;
+const BASE_INCOME = 3500;
 const CRITICAL_THRESHOLD = 30;
 const BANKRUPTCY_BUDGET_LIMIT = -5000;
 const BANKRUPTCY_DURATION = 3;
@@ -23,13 +23,13 @@ const BANKRUPTCY_DURATION = 3;
 // A. BAKIM MALİYETLERİ
 // ============================================
 export function calculateMaintenanceCost(military: number, health: number, education: number, eventFlags: string[] = [], budget: number = 0): number {
-  // Temel lineer maliyetler (düşürüldü - daha oynanabilir)
-  let cost = (military * 2.0) + (health * 1.5) + (education * 1.5);
+  // Temel lineer maliyetler (iyice düşürüldü)
+  let cost = (military * 1.5) + (health * 1.0) + (education * 1.0);
   
-  // 50'yi aşan her stat için üstel (exponential) maliyet - Kartopu etkisini engeller (yumuşatıldı)
-  if (military > 50) cost += Math.pow(military - 50, 1.5) * 1.0;
-  if (health > 50) cost += Math.pow(health - 50, 1.5) * 0.8;
-  if (education > 50) cost += Math.pow(education - 50, 1.5) * 0.7;
+  // 50'yi aşan her stat için üstel (exponential) maliyet - (çok yumuşatıldı)
+  if (military > 50) cost += Math.pow(military - 50, 1.2) * 0.8;
+  if (health > 50) cost += Math.pow(health - 50, 1.2) * 0.5;
+  if (education > 50) cost += Math.pow(education - 50, 1.2) * 0.5;
   
   if (eventFlags.includes("LEADER_GENERAL")) {
     cost = cost * 0.8; // General: Tüm bakım masrafları %20 daha ucuz

@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         stability: country.stability,
         foreignRelations: country.foreignRelations,
         popularity: 50,
-        politicalCapital: 100,
+        politicalCapital: 250,
         nextElectionTurn: 10,
         currentEventId: firstEvent.id,
         usedEventIds: JSON.stringify([firstEvent.id]),

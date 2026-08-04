@@ -7,7 +7,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Amerika Birleşik Devletleri",
     flag: "🇺🇸",
-    budget: 8000,
+    budget: 15000,
     military: 85,
     happiness: 55,
     health: 60,
@@ -22,7 +22,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "İsveç",
     flag: "🇸🇪",
-    budget: 5000,
+    budget: 10000,
     military: 30,
     happiness: 85,
     health: 90,
@@ -37,7 +37,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Türkiye",
     flag: "🇹🇷",
-    budget: 4000,
+    budget: 9000,
     military: 65,
     happiness: 45,
     health: 50,
@@ -52,7 +52,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Brezilya",
     flag: "🇧🇷",
-    budget: 3500,
+    budget: 8000,
     military: 40,
     happiness: 50,
     health: 40,
@@ -67,7 +67,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Japonya",
     flag: "🇯🇵",
-    budget: 7000,
+    budget: 14000,
     military: 45,
     happiness: 60,
     health: 85,
@@ -82,7 +82,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Nijerya",
     flag: "🇳🇬",
-    budget: 2000,
+    budget: 6000,
     military: 30,
     happiness: 35,
     health: 25,
@@ -97,7 +97,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Almanya",
     flag: "🇩🇪",
-    budget: 6500,
+    budget: 13000,
     military: 50,
     happiness: 70,
     health: 80,
@@ -112,7 +112,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Rusya",
     flag: "🇷🇺",
-    budget: 5500,
+    budget: 10000,
     military: 80,
     happiness: 35,
     health: 50,
@@ -127,7 +127,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Çin",
     flag: "🇨🇳",
-    budget: 9000,
+    budget: 16000,
     military: 90,
     happiness: 45,
     health: 65,
@@ -141,7 +141,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Hindistan",
     flag: "🇮🇳",
-    budget: 4500,
+    budget: 9000,
     military: 75,
     happiness: 55,
     health: 40,
@@ -155,7 +155,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "İngiltere",
     flag: "🇬🇧",
-    budget: 6000,
+    budget: 12000,
     military: 60,
     happiness: 65,
     health: 85,
@@ -169,7 +169,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Güney Kore",
     flag: "🇰🇷",
-    budget: 5500,
+    budget: 11000,
     military: 65,
     happiness: 45,
     health: 90,
@@ -183,7 +183,7 @@ export const COUNTRIES: CountryTemplate[] = [
   {
     name: "Suudi Arabistan",
     flag: "🇸🇦",
-    budget: 8500,
+    budget: 15000,
     military: 70,
     happiness: 60,
     health: 65,
