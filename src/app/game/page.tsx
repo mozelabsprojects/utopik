@@ -127,6 +127,8 @@ function GameContent() {
     setActionLoading(true);
 
     // OPTIMISTIC UI: Anında tepki ver
+    const previousEvent = currentEvent;
+    const previousPhase = phase;
     setCurrentEvent(null);
     setPhase("invest");
 
@@ -146,6 +148,10 @@ function GameContent() {
       setPhase("invest");
     } catch (error) {
       console.error("Seçim hatası:", error);
+      // HATA DURUMUNDA ARAYÜZÜ GERİ AL (F5 Atmaya gerek kalmaz)
+      setCurrentEvent(previousEvent);
+      setPhase(previousPhase);
+      alert("Seçim işlenirken bir ağ hatası oluştu, lütfen tekrar deneyin.");
     } finally {
       setActionLoading(false);
     }
@@ -200,6 +206,7 @@ function GameContent() {
       if (!res.ok) {
         const errorData = await res.json();
         alert(errorData.error || "Tur atlanamadı");
+        setShowTransition(false); // GEÇİŞ EKRANINI KAPAT (Takılmayı önler)
         setActionLoading(false);
         return;
       }
@@ -245,6 +252,8 @@ function GameContent() {
       } catch {}
     } catch (error) {
       console.error("Tur hatası:", error);
+      setShowTransition(false); // HATA DURUMUNDA GEÇİŞ EKRANINI KAPAT
+      alert("Tur atlanırken bir ağ hatası oluştu, lütfen tekrar deneyin.");
     } finally {
       setActionLoading(false);
     }
