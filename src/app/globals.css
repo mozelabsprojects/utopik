@@ -1,0 +1,465 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #050810;
+  --color-foreground: #d1d5db;
+  --color-surface: #0a0f1c;
+  --color-surface-light: #111827;
+  --color-border: #1a263d;
+  --color-neon-cyan: #00e5ff;
+  --color-neon-blue: #2563eb;
+  --color-gold: #f59e0b;
+  --color-danger: #f43f5e;
+  --color-danger-glow: #f43f5e30;
+  --color-warning: #f59e0b;
+  --color-success: #10b981;
+  --color-success-glow: #10b98130;
+  --color-military: #ea580c;
+  --color-happiness: #eab308;
+  --color-health: #ef4444;
+  --color-environment: #22c55e;
+  --color-education: #8b5cf6;
+  --color-stability: #6366f1;
+  --color-foreign: #06b6d4;
+  --font-sans: var(--font-inter), 'Inter', sans-serif;
+  --font-display: var(--font-display), 'Orbitron', monospace;
+}
+
+/* ============================================ */
+/* BASE STYLES                                   */
+/* ============================================ */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============================================ */
+/* ANIMATED BACKGROUND                           */
+/* ============================================ */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* ============================================ */
+/* GLASSMORPHISM                                 */
+/* ============================================ */
+.glass {
+  background: rgba(10, 15, 28, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 229, 255, 0.05);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.glass-strong {
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(0, 229, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* ============================================ */
+/* STAT BAR STYLES                               */
+/* ============================================ */
+.stat-bar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.stat-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
+  border-radius: 0 9999px 9999px 0;
+}
+
+/* ============================================ */
+/* ANIMATIONS                                    */
+/* ============================================ */
+@keyframes pulse-danger {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--color-danger-glow);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 20px var(--color-danger), 0 0 40px var(--color-danger-glow);
+    opacity: 0.85;
+  }
+}
+
+@keyframes pulse-neon {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(0, 240, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.4), 0 0 30px rgba(0, 240, 255, 0.1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-3px, 3px); }
+  40% { transform: translate(-3px, -3px); }
+  60% { transform: translate(3px, 3px); }
+  80% { transform: translate(3px, -3px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-10px); }
+  20% { transform: translateX(10px); }
+  30% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  50% { transform: translateX(-5px); }
+  60% { transform: translateX(5px); }
+  70% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+  90% { transform: translateX(-1px); }
+}
+
+@keyframes spinGear {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes matrixRain {
+  0% { opacity: 0; transform: translateY(-20px); }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(100vh); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  40% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes juiceBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-10px) scale(1.05); }
+  60% { transform: translateY(5px) scale(0.95); }
+}
+
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(0, 240, 255, 0.1); }
+  50% { border-color: rgba(0, 240, 255, 0.4); }
+}
+
+@keyframes floatBadge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* ============================================ */
+/* ANIMATION UTILITIES                           */
+/* ============================================ */
+.animate-pulse-danger {
+  animation: pulse-danger 1.5s ease-in-out infinite;
+}
+
+.animate-pulse-neon {
+  animation: pulse-neon 2s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.4s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out 3;
+}
+
+.animate-shake {
+  animation: shake 0.6s ease-in-out;
+}
+
+.animate-spin-gear {
+  animation: spinGear 2s linear infinite;
+}
+
+.animate-border-glow {
+  animation: borderGlow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: floatBadge 2s ease-in-out infinite;
+}
+
+.animate-pop-in {
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-juice-bounce {
+  animation: juiceBounce 0.5s ease-in-out;
+}
+
+/* ============================================ */
+/* BUTTON STYLES                                 */
+/* ============================================ */
+.btn-primary {
+  background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%);
+  color: #0a0e1a;
+  font-weight: 700;
+  padding: 12px 32px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 240, 255, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ff2d55 0%, #ff6b6b 100%);
+  color: white;
+  font-weight: 700;
+  padding: 12px 32px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 45, 85, 0.3);
+}
+
+/* ============================================ */
+/* CHOICE BUTTON                                 */
+/* ============================================ */
+.choice-btn {
+  background: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.choice-btn:hover {
+  border-color: rgba(0, 240, 255, 0.4);
+  background: rgba(0, 240, 255, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
+}
+
+.choice-btn:active {
+  transform: translateY(0);
+}
+
+.choice-btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.3);
+  transform: scale(0);
+  animation: rippleEffect 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ============================================ */
+/* COUNTRY SELECT CARD                           */
+/* ============================================ */
+.country-card {
+  background: rgba(17, 24, 39, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.country-card:hover {
+  border-color: rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.03);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 240, 255, 0.1);
+}
+
+.country-card.selected {
+  border-color: var(--color-neon-cyan);
+  background: rgba(0, 240, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+}
+
+/* ============================================ */
+/* SCROLLBAR                                     */
+/* ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.4);
+}
+
+/* ============================================ */
+/* DIFFICULTY BADGES                             */
+/* ============================================ */
+.badge-easy {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.badge-medium {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.badge-hard {
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.badge-extreme {
+  background: rgba(255, 45, 85, 0.15);
+  color: #ff2d55;
+  border: 1px solid rgba(255, 45, 85, 0.3);
+}
+
+/* ============================================ */
+/* CATEGORY BADGES                               */
+/* ============================================ */
+.badge-ekonomi { background: rgba(255, 215, 0, 0.15); color: #ffd700; }
+.badge-kriz { background: rgba(255, 45, 85, 0.15); color: #ff2d55; }
+.badge-dis_politika { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+.badge-ic_politika { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+.badge-cevre { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.badge-askeri { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+.badge-sosyal { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+
+/* ============================================ */
+/* INVESTMENT SLIDER                             */
+/* ============================================ */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-neon-cyan);
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+}
+
+/* ============================================ */
+/* TUTORIAL HIGHLIGHT GLOW                       */
+/* ============================================ */
+.tutorial-highlight-glow {
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.8), 0 0 35px rgba(6, 182, 212, 0.6) !important;
+  border-color: rgba(6, 182, 212, 1) !important;
+  transition: all 0.4s ease-in-out !important;
+}
+

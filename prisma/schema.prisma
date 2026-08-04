@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Game {
+  id               String       @id @default(cuid())
+  countryName      String
+  turn             Int          @default(1)
+  budget           Float        @default(5000)
+  military         Float        @default(50)
+  happiness        Float        @default(50)
+  health           Float        @default(50)
+  environment      Float        @default(50)
+  education        Float        @default(50)
+  stability        Float        @default(50)
+  foreignRelations Float        @default(50)
+  
+  // Siyasi ve Yeni Statler
+  popularity       Float        @default(50) // Başkanlık desteği
+  politicalCapital Float        @default(100) // Siyasi sermaye
+  activeQuests     String       @default("[]") // JSON formatında (Side quests)
+  nextElectionTurn Int          @default(10) // 10 turda bir seçim
+
+  // V4 Yeni Sistemler
+  turnReports      String       @default("[]") // JSON (Tur Raporları)
+  activeCrises     String       @default("[]") // JSON (Devam Eden Krizler)
+  factions         String       @default("{}") // JSON (Fraksiyon değerleri)
+  activeLaws       String       @default("[]") // JSON (Yürürlükteki Kanunlar)
+
+  // V5 Ütopya Çağı Sistemleri
+  megaProjects     String       @default("[]") // JSON (Başlanan/Biten Mega Projeler)
+  ministers        String       @default("{}") // JSON (Atanan Bakanlar)
+  activePetitions  String       @default("[]") // JSON (Bekleyen Vatandaş Dilekçeleri)
+  diplomacyState   String       @default("{}") // JSON (Savaş ve İttifaklar)
+  marketState      String       @default("{}") // JSON (Borsa ve Envanter)
+
+  isGameOver       Boolean      @default(false)
+  gameOverReason   String?
+  isBankrupt       Boolean      @default(false)
+  bankruptTurns    Int          @default(0)
+  currentEventId   String?
+  usedEventIds     String       @default("[]")
+  eventFlags       String       @default("[]") // Kelebek Etkisi bayrakları (JSON)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  investments      Investment[]
+  worldCountries   WorldCountry[]
+  tradeAgreements  TradeAgreement[]
+}
+
+model Investment {
+  id     String @id @default(cuid())
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  sector String
+  amount Float
+  turn   Int
+}
+
+model WorldCountry {
+  id               String @id @default(cuid())
+  gameId           String
+  game             Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  name             String
+  budget           Float
+  military         Float
+  happiness        Float
+  health           Float
+  environment      Float
+  education        Float
+  stability        Float
+  foreignRelations Float
+  isPlayer         Boolean @default(false)
+}
+
+model TradeAgreement {
+  id             String @id @default(cuid())
+  gameId         String
+  game           Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  partnerName    String
+  incomePerTurn  Float
+  turnsRemaining Int
+}

@@ -1,0 +1,58 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getEventById } from "@/lib/events-data";
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const gameId = searchParams.get("gameId");
+
+    if (!gameId) {
+      return NextResponse.json(
+        { error: "gameId parametresi gerekli" },
+        { status: 400 }
+      );
+    }
+
+    const game = await prisma.game.findUnique({
+      where: { id: gameId },
+      include: { 
+        investments: true,
+        worldCountries: true,
+        tradeAgreements: true
+      },
+    });
+
+    if (!game) {
+      return NextResponse.json(
+        { error: "Oyun bulunamadı" },
+        { status: 404 }
+      );
+    }
+
+    const currentEvent = game.currentEventId
+      ? getEventById(game.currentEventId)
+      : null;
+
+    // Oyuncunun güncel statlerini WorldCountry listesine anlık olarak (in-memory) yansıt (Sıralama Bug'ı Çözümü)
+    const playerWC = game.worldCountries.find(c => c.isPlayer);
+    if (playerWC) {
+      playerWC.budget = game.budget;
+      playerWC.military = game.military;
+      playerWC.stability = game.stability;
+      playerWC.education = game.education;
+      playerWC.health = game.health;
+      playerWC.environment = game.environment;
+      playerWC.happiness = game.happiness;
+      playerWC.foreignRelations = game.foreignRelations;
+    }
+
+    return NextResponse.json({ game, currentEvent });
+  } catch (error) {
+    console.error("Oyun durumu hatası:", error);
+    return NextResponse.json(
+      { error: "Oyun durumu alınamadı" },
+      { status: 500 }
+    );
+  }
+}
