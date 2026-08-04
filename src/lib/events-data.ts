@@ -102,6 +102,174 @@ export const EVENTS: GameEvent[] = [
       }
     ]
   },
+  {
+    id: "poz_teknoloji_devi",
+    title: "Teknoloji Devi Yatırımı",
+    description: "Dünyanın en büyük teknoloji şirketlerinden biri, yeni genel merkezini ülkenize kurmak istiyor. Ancak sizden büyük vergi muafiyetleri talep ediyorlar.",
+    category: "ekonomi",
+    choices: [
+      {
+        label: "A",
+        text: "Vergi muafiyeti ver ve gelmelerini sağla.",
+        effects: { budget: -500, education: 15, happiness: 10, foreignRelations: 10 },
+        factionEffects: { capitalists: 20, intellectuals: 15, workers: -5 },
+        hint: "Kısa vadede bütçeden yersiniz ama eğitim ve prestij uçar."
+      },
+      {
+        label: "B",
+        text: "Muafiyet yok, normal vergilerle yatırım yapsınlar.",
+        effects: { budget: 1500, education: 5, happiness: 5 },
+        factionEffects: { capitalists: -10, workers: 10 },
+        hint: "Yatırım daha küçük olur ama hazineye iyi para girer."
+      }
+    ]
+  },
+  {
+    id: "poz_petrol_rezervi",
+    title: "Büyük Petrol Rezervi Keşfi!",
+    description: "Ülkenin güneyindeki bakir ormanların altında devasa bir petrol rezervi keşfedildi! Bunu çıkarmak ekonomiyi şaha kaldırabilir ama doğayı katledecek.",
+    category: "ekonomi",
+    choices: [
+      {
+        label: "A",
+        text: "Ormanları yok et ve hemen çıkarmaya başla.",
+        effects: { budget: 4000, environment: -20, stability: 5 },
+        factionEffects: { capitalists: 20, nationalists: 10, intellectuals: -20 },
+        hint: "Çok büyük bir ekonomik sıçrama, ancak korkunç bir çevre felaketi."
+      },
+      {
+        label: "B",
+        text: "Çevre dostu yavaş teknolojiyle çıkar.",
+        effects: { budget: 1000, environment: -5 },
+        factionEffects: { capitalists: 5, intellectuals: 5 },
+        hint: "Orta karar para, kabul edilebilir çevre hasarı."
+      },
+      {
+        label: "C",
+        text: "Rezervi çıkarma, ormanları milli park ilan et.",
+        effects: { budget: 0, environment: 15, happiness: 10 },
+        factionEffects: { intellectuals: 20, capitalists: -20 },
+        hint: "Para kazandırmaz ama doğayı korumak halkı ve aydınları çok mutlu eder."
+      }
+    ]
+  },
+  {
+    id: "poz_olimpiyatlar",
+    title: "Küresel Spor Organizasyonu",
+    description: "Dünya Kupası veya Olimpiyatlar gibi devasa bir spor etkinliğine ev sahipliği yapmaya hak kazandınız! Hazırlıklar için bütçe ayırmanız gerekiyor.",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Devasa bütçe ayır, mükemmel bir organizasyon yap.",
+        effects: { budget: -2000, happiness: 25, foreignRelations: 20, stability: 10 },
+        factionEffects: { nationalists: 20, capitalists: 15 },
+        hint: "Pahalıdır ancak halkı sevince boğar ve küresel itibarınızı zirveye taşır."
+      },
+      {
+        label: "B",
+        text: "Sadece mevcut tesisleri kullanarak mütevazı bir organizasyon yap.",
+        effects: { budget: -500, happiness: 10, foreignRelations: 5 },
+        factionEffects: { nationalists: 5 },
+        hint: "Ekonomik ve güvenli."
+      },
+      {
+        label: "C",
+        text: "Organizasyonu iptal et, bu parayı harcayamayız.",
+        effects: { budget: 0, happiness: -15, foreignRelations: -15 },
+        factionEffects: { nationalists: -20 },
+        hint: "Para cebinizde kalır ama prestijiniz yerle bir olur."
+      }
+    ]
+  },
+  {
+    id: "poz_verimli_hasat",
+    title: "Tarihi Bereket Yılı",
+    description: "Bu yıl hava şartları mükemmel geçti ve tarımsal üretim rekor kırdı! Fazla ürünleri ne yapmalıyız?",
+    category: "ekonomi",
+    choices: [
+      {
+        label: "A",
+        text: "Hepsini yurt dışına ihraç et.",
+        effects: { budget: 1200, foreignRelations: 5 },
+        factionEffects: { capitalists: 15 },
+        hint: "Hazineniz dolar."
+      },
+      {
+        label: "B",
+        text: "Ürünleri iç piyasaya çok ucuza sat, enflasyonu düşür.",
+        effects: { budget: 200, happiness: 15, health: 10 },
+        factionEffects: { workers: 20, capitalists: -5 },
+        hint: "Halk sağlıklı ve mutlu olur, cüzdanları rahatlar."
+      }
+    ]
+  },
+  {
+    id: "poz_uzay_programi",
+    title: "Uzay Programı Başarısı",
+    description: "Yıllardır süren gizli uzay programımız meyvesini verdi ve kendi ürettiğimiz uyduyu başarıyla yörüngeye fırlattık!",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Bunu sivil iletişim ve internet için kullan.",
+        effects: { budget: 500, education: 15, happiness: 5 },
+        factionEffects: { intellectuals: 20, workers: 10 },
+        hint: "Eğitim ve ekonomi canlanır."
+      },
+      {
+        label: "B",
+        text: "Uyduyu askeri istihbarat ve gözetleme için kullan.",
+        effects: { military: 20, stability: 15, foreignRelations: -10 },
+        factionEffects: { military: 25, nationalists: 10, intellectuals: -10 },
+        hint: "Ordu ve istikrar güçlenir ama dış dünyada tepki çeker."
+      }
+    ]
+  },
+  {
+    id: "poz_genc_girisimciler",
+    title: "Genç Girişimciler Akımı",
+    description: "Ülkenizin gençleri inanılmaz yenilikçi start-up'lar kurmaya başladı. Devlet olarak nasıl bir pozisyon alacağız?",
+    category: "ekonomi",
+    choices: [
+      {
+        label: "A",
+        text: "Gençlere büyük devlet hibeleri ve krediler ver.",
+        effects: { budget: -800, education: 15, happiness: 10, stability: 5 },
+        factionEffects: { intellectuals: 15, capitalists: 15 },
+        hint: "Bütçeden yersiniz ama ülkenin geleceğini kurtaracak bir nesil yetişir."
+      },
+      {
+        label: "B",
+        text: "Hibe verme, sadece serbest piyasada gelişmelerine izin ver.",
+        effects: { budget: 500, happiness: 5 },
+        factionEffects: { capitalists: 10 },
+        hint: "Sadece vergi geliri alırsınız, risksizdir."
+      }
+    ]
+  },
+  {
+    id: "poz_kulturel_ronesans",
+    title: "Kültürel Rönesans",
+    description: "Ülkenizde bir sanat ve sinema akımı dünyayı kasıp kavurmaya başladı! Filmlerimiz ödüller alıyor, müziklerimiz listelerde 1 numara.",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Kültür Bakanlığı bütçesini artır ve bu akımı destekle.",
+        effects: { budget: -400, happiness: 20, foreignRelations: 15, education: 5 },
+        factionEffects: { intellectuals: 20, nationalists: 15 },
+        hint: "Halkınız gurur duyar, yumuşak gücünüz (soft power) artar."
+      },
+      {
+        label: "B",
+        text: "Bu popülerliği turizme çevirecek reklamlar yap.",
+        effects: { budget: 1000, happiness: 5, foreignRelations: 5 },
+        factionEffects: { capitalists: 15 },
+        hint: "Sanatı paraya çevirirsiniz."
+      }
+    ]
+  },
   // ============================================
   // BLACK SWAN (SİYAH KUĞU) & ÇARESİZLİK OLAYLARI
   // ============================================
