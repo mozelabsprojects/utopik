@@ -58,6 +58,7 @@ export interface GameEvent {
   choices: Choice[];
   requiredFlags?: string[]; // Sadece bu bayraklar varsa tetiklenir
   forbiddenFlags?: string[]; // Bu bayraklar varsa ASLA tetiklenmez
+  condition?: (state: GameState) => boolean; // Belirli stat şartlarına göre tetiklenmesi için
 }
 
 export interface CountryTemplate {

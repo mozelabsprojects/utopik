@@ -393,8 +393,8 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // 11. Tur sayısını artır
   state.turn += 1;
 
-  // 12. Yeni olay seç (artık gerçekten kullanılmış olay ID'leri filtreleniyor)
-  let newEvent = getRandomEvent(usedEventIds, eventFlags);
+  // 12. Yeni olay seç (artık gerçekten kullanılmış olay ID'leri filtreleniyor ve şartlar kontrol ediliyor)
+  let newEvent = getRandomEvent(usedEventIds, eventFlags, state);
 
   // --- BLACK SWAN (SİYAH KUĞU) ETKİNLİKLERİ TETİKLEYİCİLERİ ---
   if (state.bankruptTurns === 2 && !usedEventIds.includes("omnicorp_buyout")) {

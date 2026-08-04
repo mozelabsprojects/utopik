@@ -327,14 +327,14 @@ export const EVENTS: GameEvent[] = [
       {
         label: "C",
         text: "Ulusal dijital para çıkar — CBDC projesi başlat.",
-        effects: { budget: -600, happiness: 0, education: 10, foreignRelations: 8, stability: 3 }, factionEffects: { capitalists: -5, intellectuals: 10, nationalists: 10 },
-        hint: "Pahalı ama teknolojik sıçrama",
+        effects: { budget: 1500, happiness: 0, education: 10, foreignRelations: 8, stability: 3 }, factionEffects: { capitalists: -5, intellectuals: 10, nationalists: 10 },
+        hint: "Başarılı bir dijital ekonomi atağı, bütçe geliri artar."
       },
       {
         label: "D",
         text: "Tamamen serbest bırak — müdahale etme.",
         effects: { budget: 0, happiness: 10, stability: -10, foreignRelations: -3 }, factionEffects: { capitalists: 5, workers: 10, nationalists: 10 },
-        hint: "Gençler mutlu, finansal riskler artar",
+        hint: "Gençler mutlu, finansal riskler artar"
       },
     ],
   },
@@ -1127,6 +1127,7 @@ export const EVENTS: GameEvent[] = [
     description:
       "PISA sınavlarında ülkeniz çok kötü sonuçlar aldı! Eğitim sistemi tartışılıyor. Öğretmenler maaş zammı istiyor, veliler müfredat değişikliği talep ediyor.",
     category: "sosyal",
+    condition: (state) => state.education < 70,
     choices: [
       {
         label: "A",
@@ -1307,7 +1308,7 @@ export const EVENTS: GameEvent[] = [
  * Kullanılmamış olaylardan ve şartları sağlanan olaylardan rastgele birini seçer.
  * Tüm olaylar kullanılmışsa havuzu sıfırlar.
  */
-export function getRandomEvent(usedEventIds: string[], eventFlags: string[] = []): GameEvent {
+export function getRandomEvent(usedEventIds: string[], eventFlags: string[] = [], state?: any): GameEvent {
   const availableEvents = EVENTS.filter((e) => {
     // 1. Olay zaten oynandı mı?
     if (usedEventIds.includes(e.id)) return false;
@@ -1322,6 +1323,11 @@ export function getRandomEvent(usedEventIds: string[], eventFlags: string[] = []
     if (e.forbiddenFlags && e.forbiddenFlags.length > 0) {
       const hasAnyForbidden = e.forbiddenFlags.some(flag => eventFlags.includes(flag));
       if (hasAnyForbidden) return false;
+    }
+
+    // 4. Özel şart (Condition) kontrolü
+    if (e.condition && state) {
+      if (!e.condition(state)) return false;
     }
 
     return true;
