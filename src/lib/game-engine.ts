@@ -262,7 +262,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
       if (crisis.passiveEffects.stability) state.stability = clampStat(state.stability + crisis.passiveEffects.stability);
       if (crisis.passiveEffects.happiness) state.happiness = clampStat(state.happiness + crisis.passiveEffects.happiness);
       if (crisis.passiveEffects.health) state.health = clampStat(state.health + crisis.passiveEffects.health);
-      turnReports.push(`⚠️ DEVAM EDEN KRİZ (${crisis.name}): Ülkeye zarar vermeye devam ediyor.`);
+      turnReports.push(`⚠️ DEVAM EDEN KRİZ (${crisis.name}): Ülkeye zarar vermeye devam ediyor.\n💡 ${crisis.description}`);
     }
   }
 
@@ -271,7 +271,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     const cId = id as CrisisId;
     if (!remainingCrises.includes(cId) && crisis.triggerCondition(state, factions, activeLaws)) {
       remainingCrises.push(cId);
-      turnReports.push(`🚨 YENİ KRİZ PATLAK VERDİ: ${crisis.name}! Derhal müdahale edilmeli.`);
+      turnReports.push(`🚨 YENİ KRİZ PATLAK VERDİ: ${crisis.name}!\n💡 ${crisis.description}`);
     }
   }
   activeCrises = remainingCrises;

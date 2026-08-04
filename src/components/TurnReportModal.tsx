@@ -23,7 +23,7 @@ export default function TurnReportModal({ reports, onClose }: TurnReportModalPro
           {reports.map((report, idx) => (
             <div 
               key={idx} 
-              className={`p-4 rounded-xl border ${
+              className={`p-4 rounded-xl border whitespace-pre-line ${
                 report.includes("⚠️") || report.includes("🚨") || report.includes("☠️") || report.includes("📉") 
                   ? "bg-red-500/10 border-red-500/20 text-red-100" 
                   : report.includes("✅") || report.includes("💰") 
