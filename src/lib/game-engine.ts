@@ -42,7 +42,13 @@ export function calculateMaintenanceCost(military: number, health: number, educa
 
   // Yolsuzluk / Bürokrasi Cezası: Kasa çok dolarsa para israfı başlar
   if (budget > 15000) {
-    const corruptionPenalty = (budget - 15000) * 0.05; // Fazlalığın %5'i havaya uçar
+    let corruptionPenalty = 0;
+    if (budget > 25000) {
+      corruptionPenalty += (budget - 25000) * 0.10; // 25.000 üzerinin %10'u
+      corruptionPenalty += 10000 * 0.05; // 15.000 ile 25.000 arasının %5'i
+    } else {
+      corruptionPenalty += (budget - 15000) * 0.05;
+    }
     cost += corruptionPenalty;
   }
 
@@ -211,13 +217,14 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
 
   // 1.7 Lider Profili Etkileri (Sistemik)
   if (eventFlags.includes("LEADER_TECHNOCRAT")) {
-    state.education = clampStat(state.education + 1);
+    state.education = clampStat(state.education + 2);
     state.happiness = clampStat(state.happiness - 1);
-    turnReports.push(`🧠 Teknokrat Yönetim: Eğitim +1, Mutluluk -1.`);
+    turnReports.push(`🧠 Teknokrat Yönetim: Eğitim +2, Mutluluk -1.`);
   }
   if (eventFlags.includes("LEADER_GENERAL")) {
+    state.military = clampStat(state.military + 2);
     state.foreignRelations = clampStat(state.foreignRelations - 1);
-    turnReports.push(`🎖️ Askeri Yönetim: Bakım Masrafı -%20, ancak Dış İlişkiler -1 (Komşular tedirgin).`);
+    turnReports.push(`🎖️ Askeri Yönetim: Askeri Güç +2, Bakım Masrafı -%20, Dış İlişkiler -1.`);
   }
   if (eventFlags.includes("LEADER_ECONOMIST")) {
     state.environment = clampStat(state.environment - 1);
@@ -225,8 +232,8 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   }
   if (eventFlags.includes("LEADER_POPULIST")) {
     state.happiness = clampStat(state.happiness + 1);
-    state.politicalCapital = Math.max(0, state.politicalCapital - 1);
-    turnReports.push(`🤝 Popülist Yönetim: Mutluluk +1, ancak Siyasi Sermaye -1.`);
+    state.politicalCapital = Math.max(0, state.politicalCapital - 2);
+    turnReports.push(`🤝 Popülist Yönetim: Mutluluk +1, Siyasi Sermaye -2.`);
   }
 
   // 2. Bakım Maliyeti

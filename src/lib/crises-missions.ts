@@ -87,8 +87,8 @@ export const QUESTS: Record<QuestId, Quest> = {
   boost_military: {
     id: "boost_military",
     title: "Ordunun Modernizasyonu",
-    description: "Ordu, 4 tur içinde Askeri gücün 75'in üzerine çıkarılmasını istiyor.",
-    deadlineTurns: 4,
+    description: "Ordu, 10 tur içinde Askeri gücün 75'in üzerine çıkarılmasını istiyor.",
+    deadlineTurns: 10,
     condition: (state) => state.military >= 75,
     onSuccess: (factions, state) => ({
       newFactions: modifyFactionSupport(factions, { military: 25, nationalists: 10 }),

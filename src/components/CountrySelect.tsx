@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface CountrySelectProps {
   onSelect: (countryName: string, leaderProfile: string) => void;
+  onContinue?: () => void;
+  saveId?: string | null;
   loading?: boolean;
 }
 
@@ -17,9 +19,10 @@ const DIFFICULTY_BADGES: Record<string, string> = {
   "Çok Zor": "badge-extreme",
 };
 
-export default function CountrySelect({ onSelect, loading }: CountrySelectProps) {
+export default function CountrySelect({ onSelect, onContinue, saveId, loading }: CountrySelectProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [leaderProfile, setLeaderProfile] = useState<string>("default");
+  const [isStarting, setIsStarting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (name: string) => {
@@ -29,7 +32,10 @@ export default function CountrySelect({ onSelect, loading }: CountrySelectProps)
 
   const handleStart = () => {
     if (selected) {
-      onSelect(selected, leaderProfile);
+      setIsStarting(true);
+      setTimeout(() => {
+        onSelect(selected, leaderProfile);
+      }, 800);
     }
   };
 
@@ -46,20 +52,41 @@ export default function CountrySelect({ onSelect, loading }: CountrySelectProps)
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-10 relative overflow-hidden bg-slate-950">
+    <div className="min-h-screen flex flex-col items-center justify-center py-10 relative overflow-hidden bg-slate-950 bg-map-overlay">
+      <div className="absolute inset-0 bg-slate-950/75 z-0 pointer-events-none" />
       {/* Background glow effects */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[120px] pointer-events-none z-0" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none z-0" />
 
       {/* Header */}
       <div className="text-center mb-8 z-10 animate-slide-in">
-        <h1 className="text-6xl md:text-8xl font-[family-name:var(--font-display)] font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-400 mb-4 tracking-tighter drop-shadow-[0_0_30px_rgba(6,182,212,0.5)]">
+        <h1 className="text-6xl md:text-8xl font-[family-name:var(--font-display)] font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-300 mb-4 tracking-tighter drop-shadow-[0_0_30px_rgba(6,182,212,0.8)] animate-pulse-neon">
           ÜTOPİK
         </h1>
         <p className="text-slate-300 text-lg md:text-xl font-medium tracking-wide max-w-2xl mx-auto px-4">
           Bir ulusun kaderini seçin. Alacağınız her karar, kelebek etkisiyle tarihi yeniden yazacak.
         </p>
       </div>
+
+      {/* Continue Game Button */}
+      {saveId && onContinue && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="z-20 mb-8"
+        >
+          <button
+            onClick={onContinue}
+            disabled={loading}
+            className="group relative px-8 py-3 rounded-2xl bg-indigo-500/20 hover:bg-indigo-500/40 border border-indigo-400/50 text-indigo-300 font-bold tracking-wide transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[0_0_40px_rgba(99,102,241,0.4)] disabled:opacity-50"
+          >
+            <span className="flex items-center gap-3">
+              <span className="text-2xl group-hover:scale-110 transition-transform">💾</span>
+              KALDIĞIN YERDEN DEVAM ET
+            </span>
+          </button>
+        </motion.div>
+      )}
 
       {/* Main Content Area */}
       <div className="w-full max-w-[1600px] relative z-10 px-4 md:px-12 flex flex-col items-center">
@@ -88,10 +115,10 @@ export default function CountrySelect({ onSelect, loading }: CountrySelectProps)
                 transition={{ delay: i * 0.1 }}
                 key={country.name}
                 onClick={() => handleSelect(country.name)}
-                className={`flex-none w-[300px] md:w-[340px] snap-center cursor-pointer transition-all duration-300 rounded-3xl p-6 relative overflow-hidden border-2 ${
+                className={`group flex-none w-[300px] md:w-[340px] snap-center cursor-pointer transition-all duration-300 rounded-3xl p-6 relative overflow-hidden border-2 ${
                   selected === country.name 
-                    ? "bg-slate-900/90 border-cyan-400 shadow-[0_0_40px_rgba(6,182,212,0.4)] scale-105 z-10" 
-                    : "bg-slate-900/60 border-slate-700/50 hover:bg-slate-800/80 hover:border-slate-500 hover:-translate-y-2 opacity-70 hover:opacity-100 backdrop-blur-sm"
+                    ? "glass-premium border-cyan-400 shadow-[0_0_40px_rgba(6,182,212,0.6)] scale-105 z-10" 
+                    : "glass-premium border-white/10 hover:bg-white/10 hover:border-cyan-500/50 hover:-translate-y-4 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] opacity-80 hover:opacity-100"
                 }`}
               >
                 {/* Active Indicator Glow */}
@@ -126,8 +153,8 @@ export default function CountrySelect({ onSelect, loading }: CountrySelectProps)
                       { icon: "🌍", val: country.foreignRelations, label: "Dış" },
                       { icon: "💰", val: Math.round(country.budget / 100), label: "Para" },
                     ].map((stat, j) => (
-                      <div key={j} className="flex flex-col items-center justify-center bg-slate-950/50 rounded-lg py-1.5 border border-slate-800">
-                        <span className="text-xs mb-0.5" title={stat.label}>{stat.icon}</span>
+                      <div key={j} className="flex flex-col items-center justify-center bg-slate-950/40 rounded-lg py-1.5 border border-white/5 transition-colors group-hover:bg-slate-900/60">
+                        <span className="text-xs mb-0.5 stat-icon" title={stat.label}>{stat.icon}</span>
                         <span className={`text-xs font-bold ${
                           stat.val < 30 ? "text-red-400" : stat.val < 50 ? "text-yellow-400" : "text-emerald-400"
                         }`}>
@@ -167,7 +194,7 @@ export default function CountrySelect({ onSelect, loading }: CountrySelectProps)
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-slate-900 border border-cyan-500/30 rounded-3xl p-8 max-w-md w-full relative shadow-[0_0_50px_rgba(6,182,212,0.2)] flex flex-col items-center text-center"
+              className={`glass-premium border border-cyan-500/50 rounded-3xl p-8 max-w-md w-full relative shadow-[0_0_50px_rgba(6,182,212,0.3)] flex flex-col items-center text-center holographic-scan overflow-hidden ${isStarting ? 'animate-warp' : ''}`}
             >
               {!loading && (
                 <button

@@ -19,8 +19,10 @@ import DiplomacyPanel from "@/components/DiplomacyPanel";
 import PetitionsModal from "@/components/PetitionsModal";
 import GameTutorial from "@/components/GameTutorial";
 import GlobalMarketPanel from "@/components/GlobalMarketPanel";
+import SettingsModal from "@/components/SettingsModal";
 import Sidebar, { SidebarTab } from "@/components/Sidebar";
 import { GameEvent, DominoEffect, Sector, GameState, WorldCountryState } from "@/lib/types";
+import { playClickSound, playTurnSound, playAlertSound } from "@/lib/audio";
 
 interface GameData extends GameState {
   worldCountries: WorldCountryState[];
@@ -59,6 +61,15 @@ function GameContent() {
   // Tutorial modal state
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
 
+  // Settings modal state
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [uiScale, setUiScale] = useState(100);
+
+  useEffect(() => {
+    const savedScale = localStorage.getItem("utopik_ui_scale");
+    if (savedScale) setUiScale(parseInt(savedScale, 10));
+  }, []);
+
   const fetchGameState = useCallback(async () => {
     if (!gameId) return;
     try {
@@ -72,6 +83,13 @@ function GameContent() {
       }
 
       setGame(data.game);
+      
+      // Save state check for Continue feature
+      if (!data.game.isGameOver) {
+        localStorage.setItem("utopik_save_id", data.game.id);
+      } else {
+        localStorage.removeItem("utopik_save_id");
+      }
       setCurrentEvent(data.currentEvent);
 
       if (data.game.currentEventId) {
@@ -102,6 +120,7 @@ function GameContent() {
 
   const handleChoice = async (label: string) => {
     if (!game || actionLoading) return;
+    playClickSound();
     setActionLoading(true);
 
     try {
@@ -127,6 +146,7 @@ function GameContent() {
 
   const handleInvest = async (sector: Sector, amount: number) => {
     if (!game || actionLoading) return;
+    playClickSound();
     setActionLoading(true);
 
     try {
@@ -153,6 +173,7 @@ function GameContent() {
     setActionLoading(true);
 
     try {
+      playTurnSound();
       const res = await fetch("/api/game/next-turn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -168,6 +189,13 @@ function GameContent() {
 
       const data = await res.json();
 
+      // Check for alerts
+      const oldCrises = JSON.parse(game.activeCrises || "[]");
+      const newCrises = JSON.parse(data.game.activeCrises || "[]");
+      if (newCrises.length > oldCrises.length || data.turnResult.newEvent) {
+        setTimeout(() => playAlertSound(), 600);
+      }
+
       // Show turn transition
       setTurnData({
         turnNumber: data.game.turn,
@@ -181,6 +209,13 @@ function GameContent() {
       // Update game state after transition
       setPreviousGame(game);
       setGame(data.game);
+      
+      if (!data.game.isGameOver) {
+        localStorage.setItem("utopik_save_id", data.game.id);
+      } else {
+        localStorage.removeItem("utopik_save_id");
+      }
+
       setCurrentEvent(data.turnResult.newEvent);
       setPhase("event");
 
@@ -278,7 +313,10 @@ function GameContent() {
   }
 
   return (
-    <div className="min-h-screen flex h-screen overflow-hidden bg-slate-950">
+    <div 
+      className="min-h-screen flex h-screen overflow-hidden bg-slate-950"
+      style={{ zoom: uiScale / 100 } as React.CSSProperties}
+    >
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="flex-1 flex flex-col min-w-0 h-full p-2 md:p-4 max-w-[1600px] mx-auto overflow-hidden relative">
@@ -295,6 +333,7 @@ function GameContent() {
           budget={game.budget}
           politicalCapital={game.politicalCapital}
           onOpenTutorial={() => setIsTutorialOpen(true)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
         />
         
         <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4 custom-scrollbar">
@@ -445,7 +484,6 @@ function GameContent() {
         onComplete={() => setShowTransition(false)}
       />
 
-        {/* Game Over modal */}
         {game.isGameOver && game.gameOverReason && (
           <GameOverModal
             reason={game.gameOverReason}
@@ -466,6 +504,13 @@ function GameContent() {
         )}
         </div>
       </div>
+
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        uiScale={uiScale} 
+        setUiScale={setUiScale} 
+      />
     </div>
   );
 }

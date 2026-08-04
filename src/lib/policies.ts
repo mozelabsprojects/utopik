@@ -36,7 +36,7 @@ export const POLICIES: Record<PolicyId, Policy> = {
     description: "Ordu sokaklara iner. İstikrar artar ama mutluluk ve özgürlükler biter.",
     politicalCost: 50,
     factionImpactOnEnact: { military: 20, nationalists: 10, intellectuals: -25, workers: -15 },
-    passiveEffects: { stability: 5, happiness: -4, budget: -300 },
+    passiveEffects: { stability: 5, happiness: -4, budget: -500 },
     passiveFactionEffects: { intellectuals: -2, workers: -1 } // Added to match previous logic
   },
   tax_cuts: {
@@ -45,7 +45,7 @@ export const POLICIES: Record<PolicyId, Policy> = {
     description: "Şirketlerden alınan vergiler düşürülür. Yatırımları teşvik eder, bütçe açığı yaratır.",
     politicalCost: 30,
     factionImpactOnEnact: { capitalists: 25, workers: -15 },
-    passiveEffects: { budget: -1000, stability: 1 }
+    passiveEffects: { budget: -500, stability: 1 }
   },
   green_energy: {
     id: "green_energy",
@@ -70,6 +70,6 @@ export const POLICIES: Record<PolicyId, Policy> = {
     description: "Yoksullukla mücadele için taban maaş yardımları.",
     politicalCost: 45,
     factionImpactOnEnact: { workers: 25, capitalists: -15 },
-    passiveEffects: { budget: -1200, happiness: 3, stability: 2 }
+    passiveEffects: { budget: -600, happiness: 3, stability: 2 }
   }
 };

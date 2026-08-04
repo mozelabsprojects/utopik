@@ -463,3 +463,56 @@ input[type="range"]::-webkit-slider-thumb:hover {
   transition: all 0.4s ease-in-out !important;
 }
 
+/* ============================================ */
+/* NEW HOLOGRAPHIC & GLITCH FX                 */
+/* ============================================ */
+.bg-map-overlay {
+  background-image: url('/bg-map.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@keyframes warpTransition {
+  0% { transform: scale(1); filter: hue-rotate(0deg) blur(0px); opacity: 1; }
+  50% { transform: scale(1.1) skewX(5deg); filter: hue-rotate(90deg) blur(5px) brightness(1.5); opacity: 0.8; }
+  100% { transform: scale(3) skewX(-10deg); filter: hue-rotate(180deg) blur(20px) brightness(2); opacity: 0; }
+}
+
+.animate-warp {
+  animation: warpTransition 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes holographicScan {
+  0% { background-position: 0% -100%; }
+  100% { background-position: 0% 200%; }
+}
+
+.holographic-scan::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, rgba(0, 229, 255, 0.1) 50%, transparent);
+  background-size: 100% 200%;
+  animation: holographicScan 3s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.group:hover .stat-icon {
+  animation: iconBounce 0.6s ease-in-out infinite;
+}
+
+.glass-premium {
+  background: rgba(10, 15, 28, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+

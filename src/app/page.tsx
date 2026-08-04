@@ -1,12 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CountrySelect from "@/components/CountrySelect";
 
 export default function HomePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [saveId, setSaveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("utopik_save_id");
+    if (saved) setSaveId(saved);
+  }, []);
 
   const handleCountrySelect = async (countryName: string, leaderProfile: string) => {
     setLoading(true);
@@ -30,5 +36,12 @@ export default function HomePage() {
     }
   };
 
-  return <CountrySelect onSelect={handleCountrySelect} loading={loading} />;
+  const handleContinue = () => {
+    if (saveId) {
+      setLoading(true);
+      router.push(`/game?id=${saveId}`);
+    }
+  };
+
+  return <CountrySelect onSelect={handleCountrySelect} onContinue={handleContinue} saveId={saveId} loading={loading} />;
 }

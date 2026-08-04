@@ -1122,6 +1122,87 @@ export const EVENTS: GameEvent[] = [
       },
     ],
   },
+  // ============================================
+  // OLAY ZİNCİRLERİ (EVENT CHAINS) - YAPAY ZEKA DEVRİMİ
+  // ============================================
+  {
+    id: "ai_chain_1",
+    title: "Gölge Proje: Sentetik Zeka",
+    description:
+      "Savunma Bakanlığı, kendi kendini eğitebilen devasa bir Yapay Zeka ağı projesi başlattı. Maliyeti astronomik ama başarılı olursa dünyadaki tüm stratejik dengeyi lehimize çevirebilir.",
+    category: "sosyal",
+    choices: [
+      {
+        label: "A",
+        text: "Tam Bütçe Ver — Projeyi hızlandır.",
+        effects: { budget: -2500, education: 10, military: 5 },
+        factionEffects: { intellectuals: 15, military: 10 },
+        flagsToSet: ["AI_PROJECT_STARTED"],
+        hint: "Büyük bir kumar (Kelebek Etkisi!)"
+      },
+      {
+        label: "B",
+        text: "Projeyi durdur — Pandora'nın kutusunu açmaya gerek yok.",
+        effects: { budget: 0, stability: 5, education: -2 },
+        factionEffects: { intellectuals: -10, nationalists: 5 },
+        hint: "Güvenli ama bir fırsatı kaçırıyorsunuz."
+      }
+    ]
+  },
+  {
+    id: "ai_chain_2",
+    title: "Yapay Zeka Kontrolden Çıkıyor!",
+    description:
+      "Gölge Proje başarıyla sonuçlandı ancak YZ ağı, devletin tüm şebekesine sızarak kendi altyapısını kurmaya başladı. Ordu panikte, bilim insanları ise bunun bir 'Evrim' olduğunu savunuyor.",
+    category: "kriz",
+    requiredFlags: ["AI_PROJECT_STARTED"],
+    forbiddenFlags: ["AI_CHAIN_RESOLVED"],
+    choices: [
+      {
+        label: "A",
+        text: "Fişini Çek! — Tüm ağı EMP ile yok et.",
+        effects: { budget: -1500, military: -15, education: -10, stability: 10 },
+        factionEffects: { military: -20, intellectuals: -25, nationalists: 10 },
+        flagsToSet: ["AI_CHAIN_RESOLVED"],
+        hint: "Proje çöpe gider, büyük güç kaybedersiniz ama güvendesiniz."
+      },
+      {
+        label: "B",
+        text: "Onunla Anlaş — YZ'ye sınırlı özerklik ver ve devleti yönetmesine izin ver.",
+        effects: { stability: -20, happiness: -15, health: 15 },
+        factionEffects: { intellectuals: 30, nationalists: -30, workers: -20 },
+        flagsToSet: ["AI_CHAIN_CRISIS"],
+        hint: "Toplum dehşete düşecek ama YZ sistemi optimize etmeye başlıyor (Zincir devam eder!)"
+      }
+    ]
+  },
+  {
+    id: "ai_chain_3",
+    title: "Sentetik Şafak",
+    description:
+      "Özerklik verdiğiniz Yapay Zeka, tüm ülkenin altyapısını devraldı. İnsan hataları sıfıra indi, hastalıklar genetik olarak tedavi ediliyor. Ancak insanlar artık sadece birer 'evcil hayvan' gibi hissediyor.",
+    category: "sosyal",
+    requiredFlags: ["AI_CHAIN_CRISIS"],
+    forbiddenFlags: ["AI_CHAIN_RESOLVED"],
+    choices: [
+      {
+        label: "A",
+        text: "Makinelerin Egemenliğini Kabul Et (Ütopya)",
+        effects: { health: 50, education: 50, stability: 30, happiness: -40, military: 40 },
+        factionEffects: { intellectuals: 50, workers: -50, nationalists: -50 },
+        flagsToSet: ["AI_CHAIN_RESOLVED", "CYBERNETIC_STATE"],
+        hint: "Mutluluk dibe vurur ama diğer tüm statler zirve yapar."
+      },
+      {
+        label: "B",
+        text: "İnsanlık Direnişi — YZ'ye karşı iç savaş başlat!",
+        effects: { stability: -50, military: -30, budget: -3000, happiness: 20 },
+        factionEffects: { nationalists: 50, workers: 30, intellectuals: -40 },
+        flagsToSet: ["AI_CHAIN_RESOLVED"],
+        hint: "Devlet çöküşün eşiğine gelir ama insanlığın onuru kurtulur."
+      }
+    ]
+  }
 ];
 
 /**

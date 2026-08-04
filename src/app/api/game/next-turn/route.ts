@@ -61,6 +61,7 @@ export async function POST(request: Request) {
     let aiFinancialAid = 0;
     let totalWarExhaustion = 0;
     let isAtWar = false;
+    let activeAlliesCount = 0;
     let aiMessages: string[] = [];
 
     // Diplomacy ve Market State'lerini parse et
@@ -142,6 +143,7 @@ export async function POST(request: Request) {
           }
         } else if (dip?.type === 'alliance') {
           // Aktif ittifak bonusları
+          activeAlliesCount++;
           aiFinancialAid += 200; // İttifaktan gelen pasif ticaret/destek geliri
           aiMessages.push(`🤝 İTTİFAK: ${ai.name} ile ortaklığımız ekonomiye $200 katkı sağladı.`);
           dip.turnsRemaining--;
@@ -178,6 +180,14 @@ export async function POST(request: Request) {
     let currentReports: string[] = [];
     try { currentReports = JSON.parse(game.turnReports); } catch {}
     
+    if (isAtWar && activeAlliesCount > 0) {
+      const damageReduction = Math.round(totalAiAttackDamage * (0.3 * Math.min(3, activeAlliesCount)));
+      totalAiAttackDamage -= damageReduction;
+      if (damageReduction > 0) {
+        aiMessages.push(`🛡️ MÜTTEFİK DESTEĞİ: İttifak olduğumuz ülkeler cepheye destek göndererek savaş hasarımızı ${damageReduction} birim hafifletti!`);
+      }
+    }
+
     if (totalWarExhaustion > 0) {
       aiMessages.push(`⚠️ SAVAŞ YORGUNLUĞU: Uzayan savaşlar halkı canından bezdirdi (İstikrar ve Mutluluk -${totalWarExhaustion}).`);
     }

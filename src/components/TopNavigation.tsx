@@ -7,9 +7,10 @@ interface TopNavigationProps {
   budget: number;
   politicalCapital: number;
   onOpenTutorial?: () => void;
+  onOpenSettings?: () => void;
 }
 
-export default function TopNavigation({ turn, budget, politicalCapital, onOpenTutorial }: TopNavigationProps) {
+export default function TopNavigation({ turn, budget, politicalCapital, onOpenTutorial, onOpenSettings }: TopNavigationProps) {
   return (
     <div className="glass-strong rounded-xl p-3 mb-4 flex justify-between items-center animate-slide-in shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-white/5 relative z-30">
       <div className="flex gap-6 items-center">
@@ -39,6 +40,13 @@ export default function TopNavigation({ turn, budget, politicalCapital, onOpenTu
       </div>
 
       <div className="flex gap-2">
+        <button
+          onClick={onOpenSettings}
+          className="px-3 py-2 rounded-lg font-bold text-slate-300 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/30 transition-all flex items-center justify-center text-sm shadow-sm"
+          title="Ayarlar"
+        >
+          <span className="text-lg">⚙️</span>
+        </button>
         <button
           onClick={onOpenTutorial}
           className="px-4 py-2 rounded-lg font-bold text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 transition-all flex items-center gap-2 text-sm shadow-[0_0_15px_rgba(0,240,255,0.15)]"
