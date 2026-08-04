@@ -121,6 +121,50 @@ function GameContent() {
     fetchGameState();
   }, [fetchGameState]);
 
+  // CHEAT CODES (GOD MODE) LISTENER
+  useEffect(() => {
+    let keyBuffer = "";
+    
+    const triggerCheat = async (code: string) => {
+      if (!gameId) return;
+      try {
+        const res = await fetch("/api/game/cheat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ gameId, code }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setGame(data.game);
+          alert(`GİZLİ HİLE KODU AKTİFLEŞTİRİLDİ: ${code.toUpperCase()} 💥`);
+          playAlertSound();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return; // Typing in an input field
+      }
+      
+      keyBuffer += e.key.toLowerCase();
+      if (keyBuffer.length > 20) keyBuffer = keyBuffer.slice(-20);
+
+      if (keyBuffer.endsWith("hesoyam")) {
+        triggerCheat("hesoyam");
+        keyBuffer = "";
+      } else if (keyBuffer.endsWith("aezakmi")) {
+        triggerCheat("aezakmi");
+        keyBuffer = "";
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [gameId]);
+
   const handleChoice = async (label: string) => {
     if (!game || actionLoading) return;
     playClickSound();
