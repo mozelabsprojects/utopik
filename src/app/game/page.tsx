@@ -5,11 +5,10 @@ import { useEffect, useState, useCallback, Suspense } from "react";
 import Dashboard from "@/components/Dashboard";
 import EventCard from "@/components/EventCard";
 import InvestmentPanel from "@/components/InvestmentPanel";
-import TurnTransition from "@/components/TurnTransition";
+import TurnSummaryModal from "@/components/TurnSummaryModal";
 import GameOverModal from "@/components/GameOverModal";
 import TopNavigation from "@/components/TopNavigation";
 import WorldMap from "@/components/WorldMap";
-import TurnReportModal from "@/components/TurnReportModal";
 import FactionsPanel from "@/components/FactionsPanel";
 import PoliciesPanel from "@/components/PoliciesPanel";
 import CrisesAndQuests from "@/components/CrisesAndQuests";
@@ -23,6 +22,7 @@ import SettingsModal from "@/components/SettingsModal";
 import Sidebar, { SidebarTab } from "@/components/Sidebar";
 import { GameEvent, DominoEffect, Sector, GameState, WorldCountryState } from "@/lib/types";
 import { playClickSound, playTurnSound, playAlertSound } from "@/lib/audio";
+import { generateAdvisorHints, AdvisorHint } from "@/lib/advisor";
 
 interface GameData extends GameState {
   worldCountries: WorldCountryState[];
@@ -51,10 +51,9 @@ function GameContent() {
     maintenanceCost: 0,
     dominoEffects: [] as DominoEffect[],
     tradeIncome: 0,
+    reports: [] as string[],
+    hints: [] as AdvisorHint[],
   });
-
-  const [showTurnReports, setShowTurnReports] = useState(false);
-  const [turnReportsData, setTurnReportsData] = useState<string[]>([]);
 
   // Phase: "event" | "invest"
   const [phase, setPhase] = useState<"event" | "invest">("event");
@@ -102,14 +101,9 @@ function GameContent() {
         setPhase("invest");
       }
       
-      // Check for unread turn reports
-      try {
-        const reports = JSON.parse(data.game.turnReports || "[]");
-        if (reports.length > 0) {
-          setTurnReportsData(reports);
-          setShowTurnReports(true);
-        }
-      } catch {}
+      // We do NOT show TurnSummaryModal here on initial load, only on Next Turn.
+      // However, if there are unread reports, we could optionally show them.
+      // To simplify and not spam the user on reload, we'll just auto-clear them or leave them.
 
     } catch (error) {
       console.error("Hata:", error);
@@ -265,6 +259,13 @@ function GameContent() {
         setTimeout(() => playAlertSound(), 600);
       }
 
+      // Generate hints for the new state
+      const hints = generateAdvisorHints(data.game, data.game.factions);
+      let parsedReports: string[] = [];
+      try {
+        parsedReports = JSON.parse(data.game.turnReports || "[]");
+      } catch {}
+
       // Show turn transition
       setTurnData({
         turnNumber: data.game.turn,
@@ -272,6 +273,8 @@ function GameContent() {
         maintenanceCost: data.turnResult.maintenanceCost,
         dominoEffects: data.turnResult.dominoEffects,
         tradeIncome: data.turnResult.tradeIncome || 0,
+        reports: parsedReports,
+        hints,
       });
       setIsTransitionDataReady(true);
 
@@ -287,14 +290,6 @@ function GameContent() {
 
       setCurrentEvents(data.turnResult.newEvents || []);
       setPhase("event");
-
-      try {
-        const reports = JSON.parse(data.game.turnReports || "[]");
-        if (reports.length > 0) {
-          setTurnReportsData(reports);
-          setShowTurnReports(true);
-        }
-      } catch {}
     } catch (error) {
       console.error("Tur hatası:", error);
       setShowTransition(false); // HATA DURUMUNDA GEÇİŞ EKRANINI KAPAT
@@ -322,8 +317,6 @@ function GameContent() {
 
   const handleReadReports = async () => {
     if (!game) return;
-    setShowTurnReports(false);
-    setTurnReportsData([]);
     try {
       await fetch("/api/game/read-reports", {
         method: "POST",
@@ -544,23 +537,20 @@ function GameContent() {
           </div>
         )}
 
-      {/* Turn Reports Modal */}
-      {showTurnReports && !isTutorialOpen && (
-        <TurnReportModal 
-          reports={turnReportsData} 
-          onClose={handleReadReports} 
-        />
-      )}
-
-      {/* Turn transition overlay */}
-      <TurnTransition
+      {/* Comprehensive Turn Summary Modal */}
+      <TurnSummaryModal
         isVisible={showTransition}
         isDataReady={isTransitionDataReady}
         turnNumber={turnData.turnNumber}
         taxIncome={turnData.taxIncome}
         maintenanceCost={turnData.maintenanceCost}
         dominoEffects={turnData.dominoEffects}
-        onComplete={() => setShowTransition(false)}
+        reports={turnData.reports}
+        hints={turnData.hints}
+        onComplete={() => {
+          setShowTransition(false);
+          handleReadReports(); // Clear reports from DB
+        }}
       />
 
         {game.isGameOver && game.gameOverReason && (
