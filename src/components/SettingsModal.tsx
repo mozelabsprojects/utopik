@@ -15,6 +15,11 @@ export default function SettingsModal({ isOpen, onClose, uiScale, setUiScale }: 
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [soundVolume, setSoundVolume] = useState(100);
 
+  // Easter Egg State
+  const [clickCount, setClickCount] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [showEasterEgg, setShowEasterEgg] = useState(false);
+
   useEffect(() => {
     setLocalScale(uiScale);
     const savedSound = localStorage.getItem("utopik_sound_enabled");
@@ -36,6 +41,27 @@ export default function SettingsModal({ isOpen, onClose, uiScale, setUiScale }: 
     }
     
     onClose();
+  };
+
+  const handleSoundToggleClick = () => {
+    const now = Date.now();
+    
+    if (now - lastClickTime < 1000) {
+      // 1 saniye içinde tekrar tıklanmış
+      const newCount = clickCount + 1;
+      setClickCount(newCount);
+      
+      if (newCount >= 10) {
+        setShowEasterEgg(true);
+        setClickCount(0); // Reset after trigger
+      }
+    } else {
+      // 1 saniyeden uzun sürmüş, sıfırla
+      setClickCount(1);
+    }
+    
+    setLastClickTime(now);
+    setSoundEnabled(!soundEnabled);
   };
 
   return (
@@ -97,8 +123,8 @@ export default function SettingsModal({ isOpen, onClose, uiScale, setUiScale }: 
               {/* Audio Setting */}
               <div className="bg-slate-900/50 p-4 rounded-xl border border-white/5 transition-colors">
                 <div 
-                  className="flex justify-between items-center mb-4 cursor-pointer"
-                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  className="flex justify-between items-center mb-4 cursor-pointer select-none"
+                  onClick={handleSoundToggleClick}
                 >
                   <div>
                     <h3 className="font-bold text-slate-200">Ses Efektleri</h3>
@@ -148,6 +174,38 @@ export default function SettingsModal({ isOpen, onClose, uiScale, setUiScale }: 
               </button>
             </div>
           </motion.div>
+        </motion.div>
+      )}
+
+      {/* EASTER EGG OVERLAY */}
+      {showEasterEgg && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-black/95 backdrop-blur-3xl"
+        >
+          <div className="bg-red-600 animate-pulse text-white font-black text-6xl md:text-8xl p-10 rounded-3xl shadow-[0_0_100px_rgba(220,38,38,1)] border-8 border-yellow-400 rotate-[-5deg] mb-10 uppercase tracking-widest text-center">
+            PİÇİ SOY
+          </div>
+
+          <div className="w-full max-w-2xl aspect-video rounded-xl overflow-hidden border-4 border-white shadow-2xl">
+            <iframe 
+              width="100%" 
+              height="100%" 
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&modestbranding=1" 
+              title="Never Gonna Give You Up" 
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen>
+            </iframe>
+          </div>
+
+          <button 
+            onClick={() => setShowEasterEgg(false)}
+            className="mt-10 px-8 py-4 bg-white text-black font-bold text-xl rounded-full hover:bg-gray-200 transition-all hover:scale-110"
+          >
+            Tamam Sustur Şunu 😅
+          </button>
         </motion.div>
       )}
     </AnimatePresence>

@@ -968,7 +968,7 @@ export const EVENTS: GameEvent[] = [
       },
       {
         label: "C",
-        text: "Güvenlik kartını oyna — 'tehditler var, biz koruriz'.",
+        text: "Güvenlik kartını oyna — 'tehditler var, biz koruruz'.",
         effects: { budget: -400, happiness: 3, military: 8, stability: 5, foreignRelations: -5 }, factionEffects: { capitalists: -5, workers: 10, military: 10, nationalists: 15 },
         hint: "Korku politikası — kısa vadede etkili",
       },
