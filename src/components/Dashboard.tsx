@@ -6,6 +6,8 @@ import FinanceAnalysis from "./FinanceAnalysis";
 import ImpactGraph from "./ImpactGraph";
 import { GameState } from "@/lib/types";
 import { generateAdvisorHints } from "@/lib/advisor";
+import { TECH_TREE, TechId } from "@/lib/tech-tree";
+import React from "react";
 
 interface GameData extends GameState {
   countryName: string;
@@ -29,6 +31,15 @@ const STATS = [
 
 export default function Dashboard({ game, previousGame, projectedInvestments }: DashboardProps) {
   const hints = generateAdvisorHints(game, game.factions);
+
+  const unlockedTechsList = React.useMemo(() => {
+    if (!game.unlockedTechs) return [];
+    try {
+      return JSON.parse(game.unlockedTechs) as TechId[];
+    } catch {
+      return [];
+    }
+  }, [game.unlockedTechs]);
 
   return (
     <div className="tutorial-dashboard glass-strong rounded-2xl p-5 animate-slide-up">
@@ -81,8 +92,32 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
             isBankrupt={game.isBankrupt}
             bankruptTurns={game.bankruptTurns}
           />
-          {/* FİNANSAL ANALİZ PANELİ EKLENDİ */}
+          {/* FİNANSAL ANALİZ PANELİ */}
           <FinanceAnalysis game={game} />
+          
+          {/* AKTİF TEKNOLOJİLER (AR-GE) PANELİ */}
+          {unlockedTechsList.length > 0 && (
+            <div className="mt-4 glass-strong rounded-2xl p-4 border border-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+              <h3 className="text-xs font-bold text-cyan-400 mb-3 flex items-center gap-2 uppercase tracking-wider">
+                <span>🔬</span> Ar-Ge ve Teknoloji Merkezi
+              </h3>
+              <div className="flex flex-col gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+                {unlockedTechsList.map(techId => {
+                  const tech = TECH_TREE[techId];
+                  if (!tech) return null;
+                  return (
+                    <div key={tech.id} className="bg-slate-900/60 p-2 rounded-xl border border-white/5 flex gap-2 items-start hover:border-cyan-500/30 transition-colors">
+                      <span className="text-xl">{tech.icon}</span>
+                      <div>
+                        <div className="text-xs font-bold text-slate-200">{tech.name}</div>
+                        <div className="text-[10px] text-slate-400 leading-tight line-clamp-2">{tech.description}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats and Graphs */}

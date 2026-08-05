@@ -399,10 +399,37 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     difficulty,
     unlockedTechs
   );
+  let finalTradeIncome = tradeIncome;
+
+  // ==========================================
+  // 🇰🇵 KUZEY KORE ÖZEL REJİM MODU (HARDCORE+)
+  // ==========================================
+  if (state.countryName === "Kuzey Kore") {
+    // 1. TAM AMBARGO: Ticaret geliri SIFIRLANIR
+    if (finalTradeIncome > 0) {
+      turnReports.push(`🚨 AMBARGO: Uluslararası yaptırımlar nedeniyle vadedilen +$${finalTradeIncome} ticaret geliri bloke edildi!`);
+      finalTradeIncome = 0;
+    }
+
+    // 2. KRONİK AÇLIK: Her tur sağlık ve mutluluk düşer
+    state.health = Math.max(0, state.health - 1);
+    state.happiness = Math.max(0, state.happiness - 1);
+    turnReports.push(`🚨 KUZEY KORE REJİM ETKİSİ: Gıda yetersizliği ve izolasyon nedeniyle halk acı çekiyor (-1 Sağlık, -1 Mutluluk).`);
+
+    // 3. KORKU DUVARI (FEAR-BASED STABILITY)
+    if (state.stability < 80) {
+      state.happiness = Math.max(0, state.happiness - 5);
+      turnReports.push(`🚨 KORKU DUVARI YIKILDI: Otoriteniz %80'in altına düştüğü için halk artık konuşmaya cüret ediyor! Kaos kapıda (-5 Mutluluk).`);
+    } else {
+      turnReports.push(`🔒 KORKU İMPARATORLUĞU: Rejimin demir yumruğu sayesinde isyan sesleri bastırılıyor (İstikrar > %80).`);
+    }
+  }
+  // ==========================================
+
   state.budget += taxIncome;
   state.budget -= maintenanceCost;
-  state.budget += tradeIncome;
-  turnReports.push(`💰 Vergi ve Ticaret gelirleri toplandı: +$${taxIncome + tradeIncome}`);
+  state.budget += finalTradeIncome;
+  turnReports.push(`💰 Vergi ve Ticaret gelirleri toplandı: +$${taxIncome + finalTradeIncome}`);
   turnReports.push(`🏢 Devlet altyapı bakım giderleri: -$${maintenanceCost}`);
 
   // ==========================================

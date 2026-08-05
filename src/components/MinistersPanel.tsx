@@ -48,6 +48,20 @@ export default function MinistersPanel({
     currentMinisters = JSON.parse(currentMinistersJson);
   } catch (e) {}
 
+  // Kabinenin toplam etkilerini hesapla
+  const aggregateEffects: StatEffects = {};
+  Object.values(currentMinisters).forEach((ministerId) => {
+    const minister = MINISTERS[ministerId as MinisterId];
+    if (minister && minister.passiveEffects) {
+      Object.entries(minister.passiveEffects).forEach(([key, val]) => {
+        if (val) {
+          const statKey = key as keyof StatEffects;
+          aggregateEffects[statKey] = (aggregateEffects[statKey] || 0) + val;
+        }
+      });
+    }
+  });
+
   const handleHire = async (ministerId: MinisterId) => {
     setLoading(true);
     setError("");
@@ -88,6 +102,18 @@ export default function MinistersPanel({
       </h2>
       
       {error && <div className="bg-red-500/20 text-red-300 p-3 rounded-lg mb-4">{error}</div>}
+
+      {/* Kabinenin Toplam Etkisi Özeti */}
+      {Object.keys(aggregateEffects).length > 0 && (
+        <div className="bg-slate-900/80 border border-slate-600 rounded-xl p-4 mb-6 shadow-inner">
+          <h3 className="text-sm font-bold text-slate-300 mb-2 uppercase tracking-widest flex items-center gap-2">
+            📊 Kabinenin Toplam Etkisi (Tur Başına)
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {renderEffects(aggregateEffects)}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {ministries.map((ministry) => {

@@ -116,14 +116,18 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
                 key={country.name}
                 onClick={() => handleSelect(country.name)}
                 className={`group flex-none w-[300px] md:w-[340px] snap-center cursor-pointer transition-all duration-300 rounded-3xl p-6 relative overflow-hidden border-2 ${
-                  selected === country.name 
-                    ? "glass-premium border-cyan-400 shadow-[0_0_40px_rgba(6,182,212,0.6)] scale-105 z-10" 
-                    : "glass-premium border-white/10 hover:bg-white/10 hover:border-cyan-500/50 hover:-translate-y-4 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] opacity-80 hover:opacity-100"
+                  country.name === "Kuzey Kore"
+                    ? selected === country.name
+                      ? "bg-slate-900 border-red-500 shadow-[0_0_50px_rgba(239,68,68,0.8)] scale-105 z-10"
+                      : "bg-slate-900/80 border-red-900/50 hover:bg-slate-900 hover:border-red-500/80 hover:-translate-y-4 hover:shadow-[0_20px_40px_rgba(239,68,68,0.5)] opacity-80 hover:opacity-100"
+                    : selected === country.name 
+                      ? "glass-premium border-cyan-400 shadow-[0_0_40px_rgba(6,182,212,0.6)] scale-105 z-10" 
+                      : "glass-premium border-white/10 hover:bg-white/10 hover:border-cyan-500/50 hover:-translate-y-4 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] opacity-80 hover:opacity-100"
                 }`}
               >
                 {/* Active Indicator Glow */}
                 {selected === country.name && (
-                  <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-transparent pointer-events-none" />
+                  <div className={`absolute inset-0 bg-gradient-to-b ${country.name === 'Kuzey Kore' ? 'from-red-600/20' : 'from-cyan-500/10'} to-transparent pointer-events-none`} />
                 )}
 
                 <div className="flex flex-col h-full relative z-10">
@@ -208,11 +212,13 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
               <div className="text-6xl mb-4 drop-shadow-lg">
                 {COUNTRIES.find(c => c.name === selected)?.flag}
               </div>
-              <h2 className="text-3xl font-black text-white font-[family-name:var(--font-display)] mb-2">
+              <h2 className={`text-3xl font-black font-[family-name:var(--font-display)] mb-2 ${selected === 'Kuzey Kore' ? 'text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]' : 'text-white'}`}>
                 {selected}
               </h2>
               <p className="text-slate-400 mb-6">
-                Bu ulusun kaderi senin ellerinde. Nasıl bir lider olacaksın?
+                {selected === 'Kuzey Kore' 
+                  ? "Tüm dünya sana düşman. Hayatta kalmak için ne kadar ileri gideceksin?"
+                  : "Bu ulusun kaderi senin ellerinde. Nasıl bir lider olacaksın?"}
               </p>
 
               {/* Lider Profili Seçimi */}
@@ -246,7 +252,11 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
               <button
                 onClick={handleStart}
                 disabled={loading}
-                className="w-full relative group px-8 py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xl transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] disabled:opacity-70 disabled:cursor-wait"
+                className={`w-full relative group px-8 py-4 rounded-xl font-black text-xl transition-all disabled:opacity-70 disabled:cursor-wait ${
+                  selected === 'Kuzey Kore'
+                    ? "bg-red-600 hover:bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.6)] hover:shadow-[0_0_50px_rgba(239,68,68,0.8)]"
+                    : "bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)]"
+                }`}
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-3">
