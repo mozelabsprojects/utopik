@@ -119,7 +119,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   },
   for_nationalist: {
     id: "for_nationalist",
-    name: "Tariq Al-Fayed",
+    name: "Am-in Feriadi",
     title: "Milli Çıkarlar Muhafızı",
     ministry: "foreign",
     description: "İzolasyonist politika izler. Her tur +2 İstikrar sağlar ancak Dış İlişkileri -3 düşürür.",
