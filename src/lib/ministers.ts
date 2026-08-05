@@ -1,10 +1,10 @@
 import { StatEffects } from "./types";
 import { FactionId, modifyFactionSupport, FactionsState } from "./factions";
 
-export type MinisterId = 
-  | "eco_capitalist" | "eco_socialist" 
-  | "def_hawk" | "def_dove" 
-  | "int_authoritarian" | "int_liberal" 
+export type MinisterId =
+  | "eco_capitalist" | "eco_socialist"
+  | "def_hawk" | "def_dove"
+  | "int_authoritarian" | "int_liberal"
   | "for_globalist" | "for_nationalist";
 
 export type MinistryType = "economy" | "defense" | "internal" | "foreign";
@@ -38,7 +38,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   },
   eco_socialist: {
     id: "eco_socialist",
-    name: "Elena Rostova",
+    name: "Mox Bernie",
     title: "Halkçı Ekonomist",
     ministry: "economy",
     description: "Zenginden alıp fakire verir. Her tur +2 Mutluluk sağlar ancak Bütçeye -$300 zarar yazar.",
@@ -52,7 +52,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   // === SAVUNMA ===
   def_hawk: {
     id: "def_hawk",
-    name: "Bard Ozan",
+    name: "General Bard",
     title: "Şahin (Savaş Yanlısı)",
     ministry: "defense",
     description: "Orduyu güçlendirir. Her tur +2 Askeriye sağlar ancak Bütçeden -$200 yer ve Dış İlişkileri -1 düşürür.",
