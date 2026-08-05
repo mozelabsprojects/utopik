@@ -70,7 +70,7 @@ export default function ImpactGraph({ currentGame, previousGame }: ImpactGraphPr
           <span className="animate-pulse">📡</span> ETKİ İSTİHBARATI Raporu
         </h3>
         <div className="text-[10px] text-slate-500 font-mono tracking-widest border border-slate-700/50 px-2 py-1 rounded bg-slate-900/50">
-          DELTA: {previousGame.turn} ➔ {currentGame.turn}
+          DELTA: {(previousGame as any).turn} ➔ {(currentGame as any).turn}
         </div>
       </div>
       
