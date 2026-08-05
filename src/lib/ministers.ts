@@ -29,7 +29,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   // === EKONOMİ ===
   eco_capitalist: {
     id: "eco_capitalist",
-    name: "Arthur Sterling",
+    name: "Ahmet Selim Arslantürk",
     title: "Serbest Piyasa Uzmanı",
     ministry: "economy",
     description: "Serbest piyasayı destekler. Her tur +$500 Bütçe sağlar ancak Mutluluğu -1 düşürür.",
