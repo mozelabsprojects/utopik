@@ -12,8 +12,8 @@ interface TopNavigationProps {
 
 export default function TopNavigation({ turn, budget, politicalCapital, onOpenTutorial, onOpenSettings }: TopNavigationProps) {
   return (
-    <div className="glass-strong rounded-xl p-3 mb-4 flex justify-between items-center animate-slide-in shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-white/5 relative z-30">
-      <div className="flex gap-6 items-center">
+    <div className="glass-strong rounded-xl p-3 mb-4 flex flex-col md:flex-row justify-between items-center gap-4 animate-slide-in shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-white/5 relative z-30">
+      <div className="flex flex-wrap justify-center gap-3 md:gap-6 items-center">
         <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/10">
           <span className="text-xl">📅</span>
           <div>

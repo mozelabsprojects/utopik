@@ -411,7 +411,7 @@ function GameContent() {
 
   return (
     <div 
-      className="min-h-screen flex h-screen overflow-hidden bg-slate-950"
+      className="min-h-screen flex flex-col md:flex-row h-screen overflow-hidden bg-slate-950"
       style={{ zoom: uiScale / 100 } as React.CSSProperties}
     >
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />

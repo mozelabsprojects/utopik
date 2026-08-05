@@ -74,14 +74,14 @@ export default function TurnSummaryModal({
       )}
 
       {phase === "results" && (
-        <div className="glass-strong rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,240,255,0.15)] animate-slide-up">
-          <div className="p-6 border-b border-white/10 bg-gradient-to-r from-cyan-900/40 to-transparent flex justify-between items-center">
+        <div className="glass-strong rounded-2xl w-full max-w-4xl max-h-[85vh] md:max-h-[80vh] flex flex-col overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,240,255,0.15)] animate-slide-up">
+          <div className="p-4 sm:p-6 border-b border-white/10 bg-gradient-to-r from-cyan-900/40 to-transparent flex justify-between items-center shrink-0">
             <h2 className="text-2xl font-bold text-white flex items-center gap-3">
               <span className="text-3xl">📋</span> TUR {turnNumber} KAPSAMLI RAPORU
             </h2>
           </div>
 
-          <div className="p-6 overflow-y-auto flex-1 custom-scrollbar grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             
             {/* SOL SÜTUN: Finansal Durum ve Danışman */}
             <div className="space-y-6">
@@ -183,7 +183,7 @@ export default function TurnSummaryModal({
 
           </div>
 
-          <div className="p-6 border-t border-white/10 bg-black/40">
+          <div className="p-4 sm:p-6 border-t border-white/10 bg-black/40 shrink-0">
             <button 
               onClick={() => {
                 setPhase("hidden");
