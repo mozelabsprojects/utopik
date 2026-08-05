@@ -52,7 +52,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   // === SAVUNMA ===
   def_hawk: {
     id: "def_hawk",
-    name: "General Vance",
+    name: "Bard Ozan",
     title: "Şahin (Savaş Yanlısı)",
     ministry: "defense",
     description: "Orduyu güçlendirir. Her tur +2 Askeriye sağlar ancak Bütçeden -$200 yer ve Dış İlişkileri -1 düşürür.",
