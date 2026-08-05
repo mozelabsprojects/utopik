@@ -5,6 +5,20 @@ import { CountryTemplate } from "./types";
 
 export const COUNTRIES: CountryTemplate[] = [
   {
+    name: "Kuzey Kore",
+    flag: "🇰🇵",
+    budget: 2000,
+    military: 90,
+    happiness: 10,
+    health: 20,
+    environment: 10,
+    education: 30,
+    stability: 85,
+    foreignRelations: 5,
+    difficulty: "Çok Zor",
+    description: "Dünyaya tamamen kapalı. Ambargo nedeniyle dış ticaret geliri yoktur ve halk kronik açlık çeker. İstikrar %80'in altına düşerse korku duvarı yıkılır ve kaos başlar. Tam bir cehennem.",
+  },
+  {
     name: "Amerika Birleşik Devletleri",
     flag: "🇺🇸",
     budget: 15000,
@@ -193,19 +207,5 @@ export const COUNTRIES: CountryTemplate[] = [
     foreignRelations: 55,
     difficulty: "Orta",
     description: "Petrodolar imparatorluğu. Sınırsız bütçeye rağmen doğa can çekişiyor, ekonomi tamamen tek bir kaynağa bağlı.",
-  },
-  {
-    name: "Kuzey Kore",
-    flag: "🇰🇵",
-    budget: 2000,
-    military: 80,
-    happiness: 10,
-    health: 20,
-    environment: 30,
-    education: 40,
-    stability: 95,
-    foreignRelations: 5,
-    difficulty: "Çok Zor",
-    description: "Dünyadan tamamen izole, korkuyla yönetilen nükleer bir kale. Halk açlık sınırında, diplomasi sıfır, tek güçlü yanınız askeriye ve sarsılmaz otoriteniz.",
   },
 ];

@@ -133,7 +133,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   // === EĞİTİM ===
   edu_academic: {
     id: "edu_academic",
-    name: "Prof. Dr.Ege Demirci",
+    name: "Prof. Dr. Ege Demirci",
     title: "Akademik Reformist",
     ministry: "education",
     description: "Bilimsel eğitime odaklanır. Her tur +1 Eğitim sağlar ancak Bütçeye -$150 zarar yazar.",
