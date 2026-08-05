@@ -5,7 +5,7 @@ import { FactionsState, modifyFactionSupport, INITIAL_FACTIONS } from "@/lib/fac
 
 export async function POST(request: Request) {
   try {
-    const { gameId, policyId, action } = await request.json(); // action: "enact" or "repeal"
+    const { gameId, policyId, action, isLobbying } = await request.json(); // action: "enact" or "repeal"
 
     const game = await prisma.game.findUnique({
       where: { id: gameId },
@@ -20,17 +20,50 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Geçersiz politika" }, { status: 400 });
     }
 
-    const cost = action === "enact" ? policy.politicalCost : Math.max(1, Math.round(policy.politicalCost / 2));
-    if (game.politicalCapital < cost) {
-      return NextResponse.json({ error: "Yetersiz siyasi sermaye" }, { status: 400 });
-    }
-
     let activeLaws: PolicyId[] = [];
     try { activeLaws = JSON.parse(game.activeLaws); } catch {}
 
     let factions: FactionsState = INITIAL_FACTIONS;
     try { factions = JSON.parse(game.factions); } catch { factions = INITIAL_FACTIONS; }
     
+    // MECLİS (PARLAMENTO) OYLAMA SİSTEMİ
+    let yesVotes = 0;
+    let noVotes = 0;
+    const allFactions: Array<keyof FactionsState> = ["capitalists", "workers", "intellectuals", "nationalists", "military"];
+    
+    const totalSupport = allFactions.reduce((acc, fId) => acc + (factions[fId]?.support || 50), 0);
+    
+    allFactions.forEach(fId => {
+      const supportWeight = (factions[fId]?.support || 50) / totalSupport * 100; 
+      const impact = action === "enact" 
+          ? (policy.factionImpactOnEnact[fId] || 0) 
+          : -(policy.factionImpactOnEnact[fId] || 0); 
+          
+      if (impact > 0) yesVotes += supportWeight;
+      else if (impact < 0) noVotes += supportWeight;
+      else {
+        yesVotes += supportWeight / 2;
+        noVotes += supportWeight / 2;
+      }
+    });
+
+    const passNaturally = yesVotes >= 50;
+
+    if (!passNaturally && !isLobbying) {
+      return NextResponse.json({ 
+        error: `Yasa meclisten geçmedi. (Evet: %${Math.round(yesVotes)}, Hayır: %${Math.round(noVotes)})`, 
+        requiresLobbying: true, 
+        votes: { yes: Math.round(yesVotes), no: Math.round(noVotes) } 
+      }, { status: 400 });
+    }
+
+    const baseCost = action === "enact" ? policy.politicalCost : Math.max(1, Math.round(policy.politicalCost / 2));
+    const finalCost = isLobbying ? baseCost * 2 : baseCost;
+
+    if (game.politicalCapital < finalCost) {
+      return NextResponse.json({ error: "Yetersiz siyasi sermaye" }, { status: 400 });
+    }
+
     let turnReports: string[] = [];
     try { turnReports = JSON.parse(game.turnReports); } catch {}
 
@@ -60,7 +93,7 @@ export async function POST(request: Request) {
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: {
-        politicalCapital: game.politicalCapital - cost,
+        politicalCapital: game.politicalCapital - finalCost,
         activeLaws: JSON.stringify(activeLaws),
         factions: JSON.stringify(factions),
         turnReports: JSON.stringify(turnReports)

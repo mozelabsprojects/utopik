@@ -122,6 +122,7 @@ export default function GameTutorial({
   // Reset step when opened
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentStep(0);
     }
   }, [isOpen]);

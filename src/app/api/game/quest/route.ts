@@ -28,8 +28,8 @@ export async function POST(request: Request) {
       const quest = activeQuests.find((q) => q.id === questId);
       if (quest) {
         // Ödülleri ver (Basitçe Game modeline uygulayalım)
-        let newBudget = game.budget + (quest.rewardEffects.budget || 0);
-        let newPop = game.popularity + (quest.rewardEffects.popularity || 0);
+        const newBudget = game.budget + (quest.rewardEffects.budget || 0);
+        const newPop = game.popularity + (quest.rewardEffects.popularity || 0);
         
         await prisma.game.update({
           where: { id: gameId },

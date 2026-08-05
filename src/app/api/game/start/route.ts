@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     // İlk olayı seç
     const firstEvent = getRandomEvent([]);
 
-    let eventFlags: string[] = [];
+    const eventFlags: string[] = [];
 
     if (leaderProfile === "technocrat") {
       eventFlags.push("LEADER_TECHNOCRAT");

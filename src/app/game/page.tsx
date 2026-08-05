@@ -21,6 +21,7 @@ import GameTutorial from "@/components/GameTutorial";
 import GlobalMarketPanel from "@/components/GlobalMarketPanel";
 import SettingsModal from "@/components/SettingsModal";
 import Sidebar, { SidebarTab } from "@/components/Sidebar";
+import TechTreePanel from "@/components/TechTreePanel";
 import { GameEvent, DominoEffect, Sector, GameState, WorldCountryState } from "@/lib/types";
 import { playClickSound, playTurnSound, playAlertSound } from "@/lib/audio";
 import { generateAdvisorHints, AdvisorHint } from "@/lib/advisor";
@@ -262,6 +263,7 @@ function GameContent() {
 
     // OPTIMISTIC UI: Sunucuyu beklemeden geçiş ekranını başlat
     // Data henüz hazır değil.
+    setTurnData(prev => ({ ...prev, turnNumber: game.turn }));
     setIsTransitionDataReady(false);
     setShowTransition(true);
 
@@ -299,7 +301,7 @@ function GameContent() {
 
       // Show turn transition
       setTurnData({
-        turnNumber: data.game.turn,
+        turnNumber: game.turn, // Gösterilen rapor, bitirdiğimiz tura aittir.
         taxIncome: data.turnResult.taxIncome,
         maintenanceCost: data.turnResult.maintenanceCost,
         dominoEffects: data.turnResult.dominoEffects,
@@ -564,6 +566,16 @@ function GameContent() {
               budget={game.budget}
               marketStateStr={game.marketState}
               onUpdate={fetchGameState}
+            />
+          </div>
+        )}
+
+        {/* TECH TREE */}
+        {activeTab === "tech" && (
+          <div className="space-y-6 animate-fade-in">
+            <TechTreePanel 
+              gameState={game}
+              onTechUnlocked={fetchGameState}
             />
           </div>
         )}

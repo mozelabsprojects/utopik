@@ -117,6 +117,8 @@ export interface GameState {
   activePetitions: string;
   diplomacyState: string;
   marketState: string;
+  researchPoints: number;
+  unlockedTechs: string;
 
   isGameOver: boolean;
   gameOverReason: string | null;

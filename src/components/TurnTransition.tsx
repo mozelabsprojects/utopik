@@ -26,13 +26,14 @@ export default function TurnTransition({
 
   useEffect(() => {
     if (isVisible) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPhase("loading");
     }
   }, [isVisible]);
 
   useEffect(() => {
     if (phase === "loading" && isDataReady) {
-      const timer = setTimeout(() => setPhase("results"), 1200);
+      const timer = setTimeout(() => setPhase("results"), 400); // Hızlandırıldı (1200 -> 400)
       return () => clearTimeout(timer);
     }
   }, [phase, isDataReady]);
@@ -42,7 +43,7 @@ export default function TurnTransition({
       const timer = setTimeout(() => {
         setPhase("hidden");
         onComplete();
-      }, 3500);
+      }, 1500); // Hızlandırıldı (3500 -> 1500)
       return () => clearTimeout(timer);
     }
   }, [phase, onComplete]);

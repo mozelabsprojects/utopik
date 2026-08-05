@@ -41,6 +41,10 @@ model Game {
   activePetitions  String       @default("[]") // JSON (Bekleyen Vatandaş Dilekçeleri)
   diplomacyState   String       @default("{}") // JSON (Savaş ve İttifaklar)
   marketState      String       @default("{}") // JSON (Borsa ve Envanter)
+  
+  // V6 Özellikleri
+  researchPoints   Float        @default(0)    // Ar-Ge Puanı
+  unlockedTechs    String       @default("[]") // JSON (Açılan Teknolojiler)
 
   isGameOver       Boolean      @default(false)
   gameOverReason   String?

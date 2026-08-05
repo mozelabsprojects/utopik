@@ -21,6 +21,7 @@ export default function SettingsModal({ isOpen, onClose, uiScale, setUiScale }: 
   const [showEasterEgg, setShowEasterEgg] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalScale(uiScale);
     const savedSound = localStorage.getItem("utopik_sound_enabled");
     if (savedSound === "true") setSoundEnabled(true);

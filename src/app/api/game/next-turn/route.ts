@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     let totalWarExhaustion = 0;
     let isAtWar = false;
     let activeAlliesCount = 0;
-    let aiMessages: string[] = [];
+    const aiMessages: string[] = [];
 
     // Diplomacy ve Market State'lerini parse et
     let diplomacyState: Record<string, { type: 'war' | 'alliance', turnsRemaining: number }> = {};
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     try { eventFlags = JSON.parse(game.eventFlags || "[]"); } catch {}
 
     // Borsa Fiyat Dalgalanması (Event'lere Göre Dinamik)
-    let multipliers = { energy: 1, food: 1, tech: 1, medical: 1, arms: 1, minerals: 1 };
+    const multipliers = { energy: 1, food: 1, tech: 1, medical: 1, arms: 1, minerals: 1 };
     
     // Rastgele hafif dalgalanma (±%10)
     for (const key of Object.keys(multipliers) as (keyof typeof multipliers)[]) {
@@ -280,6 +280,8 @@ export async function POST(request: Request) {
       activePetitions: game.activePetitions,
       diplomacyState: JSON.stringify(diplomacyState),
       marketState: JSON.stringify(marketState),
+      researchPoints: game.researchPoints,
+      unlockedTechs: game.unlockedTechs,
     };
 
     // Tur hesaplamalarını çalıştır (usedEventIds ve eventFlags aktarılıyor)
@@ -323,6 +325,8 @@ export async function POST(request: Request) {
         activePetitions: newState.activePetitions,
         diplomacyState: newState.diplomacyState,
         marketState: newState.marketState,
+        researchPoints: newState.researchPoints,
+        unlockedTechs: newState.unlockedTechs,
       },
       include: {
         worldCountries: true,

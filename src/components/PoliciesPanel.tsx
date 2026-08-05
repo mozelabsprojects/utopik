@@ -39,26 +39,50 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
   const [isProcessing, setIsProcessing] = useState(false);
   const [isActionProcessing, setIsActionProcessing] = useState(false);
   const [message, setMessage] = useState<{text: string, type: 'success'|'error'}|null>(null);
+  
+  // Lobbying state
+  const [lobbyPrompt, setLobbyPrompt] = useState<{
+    policyId: string, 
+    action: "enact" | "repeal", 
+    votes: { yes: number, no: number },
+    cost: number
+  } | null>(null);
 
   let activeLaws: PolicyId[] = [];
   try {
     activeLaws = JSON.parse(gameState.activeLaws);
   } catch {}
 
-  const handlePolicyAction = async (policyId: string, action: "enact" | "repeal") => {
+  const handlePolicyAction = async (policyId: string, action: "enact" | "repeal", isLobbying: boolean = false) => {
     setIsProcessing(true);
     setMessage(null);
+    setLobbyPrompt(null);
+    
     try {
       const res = await fetch("/api/game/policy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameId: gameState.id, policyId, action })
+        body: JSON.stringify({ gameId: gameState.id, policyId, action, isLobbying })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
       
-      setMessage({ text: action === "enact" ? "Yasa başarıyla yürürlüğe girdi." : "Yasa iptal edildi.", type: 'success' });
-      onUpdate(); // state'i yenile
+      if (!res.ok) {
+        if (data.requiresLobbying) {
+          const policy = POLICIES[policyId as PolicyId];
+          const baseCost = action === "enact" ? policy.politicalCost : Math.max(1, Math.round(policy.politicalCost / 2));
+          setLobbyPrompt({
+            policyId,
+            action,
+            votes: data.votes,
+            cost: baseCost * 2
+          });
+          return;
+        }
+        throw new Error(data.error);
+      }
+      
+      setMessage({ text: action === "enact" ? "Yasa başarıyla meclisten geçti." : "Yasa meclis kararıyla iptal edildi.", type: 'success' });
+      onUpdate(); 
     } catch (e: any) {
       setMessage({ text: e.message || "İşlem başarısız.", type: 'error' });
     } finally {
@@ -101,6 +125,56 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
       {message && (
         <div className={`p-4 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
           {message.text}
+        </div>
+      )}
+
+      {/* LOBİ (RÜŞVET/İKNA) EKRANI */}
+      {lobbyPrompt && (
+        <div className="bg-yellow-900/40 border border-yellow-500/50 p-6 rounded-2xl animate-fade-in shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+          <h3 className="text-2xl font-bold text-yellow-400 mb-2 flex items-center gap-2">
+            <span>⚖️</span> Meclis Çıkmazı!
+          </h3>
+          <p className="text-gray-200 mb-4">
+            Sunulan tasarı meclisten geçemedi. Fraksiyonlar ikiye bölünmüş durumda.
+          </p>
+          
+          <div className="flex items-center gap-6 mb-6 bg-black/30 p-4 rounded-xl">
+            <div className="flex-1 text-center">
+              <div className="text-4xl mb-1">👍</div>
+              <div className="text-green-400 font-bold text-xl">% {lobbyPrompt.votes.yes}</div>
+              <div className="text-xs text-gray-500 uppercase">Kabul</div>
+            </div>
+            <div className="flex-1 text-center border-l border-white/10">
+              <div className="text-4xl mb-1">👎</div>
+              <div className="text-red-400 font-bold text-xl">% {lobbyPrompt.votes.no}</div>
+              <div className="text-xs text-gray-500 uppercase">Ret</div>
+            </div>
+          </div>
+          
+          <p className="text-yellow-300/80 text-sm mb-6">
+            Kararsız vekilleri ikna etmek (lobi yapmak) için ekstra siyasi sermaye harcayarak yasayı zorla geçirebilirsiniz. 
+            Maliyet: <strong>{lobbyPrompt.cost} PC</strong>
+          </p>
+          
+          <div className="flex gap-4">
+            <button
+              onClick={() => handlePolicyAction(lobbyPrompt.policyId, lobbyPrompt.action, true)}
+              disabled={isProcessing || gameState.politicalCapital < lobbyPrompt.cost}
+              className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+                gameState.politicalCapital < lobbyPrompt.cost 
+                  ? 'bg-gray-800 text-gray-600 cursor-not-allowed' 
+                  : 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)]'
+              }`}
+            >
+              {isProcessing ? "İkna Ediliyor..." : `Lobi Yap ve Geçir (${lobbyPrompt.cost} PC)`}
+            </button>
+            <button
+              onClick={() => setLobbyPrompt(null)}
+              className="px-6 py-3 rounded-xl font-bold border border-gray-600 text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              Vazgeç
+            </button>
+          </div>
         </div>
       )}
 
@@ -151,7 +225,7 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
           <span>📜</span> Kalıcı Kanunlar
         </h3>
         <p className="text-gray-400 text-sm mb-6">
-          Yasa geçirmek siyasi sermaye (Political Capital) harcar ve ülkenin gidişatını, fraksiyon dengelerini pasif olarak etkiler.
+          Yasaları meclise sunmak siyasi sermaye (Political Capital) harcar. Meclisteki oylar fraksiyonların gücüne göre belirlenir.
         </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -179,15 +253,15 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
               
               <button
                 onClick={() => handlePolicyAction(policy.id, isActive ? "repeal" : "enact")}
-                disabled={isProcessing || !canAfford}
+                disabled={isProcessing || !canAfford || lobbyPrompt !== null}
                 className={`w-full py-2 rounded-lg font-bold text-sm transition-colors ${
-                  !canAfford ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' :
+                  (!canAfford || lobbyPrompt !== null) ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' :
                   isActive 
                     ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
                     : 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30'
                 }`}
               >
-                {isProcessing ? "İşleniyor..." : (isActive ? `Yasayı İptal Et (Maliyet: ${cost})` : `Yasayı Geçir (Maliyet: ${cost})`)}
+                {isProcessing ? "Oylanıyor..." : (isActive ? `İptali Meclise Sun (${cost} PC)` : `Meclise Sun (${cost} PC)`)}
               </button>
             </div>
           );

@@ -59,16 +59,16 @@ body {
 /* ============================================ */
 .glass {
   background: rgba(10, 15, 28, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 229, 255, 0.05);
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .glass-strong {
   background: rgba(5, 8, 16, 0.85);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(0, 229, 255, 0.1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.8);
 }
@@ -510,8 +510,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .glass-premium {
   background: rgba(10, 15, 28, 0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }

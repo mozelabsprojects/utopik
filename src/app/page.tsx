@@ -11,6 +11,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("utopik_save_id");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved) setSaveId(saved);
   }, []);
 

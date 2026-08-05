@@ -82,6 +82,8 @@ export async function POST(request: Request) {
       diplomacyState: game.diplomacyState,
       marketState: game.marketState,
       eventFlags: game.eventFlags,
+      researchPoints: game.researchPoints,
+      unlockedTechs: game.unlockedTechs,
     };
 
     // Etkileri uygula

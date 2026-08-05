@@ -52,7 +52,9 @@ export async function POST(request: Request) {
       ministers: game.ministers,
       activePetitions: game.activePetitions,
       diplomacyState: game.diplomacyState,
-      marketState: game.marketState
+      marketState: game.marketState,
+      researchPoints: game.researchPoints,
+      unlockedTechs: game.unlockedTechs,
     };
 
     // Yatırımı uygula

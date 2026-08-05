@@ -13,7 +13,8 @@ export type SidebarTab =
   | "crises" 
   | "world" 
   | "diplomacy"
-  | "market";
+  | "market"
+  | "tech";
 
 interface SidebarProps {
   activeTab: SidebarTab;
@@ -31,6 +32,7 @@ const MENU_ITEMS: { id: SidebarTab; label: string; icon: string; className?: str
   { id: "world", label: "Dünya Haritası", icon: "🌍", className: "tutorial-world" },
   { id: "diplomacy", label: "Diplomasi", icon: "🤝", className: "tutorial-diplomacy" },
   { id: "market", label: "Borsa & Kaynaklar", icon: "📈", className: "tutorial-market" },
+  { id: "tech", label: "Ar-Ge & Teknoloji", icon: "🔬", className: "tutorial-tech" },
 ];
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {

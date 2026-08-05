@@ -52,14 +52,14 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
 
       setMessage({ text: "İşlem başarıyla gerçekleşti.", type: 'success' });
       onUpdate();
-    } catch (e: any) {
+    } catch (e: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
       setMessage({ text: e.message, type: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
-  const ResourceCard = ({ id, name, icon, price, inventory }: { id: keyof typeof market.prices, name: string, icon: string, price: number, inventory: number }) => (
+  const renderResourceCard = (id: keyof typeof market.prices, name: string, icon: string, price: number, inventory: number) => (
     <div className="glass p-6 rounded-2xl flex flex-col items-center relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div className="text-4xl mb-2 z-10">{icon}</div>
@@ -159,12 +159,12 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <ResourceCard id="energy" name="Enerji" icon="⚡" price={market.prices.energy} inventory={market.inventory.energy} />
-        <ResourceCard id="food" name="Gıda" icon="🌾" price={market.prices.food} inventory={market.inventory.food} />
-        <ResourceCard id="tech" name="Teknoloji" icon="💻" price={market.prices.tech} inventory={market.inventory.tech} />
-        <ResourceCard id="medical" name="Medikal" icon="🏥" price={market.prices.medical} inventory={market.inventory.medical} />
-        <ResourceCard id="arms" name="Silah / Mühimmat" icon="🛡️" price={market.prices.arms} inventory={market.inventory.arms} />
-        <ResourceCard id="minerals" name="Maden / Mineral" icon="🪨" price={market.prices.minerals} inventory={market.inventory.minerals} />
+              {renderResourceCard("energy", "Enerji", "⚡", market.prices.energy, market.inventory.energy)}
+              {renderResourceCard("food", "Gıda", "🌾", market.prices.food, market.inventory.food)}
+              {renderResourceCard("tech", "Teknoloji", "💻", market.prices.tech, market.inventory.tech)}
+              {renderResourceCard("medical", "Medikal", "🏥", market.prices.medical, market.inventory.medical)}
+              {renderResourceCard("arms", "Silah / Mühimmat", "🛡️", market.prices.arms, market.inventory.arms)}
+              {renderResourceCard("minerals", "Maden / Mineral", "🪨", market.prices.minerals, market.inventory.minerals)}
       </div>
     </div>
   );

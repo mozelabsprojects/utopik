@@ -7,6 +7,7 @@ import { POLICIES, PolicyId } from "@/lib/policies";
 import { MINISTERS, MinisterId } from "@/lib/ministers";
 
 interface FinanceAnalysisProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   game: any;
 }
 
@@ -220,7 +221,7 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
                 <p className="font-bold mb-1 text-red-300">Neden Ödüyorum?</p>
                 <p>İstikrar seviyesi (Stability) çok düşük olduğu için devlet görevlileri kasadaki parayı hortumluyor. Hukuksuzluk hakim.</p>
                 <p className="font-bold mt-1 text-green-300">Nasıl Çözülür?</p>
-                <p>Ülkedeki İstikrarı (Stability) 50'nin üzerine çıkarın, yolsuzluk tamamen bitecektir.</p>
+                <p>Ülkedeki İstikrarı (Stability) 50&apos;nin üzerine çıkarın, yolsuzluk tamamen bitecektir.</p>
               </div>
             </div>}
 

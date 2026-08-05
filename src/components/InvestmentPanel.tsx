@@ -27,7 +27,7 @@ interface InvestmentPanelProps {
   onInvest: (sector: Sector, amount: number) => void;
   onNextTurn: () => void;
   disabled?: boolean;
-  gameData?: any;
+  gameData?: import("@/lib/types").GameState;
   onProjectedGainsChange?: (gains: Record<string, number>) => void;
 }
 

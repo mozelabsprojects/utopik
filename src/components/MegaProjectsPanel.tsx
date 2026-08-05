@@ -36,7 +36,7 @@ export default function MegaProjectsPanel({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       onUpdate();
-    } catch (err: any) {
+    } catch (err: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
       setError(err.message);
     } finally {
       setLoading(false);

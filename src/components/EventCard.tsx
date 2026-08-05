@@ -36,7 +36,7 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
   const handleChoice = (label: string) => {
     if (disabled || selectedChoice) return;
     setSelectedChoice(label);
-    setTimeout(() => onChoice(label), 600); // Wait for stamp animation
+    setTimeout(() => onChoice(label), 300); // Wait for stamp animation (Hızlandırıldı)
   };
 
   return (
@@ -53,7 +53,7 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
         <span className={`badge-${event.category} text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg`}>
           {CATEGORY_LABELS[event.category] || event.category}
         </span>
-        <span className="text-slate-500 text-xs font-mono">DOKÜMAN NO: {event.id.split('_')[1] || Math.floor(Math.random()*9000)+1000}</span>
+        <span className="text-slate-500 text-xs font-mono">DOKÜMAN NO: {event.id.split('_')[1] || (event.id.length * 777).toString().slice(0, 4)}</span>
       </div>
 
       {/* Title */}

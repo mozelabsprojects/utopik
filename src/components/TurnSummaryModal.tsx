@@ -31,6 +31,7 @@ export default function TurnSummaryModal({
 
   useEffect(() => {
     if (isVisible) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPhase("loading");
     }
   }, [isVisible]);

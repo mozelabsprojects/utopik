@@ -10,11 +10,12 @@ import { POLICIES, PolicyId } from "./policies";
 import { MINISTERS, MinisterId } from "./ministers";
 import { getRandomPetition } from "./petitions";
 import { MEGA_PROJECTS } from "./mega-projects";
+import { TECH_TREE, TechId } from "./tech-tree";
 
 // ============================================
 // SABITLER
 // ============================================
-const BASE_INCOME = 4500; // Artırıldı (Eskiden 3500)
+const BASE_INCOME = 3000; // Dengelendi (Eskiden 4500)
 const CRITICAL_THRESHOLD = 30;
 const BANKRUPTCY_BUDGET_LIMIT = -5000;
 const BANKRUPTCY_DURATION = 3;
@@ -23,18 +24,22 @@ const BANKRUPTCY_DURATION = 3;
 // A. BAKIM MALİYETLERİ
 import { COUNTRIES } from "./countries-data";
 
-export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta") {
-  let militaryCost = military * 1.5;
-  let healthCost = health * 1.0;
-  let educationCost = education * 1.0;
-  let environmentCost = environment * 0.5; // Çevre koruma maliyeti
+export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = []) {
+  let militaryCost = military * 12;
+  let healthCost = health * 10;
+  let educationCost = education * 10;
+  let environmentCost = environment * 8; // Çevre koruma maliyeti
   
-  if (military > 50) militaryCost += Math.pow(military - 50, 1.2) * 0.7; // Ölçekleme biraz yumuşatıldı
-  if (health > 50) healthCost += Math.pow(health - 50, 1.2) * 0.4;
-  if (education > 50) educationCost += Math.pow(education - 50, 1.2) * 0.4;
-  if (environment > 50) environmentCost += Math.pow(environment - 50, 1.2) * 0.3;
+  if (military > 50) militaryCost += Math.pow(military - 50, 1.5) * 4; // Ölçekleme yumuşatıldı ama taban masraf artırıldı
+  if (health > 50) healthCost += Math.pow(health - 50, 1.5) * 3;
+  if (education > 50) educationCost += Math.pow(education - 50, 1.5) * 3;
+  if (environment > 50) environmentCost += Math.pow(environment - 50, 1.5) * 2;
 
   let total = militaryCost + healthCost + educationCost + environmentCost;
+  
+  if (unlockedTechs.includes("ai_infrastructure")) {
+    total = total * 0.85; // %15 bakım masrafı indirimi
+  }
   
   let leaderDiscount = 0;
   if (eventFlags.includes("LEADER_GENERAL")) {
@@ -49,11 +54,11 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   }
 
   let corruptionPenalty = 0;
-  // Yeni Yolsuzluk Mekaniği: İstikrar 50'nin altındaysa direkt olarak sabit yüksek bir ceza (ülkenin gelirlerine çöküyorlar).
+  // Yeni Yolsuzluk Mekaniği: İstikrar 60'ın altındaysa ceza başlar.
   // Kasada para olmasa bile eksiye düşürebilir (borçlandırır).
-  if (stability < 50) {
-    const instabilityFactor = (50 - stability); // 1 ile 50 arası
-    corruptionPenalty = instabilityFactor * 150; // Max 7500$ ceza (İstikrar 0 ise)
+  if (stability < 60) {
+    const instabilityFactor = (60 - stability); // 1 ile 60 arası
+    corruptionPenalty = instabilityFactor * 40; // Max 2400$ ceza (İstikrar 0 ise)
     total += corruptionPenalty;
   }
 
@@ -78,8 +83,8 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   };
 }
 
-export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta"): number {
-  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty).total;
+export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = []): number {
+  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty, unlockedTechs).total;
 }
 
 // ============================================
@@ -97,10 +102,10 @@ export function getDetailedTaxIncome(
   difficulty: string = "Orta"
 ) {
   // Statların kalıcı getiri (Passive Income) sağlaması
-  const educationBonus = education > 50 ? (education - 50) * 15 : 0; // İnovasyon
-  const healthBonus = health > 50 ? (health - 50) * 12 : 0; // Sağlıklı iş gücü verimliliği
-  const environmentBonus = environment > 50 ? (environment - 50) * 10 : 0; // Yeşil ekonomi / Eko Turizm
-  const militaryBonus = military > 60 ? (military - 60) * 8 : 0; // Silah sanayisi ihracatı
+  const educationBonus = education > 50 ? (education - 50) * 25 : 0; // İnovasyon
+  const healthBonus = health > 50 ? (health - 50) * 20 : 0; // Sağlıklı iş gücü verimliliği
+  const environmentBonus = environment > 50 ? (environment - 50) * 15 : 0; // Yeşil ekonomi / Eko Turizm
+  const militaryBonus = military > 60 ? (military - 60) * 12 : 0; // Silah sanayisi ihracatı
 
   const statBonusTotal = educationBonus + healthBonus + environmentBonus + militaryBonus;
 
@@ -168,7 +173,7 @@ export function calculateRelationship(player: Pick<GameState, "foreignRelations"
   const baseRel = (player.foreignRelations * 0.6) + (npcCountry.foreignRelations * 0.4);
   
   // Formül: Temel ilişki - İdeolojik Farklılığın etkisi + Zenginlik Çarpanı
-  let relationship = baseRel - (ideologyDiff * 0.25) + wealthModifier;
+  const relationship = baseRel - (ideologyDiff * 0.25) + wealthModifier;
   
   return clampStat(relationship);
 }
@@ -228,7 +233,7 @@ export function applyEffects(
 // F. TUR ATLAMA — ANA HESAPLAMA
 // ============================================
 export function processNextTurn(currentState: GameState, tradeIncome: number = 0, usedEventIds: string[] = [], eventFlags: string[] = []): TurnResult {
-  let state = { ...currentState };
+  const state = { ...currentState };
   
   const countryTemplate = COUNTRIES.find(c => c.name === state.countryName);
   const difficulty = countryTemplate?.difficulty || "Orta";
@@ -250,8 +255,11 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   let activePetitions: string[] = [];
   try { activePetitions = JSON.parse(state.activePetitions); } catch {}
 
-  let turnReports: string[] = [];
-  turnReports.push(`📅 Tur ${state.turn} başladı.`);
+  let unlockedTechs: string[] = [];
+  try { unlockedTechs = JSON.parse(state.unlockedTechs || "[]"); } catch {}
+
+  const turnReports: string[] = [];
+  turnReports.push(`📅 Tur ${state.turn} sona erdi.`);
 
   // 1. Yasaların (Policies) Pasif Etkileri
   activeLaws.forEach(lawId => {
@@ -267,6 +275,20 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     // Fraksiyonlar üzerindeki pasif etki
     if (law.passiveFactionEffects) {
       factions = modifyFactionSupport(factions, law.passiveFactionEffects);
+    }
+  });
+
+  // 1.2 Teknolojilerin Pasif Etkileri
+  unlockedTechs.forEach(techId => {
+    const tech = TECH_TREE[techId as TechId];
+    if (tech && tech.passiveEffects) {
+      if (tech.passiveEffects.budget) state.budget += tech.passiveEffects.budget;
+      if (tech.passiveEffects.stability) state.stability = clampStat(state.stability + tech.passiveEffects.stability);
+      if (tech.passiveEffects.happiness) state.happiness = clampStat(state.happiness + tech.passiveEffects.happiness);
+      if (tech.passiveEffects.health) state.health = clampStat(state.health + tech.passiveEffects.health);
+      if (tech.passiveEffects.military) state.military = clampStat(state.military + tech.passiveEffects.military);
+      if (tech.passiveEffects.environment) state.environment = clampStat(state.environment + tech.passiveEffects.environment);
+      if (tech.passiveEffects.education) state.education = clampStat(state.education + tech.passiveEffects.education);
     }
   });
 
@@ -338,13 +360,23 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     state.stability,
     eventFlags, 
     state.budget, 
-    difficulty
+    difficulty,
+    unlockedTechs
   );
   state.budget += taxIncome;
   state.budget -= maintenanceCost;
   state.budget += tradeIncome;
   turnReports.push(`💰 Vergi ve Ticaret gelirleri toplandı: +$${taxIncome + tradeIncome}`);
   turnReports.push(`🏢 Devlet altyapı bakım giderleri: -$${maintenanceCost}`);
+
+  // ==========================================
+  // AR-GE PUANI (RESEARCH POINTS) ÜRETİMİ
+  // ==========================================
+  let baseRP = 10;
+  if (state.education > 50) baseRP += Math.round((state.education - 50) / 1.5);
+  if (unlockedTechs.includes("quantum_computing")) baseRP = Math.round(baseRP * 1.5);
+  state.researchPoints += baseRP;
+  turnReports.push(`🔬 Araştırma Puanı (RP) kazanıldı: +${baseRP}`);
 
   // ==========================================
   // ZORLUK DERECESİNE GÖRE SİYASİ SERMAYE (POLITICAL CAPITAL) DEĞİŞİMİ
@@ -600,8 +632,7 @@ export function applyInvestment(
 
   // Üstel Azalan Getiri (Exponential Diminishing Returns)
   // Maliyetler statü yükseldikçe inanılmaz bir hızla artar. Fulleme hilesini engeller.
-  // 10 Stat -> ~179$, 50 Stat -> ~1842$, 90 Stat -> ~18946$, 99 Stat -> ~32000$
-  const costPerPoint = 100 * Math.pow(1.06, currentStat);
+  const costPerPoint = 250 * Math.pow(1.06, currentStat);
   const pointsGained = Math.round(effectiveAmount / costPerPoint);
 
   switch (sector) {
