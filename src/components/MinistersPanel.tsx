@@ -67,12 +67,15 @@ export default function MinistersPanel({
     }
   };
 
-  const ministries: MinistryType[] = ["economy", "defense", "internal", "foreign"];
+  const ministries: MinistryType[] = ["economy", "defense", "internal", "foreign", "education", "health", "environment"];
   const ministryLabels: Record<MinistryType, string> = {
     economy: "Ekonomi Bakanlığı",
     defense: "Savunma Bakanlığı",
     internal: "İçişleri Bakanlığı",
-    foreign: "Dışişleri Bakanlığı"
+    foreign: "Dışişleri Bakanlığı",
+    education: "Eğitim Bakanlığı",
+    health: "Sağlık Bakanlığı",
+    environment: "Çevre Bakanlığı",
   };
 
   return (

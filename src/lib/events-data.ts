@@ -260,7 +260,7 @@ export const EVENTS: GameEvent[] = [
         text: "Kültür Bakanlığı bütçesini artır ve bu akımı destekle.",
         effects: { budget: -400, happiness: 20, foreignRelations: 15, education: 5 },
         factionEffects: { intellectuals: 20, nationalists: 15 },
-        hint: "Halkınız gurur duyar, yumuşak gücünüz (soft power) artar."
+        hint: "Halkınız gurur duyar, dış ilişkileriniz ve eğitim seviyeniz artar."
       },
       {
         label: "B",

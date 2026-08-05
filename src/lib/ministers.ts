@@ -5,9 +5,12 @@ export type MinisterId =
   | "eco_capitalist" | "eco_socialist"
   | "def_hawk" | "def_dove"
   | "int_authoritarian" | "int_liberal"
-  | "for_globalist" | "for_nationalist";
+  | "for_globalist" | "for_nationalist"
+  | "edu_academic" | "edu_vocational"
+  | "hlt_social" | "hlt_private"
+  | "env_radical" | "env_industrial";
 
-export type MinistryType = "economy" | "defense" | "internal" | "foreign";
+export type MinistryType = "economy" | "defense" | "internal" | "foreign" | "education" | "health" | "environment";
 
 export interface Minister {
   id: MinisterId;
@@ -104,7 +107,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   // === DIŞİŞLERİ ===
   for_globalist: {
     id: "for_globalist",
-    name: "Ege Demirci",
+    name: "Alexander Sicksallander",
     title: "Küresel Vizyoner",
     ministry: "foreign",
     description: "Ticareti kolaylaştırır. Her tur +3 Dış İlişkiler ve +$200 Bütçe sağlar ancak İstikrarı -1 düşürür.",
@@ -125,5 +128,83 @@ export const MINISTERS: Record<MinisterId, Minister> = {
     hireCost: 50,
     passiveEffects: { foreignRelations: -1, stability: 1 },
     passiveFactionEffects: { nationalists: 3, capitalists: -1 },
+  },
+
+  // === EĞİTİM ===
+  edu_academic: {
+    id: "edu_academic",
+    name: "Prof. Dr.Ege Demirci",
+    title: "Akademik Reformist",
+    ministry: "education",
+    description: "Bilimsel eğitime odaklanır. Her tur +1 Eğitim sağlar ancak Bütçeye -$150 zarar yazar.",
+    avatar: "👨‍🏫",
+    requiredFactionId: "intellectuals",
+    hireCost: 50,
+    passiveEffects: { education: 1, budget: -150 },
+    passiveFactionEffects: { intellectuals: 2, workers: -1 },
+  },
+  edu_vocational: {
+    id: "edu_vocational",
+    name: "Usta Kemal",
+    title: "Mesleki Eğitimci",
+    ministry: "education",
+    description: "Sanayi odaklı eğitim verir. Her tur +$200 Bütçe sağlar ancak Mutluluğu -1 düşürür.",
+    avatar: "👷",
+    requiredFactionId: "workers",
+    hireCost: 50,
+    passiveEffects: { budget: 200, happiness: -1 },
+    passiveFactionEffects: { workers: 2, intellectuals: -1 },
+  },
+
+  // === SAĞLIK ===
+  hlt_social: {
+    id: "hlt_social",
+    name: "Dr. Aylin",
+    title: "Halk Sağlığı Uzmanı",
+    ministry: "health",
+    description: "Herkese ücretsiz sağlık hedefler. Her tur +1 Sağlık ve +1 Mutluluk sağlar ancak -$300 Bütçe açığı yaratır.",
+    avatar: "👩‍⚕️",
+    requiredFactionId: "workers",
+    hireCost: 50,
+    passiveEffects: { health: 1, happiness: 1, budget: -300 },
+    passiveFactionEffects: { workers: 2, capitalists: -2 },
+  },
+  hlt_private: {
+    id: "hlt_private",
+    name: "CEO Barkın",
+    title: "Özel Sektör Temsilcisi",
+    ministry: "health",
+    description: "Hastaneleri özelleştirir. Her tur +$300 Bütçe sağlar ancak Sağlık ve Mutluluğu -1 düşürür.",
+    avatar: "🏥",
+    requiredFactionId: "capitalists",
+    hireCost: 50,
+    passiveEffects: { budget: 300, health: -1, happiness: -1 },
+    passiveFactionEffects: { capitalists: 2, workers: -3 },
+  },
+
+  // === ÇEVRE ===
+  env_radical: {
+    id: "env_radical",
+    name: "Cemre Yeşil",
+    title: "Aktivist Çevreci",
+    ministry: "environment",
+    description: "Sert çevre yasaları getirir. Her tur +1 Çevre sağlar ancak Bütçeden -$200 yer.",
+    avatar: "🌱",
+    requiredFactionId: "intellectuals",
+    hireCost: 50,
+    passiveEffects: { environment: 1, budget: -200 },
+    passiveFactionEffects: { intellectuals: 2, capitalists: -2 },
+  },
+  env_industrial: {
+    id: "env_industrial",
+    name: "Sanayici Rıza",
+    title: "Kalkınma Odaklı",
+    ministry: "environment",
+    description: "Doğayı hiçe sayıp sanayiye alan açar. Her tur +$250 Bütçe ve +1 İstikrar sağlar ancak Çevreyi -1 düşürür.",
+    avatar: "🏭",
+    requiredFactionId: "capitalists",
+    hireCost: 50,
+    passiveEffects: { budget: 250, stability: 1, environment: -1 },
+    passiveFactionEffects: { capitalists: 2, intellectuals: -3 },
   },
 };

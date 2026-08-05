@@ -45,7 +45,7 @@ export const TECH_TREE: Record<TechId, TechNode> = {
     cost: 100,
     requires: ["modern_agriculture"],
     icon: "🧠",
-    passiveEffects: { education: 2 },
+    passiveEffects: { education: 1 },
     specialEffect: "maintenance_discount" // Handled in game-engine.ts
   },
   advanced_robotics: {
@@ -73,7 +73,7 @@ export const TECH_TREE: Record<TechId, TechNode> = {
     cost: 200,
     requires: ["advanced_robotics"],
     icon: "🧬",
-    passiveEffects: { health: 2, happiness: 1 }
+    passiveEffects: { health: 1, happiness: 1 }
   },
   quantum_computing: {
     id: "quantum_computing",
@@ -82,7 +82,7 @@ export const TECH_TREE: Record<TechId, TechNode> = {
     cost: 300,
     requires: ["cyber_warfare", "advanced_robotics"],
     icon: "⚛️",
-    passiveEffects: { education: 2, budget: 1200 },
+    passiveEffects: { education: 1, budget: 1200 },
     specialEffect: "research_boost" // Handled in game-engine.ts
   },
   fusion_power: {
@@ -92,7 +92,7 @@ export const TECH_TREE: Record<TechId, TechNode> = {
     cost: 400,
     requires: ["quantum_computing", "gene_therapy"],
     icon: "☀️",
-    passiveEffects: { environment: 3, budget: 1500, happiness: 2 }
+    passiveEffects: { environment: 2, budget: 1500, happiness: 1 }
   },
   space_mining: {
     id: "space_mining",
@@ -101,6 +101,6 @@ export const TECH_TREE: Record<TechId, TechNode> = {
     cost: 500,
     requires: ["fusion_power"],
     icon: "🚀",
-    passiveEffects: { budget: 4000, military: 2 }
+    passiveEffects: { budget: 4000, military: 1 }
   }
 };
