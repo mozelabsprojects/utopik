@@ -6,6 +6,10 @@ export async function POST(request: Request) {
   try {
     const { gameId, resource, action, amount } = await request.json();
 
+    if (amount <= 0 || isNaN(amount)) {
+      return NextResponse.json({ error: "Geçersiz miktar" }, { status: 400 });
+    }
+
     const game = await prisma.game.findUnique({
       where: { id: gameId }
     });

@@ -6,6 +6,10 @@ export async function POST(request: Request) {
   try {
     const { gameId, partnerName, investmentAmount } = await request.json();
 
+    if (investmentAmount <= 0 || isNaN(investmentAmount)) {
+      return NextResponse.json({ error: "Geçersiz yatırım miktarı" }, { status: 400 });
+    }
+
     const game = await prisma.game.findUnique({
       where: { id: gameId },
       include: { worldCountries: true },

@@ -1,5 +1,5 @@
 import { FactionId } from "./factions";
-import { GameState } from "./types";
+import { GameState, StatEffects } from "./types";
 
 export type PolicyId = "free_healthcare" | "martial_law" | "tax_cuts" | "green_energy" | "censorship" | "welfare_state";
 
@@ -9,15 +9,7 @@ export interface Policy {
   description: string;
   politicalCost: number; // Siyasi sermaye maliyeti (çıkarırken/iptal ederken)
   factionImpactOnEnact: Partial<Record<FactionId, number>>; // Geçirildiğinde fraksiyonlara anlık etki
-  passiveEffects: {
-    budget?: number; // Her tur eklenecek/çıkarılacak bütçe
-    happiness?: number;
-    health?: number;
-    military?: number;
-    stability?: number;
-    environment?: number;
-    education?: number;
-  };
+  passiveEffects: StatEffects;
   passiveFactionEffects?: Partial<Record<FactionId, number>>; // Her tur fraksiyonlara etki
 }
 

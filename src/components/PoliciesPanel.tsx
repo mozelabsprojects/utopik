@@ -53,6 +53,33 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
     activeLaws = JSON.parse(gameState.activeLaws);
   } catch {}
 
+  const totalPassiveEffects: StatEffects = {
+    budget: 0,
+    military: 0,
+    happiness: 0,
+    health: 0,
+    environment: 0,
+    education: 0,
+    stability: 0,
+    foreignRelations: 0,
+  };
+
+  activeLaws.forEach((policyId) => {
+    const policy = POLICIES[policyId];
+    if (policy && policy.passiveEffects) {
+      if (policy.passiveEffects.budget) totalPassiveEffects.budget! += policy.passiveEffects.budget;
+      if (policy.passiveEffects.military) totalPassiveEffects.military! += policy.passiveEffects.military;
+      if (policy.passiveEffects.happiness) totalPassiveEffects.happiness! += policy.passiveEffects.happiness;
+      if (policy.passiveEffects.health) totalPassiveEffects.health! += policy.passiveEffects.health;
+      if (policy.passiveEffects.environment) totalPassiveEffects.environment! += policy.passiveEffects.environment;
+      if (policy.passiveEffects.education) totalPassiveEffects.education! += policy.passiveEffects.education;
+      if (policy.passiveEffects.stability) totalPassiveEffects.stability! += policy.passiveEffects.stability;
+      if (policy.passiveEffects.foreignRelations) totalPassiveEffects.foreignRelations! += policy.passiveEffects.foreignRelations;
+    }
+  });
+
+  const hasAnyEffects = Object.values(totalPassiveEffects).some(val => val !== 0);
+
   const handlePolicyAction = async (policyId: string, action: "enact" | "repeal", isLobbying: boolean = false) => {
     setIsProcessing(true);
     setMessage(null);
@@ -127,6 +154,21 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
           {message.text}
         </div>
       )}
+
+      {/* TOPLAM ETKİ ÖZETİ */}
+      <div className="glass-premium p-6 rounded-2xl border border-cyan-500/20 shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+        <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+          <span>📊</span> Yürürlükteki Yasaların Toplam Tur Başına Etkisi
+        </h3>
+        <p className="text-gray-400 text-sm mb-4">
+          Aşağıdaki etkiler her tur atladığınızda otomatik olarak statlarınıza yansır.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {hasAnyEffects ? renderEffects(totalPassiveEffects) : (
+            <span className="text-gray-500 text-sm italic">Henüz pasif etkisi olan bir yasa yürürlükte değil.</span>
+          )}
+        </div>
+      </div>
 
       {/* LOBİ (RÜŞVET/İKNA) EKRANI */}
       {lobbyPrompt && (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { GameState, MarketState } from "@/lib/types";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -15,23 +15,25 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
-  // Parse market state or use defaults
-  let market: MarketState = {
-    prices: { energy: 100, food: 50, tech: 200, medical: 150, arms: 300, minerals: 80 },
-    inventory: { energy: 0, food: 0, tech: 0, medical: 0, arms: 0, minerals: 0 },
-    history: []
-  };
-  try {
-    const parsed = JSON.parse(marketStateStr);
-    if (parsed.prices && parsed.inventory) {
-      market = {
-        ...parsed,
-        prices: { ...market.prices, ...parsed.prices },
-        inventory: { ...market.inventory, ...parsed.inventory },
-        history: parsed.history || []
-      };
-    }
-  } catch {}
+  const market: MarketState = useMemo(() => {
+    let m: MarketState = {
+      prices: { energy: 100, food: 50, tech: 200, medical: 150, arms: 300, minerals: 80 },
+      inventory: { energy: 0, food: 0, tech: 0, medical: 0, arms: 0, minerals: 0 },
+      history: []
+    };
+    try {
+      const parsed = JSON.parse(marketStateStr);
+      if (parsed.prices && parsed.inventory) {
+        m = {
+          ...parsed,
+          prices: { ...m.prices, ...parsed.prices },
+          inventory: { ...m.inventory, ...parsed.inventory },
+          history: parsed.history || []
+        };
+      }
+    } catch {}
+    return m;
+  }, [marketStateStr]);
 
   const handleTrade = async (resource: keyof typeof market.prices, action: 'buy' | 'sell', amount: number) => {
     if (loading) return;

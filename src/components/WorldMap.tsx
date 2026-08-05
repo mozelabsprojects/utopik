@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { WorldCountryState, GameState } from "@/lib/types";
 import { calculateRelationship, calculateTradeRiskProfile } from "@/lib/game-engine";
 
@@ -17,12 +17,13 @@ export default function WorldMap({ countries, gameState, onTrade, onUpdate }: Wo
   const [isTrading, setIsTrading] = useState(false);
   const [tradeMessage, setTradeMessage] = useState<{ text: string, type: 'success'|'error' } | null>(null);
 
-  // Sıralama (Güç Skoru Algoritması)
-  const getPowerScore = (c: WorldCountryState) => {
-    const normalizedBudget = Math.min(100, Math.max(0, c.budget / 100)); // 10,000$ = 100 Puan
-    return (c.military * 0.35) + (normalizedBudget * 0.25) + (c.stability * 0.2) + (c.education * 0.1) + (c.health * 0.1);
-  };
-  const sortedCountries = [...countries].sort((a, b) => getPowerScore(b) - getPowerScore(a));
+  const sortedCountries = useMemo(() => {
+    const getPowerScore = (c: WorldCountryState) => {
+      const normalizedBudget = Math.min(100, Math.max(0, c.budget / 100)); // 10,000$ = 100 Puan
+      return (c.military * 0.35) + (normalizedBudget * 0.25) + (c.stability * 0.2) + (c.education * 0.1) + (c.health * 0.1);
+    };
+    return [...countries].sort((a, b) => getPowerScore(b) - getPowerScore(a));
+  }, [countries]);
 
   const handleTradeSubmit = async () => {
     if (!selectedCountry) return;

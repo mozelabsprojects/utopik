@@ -24,11 +24,12 @@ const SECTOR_COLORS: Record<Sector, string> = {
 
 interface InvestmentPanelProps {
   budget: number;
-  onInvest: (sector: Sector, amount: number) => void;
+  onInvest?: (sector: Sector, amount: number) => void;
   onNextTurn: () => void;
   disabled?: boolean;
   gameData?: import("@/lib/types").GameState;
   onProjectedGainsChange?: (gains: Record<string, number>) => void;
+  onInvestBulk?: (investments: Record<string, number>) => void;
 }
 
 export default function InvestmentPanel({
@@ -38,6 +39,7 @@ export default function InvestmentPanel({
   disabled,
   gameData,
   onProjectedGainsChange,
+  onInvestBulk,
 }: InvestmentPanelProps) {
   const [investments, setInvestments] = useState<Record<Sector, number>>({
     military: 0,
@@ -84,9 +86,13 @@ export default function InvestmentPanel({
   };
 
   const handleInvestAll = async () => {
-    for (const [sector, amount] of Object.entries(investments)) {
-      if (amount > 0) {
-        await onInvest(sector as Sector, amount);
+    if (onInvestBulk) {
+      await onInvestBulk(investments);
+    } else {
+      for (const [sector, amount] of Object.entries(investments)) {
+        if (amount > 0 && onInvest) {
+          await onInvest(sector as Sector, amount);
+        }
       }
     }
     setInvestments({
@@ -129,41 +135,74 @@ export default function InvestmentPanel({
 
       {/* Sector sliders */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-        {sectors.map((sector) => (
-          <div key={sector} className="space-y-1">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span>{SECTOR_ICONS[sector]}</span>
-                <span className="text-xs font-semibold text-gray-300">
-                  {SECTOR_LABELS[sector]}
-                </span>
+        {sectors.map((sector) => {
+          let currentStat = 50;
+          if (gameData) {
+            switch(sector) {
+              case "military": currentStat = gameData.military; break;
+              case "health": currentStat = gameData.health; break;
+              case "education": currentStat = gameData.education; break;
+              case "environment": currentStat = gameData.environment; break;
+              case "stability": currentStat = gameData.stability; break;
+              case "foreignRelations": currentStat = gameData.foreignRelations; break;
+            }
+          }
+          
+          const isMax = currentStat >= 100;
+          
+          let projectedGain = 0;
+          if (gameData && investments[sector] > 0) {
+            const efficiencyMultiplier = 1 + (gameData.education > 50 ? (gameData.education - 50) / 100 : 0);
+            const effectiveAmount = investments[sector] * efficiencyMultiplier;
+            const costPerPoint = 250 * Math.pow(1.045, currentStat);
+            projectedGain = Math.round(effectiveAmount / costPerPoint);
+          }
+
+          return (
+            <div key={sector} className={`space-y-1 ${isMax ? "opacity-50 grayscale" : ""}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span>{SECTOR_ICONS[sector]}</span>
+                  <span className="text-xs font-semibold text-gray-300">
+                    {SECTOR_LABELS[sector]}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {projectedGain > 0 && (
+                    <span className="text-xs font-bold text-green-400">+{projectedGain}</span>
+                  )}
+                  {isMax ? (
+                    <span className="text-sm font-bold text-gray-400">MAX</span>
+                  ) : (
+                    <span
+                      className="text-sm font-bold"
+                      style={{ color: SECTOR_COLORS[sector] }}
+                    >
+                      ${investments[sector]}
+                    </span>
+                  )}
+                </div>
               </div>
-              <span
-                className="text-sm font-bold"
-                style={{ color: SECTOR_COLORS[sector] }}
-              >
-                ${investments[sector]}
-              </span>
+              <input
+                type="range"
+                min={0}
+                max={Math.min(2000, maxPerSector)}
+                step={50}
+                value={investments[sector]}
+                onChange={(e) =>
+                  handleSliderChange(sector, parseInt(e.target.value))
+                }
+                disabled={disabled || isMax}
+                className={`w-full ${isMax ? "cursor-not-allowed" : ""}`}
+                style={
+                  {
+                    "--tw-ring-color": SECTOR_COLORS[sector],
+                  } as React.CSSProperties
+                }
+              />
             </div>
-            <input
-              type="range"
-              min={0}
-              max={Math.min(2000, maxPerSector)}
-              step={50}
-              value={investments[sector]}
-              onChange={(e) =>
-                handleSliderChange(sector, parseInt(e.target.value))
-              }
-              disabled={disabled}
-              className="w-full"
-              style={
-                {
-                  "--tw-ring-color": SECTOR_COLORS[sector],
-                } as React.CSSProperties
-              }
-            />
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Action buttons */}

@@ -659,6 +659,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
 // G. OYUN SONU KONTROLÜ
 // ============================================
 export function checkGameOver(state: GameState): string | null {
+  if (state.turn >= 150) return "SÜRE DOLDU! 150 Tur süreniz doldu ve nihai hedeflerinize ulaşamadınız. İktidarınız sıradan bir şekilde sona erdi.";
   if (state.popularity <= 0) return "SEÇİM HEZİMETİ! Halk desteği sıfıra indi.";
   if (state.stability <= 0) return "İÇ SAVAŞ! İstikrar sıfıra düştü.";
   if (state.budget < BANKRUPTCY_BUDGET_LIMIT) return "DEVLET İFLASI! IMF ülkenin yönetimini devraldı.";
@@ -704,7 +705,7 @@ export function applyInvestment(
 
   // Üstel Azalan Getiri (Exponential Diminishing Returns)
   // Maliyetler statü yükseldikçe inanılmaz bir hızla artar. Fulleme hilesini engeller.
-  const costPerPoint = 250 * Math.pow(1.06, currentStat);
+  const costPerPoint = 250 * Math.pow(1.045, currentStat);
   const pointsGained = Math.round(effectiveAmount / costPerPoint);
 
   switch (sector) {

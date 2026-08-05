@@ -233,7 +233,7 @@ function GameContent() {
     }
   };
 
-  const handleInvest = async (sector: Sector, amount: number) => {
+  const handleInvestBulk = async (investments: Record<string, number>) => {
     if (!game || actionLoading) return;
     playClickSound();
     setActionLoading(true);
@@ -242,7 +242,7 @@ function GameContent() {
       const res = await fetch("/api/game/invest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameId: game.id, sector, amount }),
+        body: JSON.stringify({ gameId: game.id, investments }),
       });
 
       if (!res.ok) throw new Error("Yatırım yapılamadı");
@@ -255,6 +255,10 @@ function GameContent() {
     } finally {
       setActionLoading(false);
     }
+  };
+
+  const handleInvest = async (sector: Sector, amount: number) => {
+    await handleInvestBulk({ [sector]: amount });
   };
 
   const handleNextTurn = async () => {
@@ -429,6 +433,7 @@ function GameContent() {
           turn={game.turn}
           budget={game.budget}
           politicalCapital={game.politicalCapital}
+          gameData={game}
           onOpenTutorial={() => setIsTutorialOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
         />
@@ -479,7 +484,7 @@ function GameContent() {
                 budget={game.budget}
                 gameData={game}
                 onProjectedGainsChange={setProjectedInvestments}
-                onInvest={handleInvest}
+                onInvestBulk={handleInvestBulk}
                 onNextTurn={handleNextTurn}
                 disabled={actionLoading || (phase === "event" && currentEvents.length > 0)}
               />

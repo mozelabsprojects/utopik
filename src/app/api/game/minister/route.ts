@@ -17,6 +17,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Yetersiz siyasi sermaye" }, { status: 400 });
     }
 
+    let factions: Record<string, { support: number }> = {};
+    try {
+      factions = JSON.parse(game.factions);
+    } catch {}
+
+    const reqFaction = factions[minister.requiredFactionId];
+    if (reqFaction && reqFaction.support < 20) {
+      return NextResponse.json({ error: "Bu bakanın temsil ettiği grubun halk desteği %20'nin altında olduğu için atama yapılamaz." }, { status: 400 });
+    }
+
     let ministers: Record<string, string> = {};
     try { ministers = JSON.parse(game.ministers); } catch {}
 

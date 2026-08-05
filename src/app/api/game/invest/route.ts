@@ -5,11 +5,11 @@ import { GameState } from "@/lib/types";
 
 export async function POST(request: Request) {
   try {
-    const { gameId, sector, amount } = await request.json();
+    const { gameId, sector, amount, investments } = await request.json();
 
-    if (!gameId || !sector || !amount || amount <= 0) {
+    if (!gameId) {
       return NextResponse.json(
-        { error: "gameId, sector ve amount (>0) gerekli" },
+        { error: "gameId gerekli" },
         { status: 400 }
       );
     }
@@ -57,45 +57,65 @@ export async function POST(request: Request) {
       unlockedTechs: game.unlockedTechs,
     };
 
-    // Yatırımı uygula
-    const { newState, actualAmount } = applyInvestment(currentState, sector, amount);
+    // Yatırımları sırayla uygula
+    let updatedState = { ...currentState };
+    let totalInvestedAmount = 0;
+    const recordsToCreate: any[] = [];
 
-    if (actualAmount === 0) {
+    const processInvestment = (sec: string, amt: number) => {
+      if (amt <= 0) return;
+      const { newState, actualAmount } = applyInvestment(updatedState, sec, amt);
+      if (actualAmount > 0) {
+        updatedState = newState;
+        totalInvestedAmount += actualAmount;
+        recordsToCreate.push({
+          gameId,
+          sector: sec,
+          amount: actualAmount,
+          turn: game.turn,
+        });
+      }
+    };
+
+    if (investments) {
+      for (const [sec, amt] of Object.entries(investments)) {
+        processInvestment(sec, amt as number);
+      }
+    } else if (sector && amount) {
+      processInvestment(sector, amount);
+    }
+
+    if (recordsToCreate.length === 0) {
       return NextResponse.json(
-        { error: "Yetersiz bütçe" },
+        { error: "Geçerli bir yatırım veya yeterli bütçe bulunamadı" },
         { status: 400 }
       );
     }
 
-    // Yatırım kaydı oluştur
-    await prisma.investment.create({
-      data: {
-        gameId,
-        sector,
-        amount: actualAmount,
-        turn: game.turn,
-      },
+    // Yatırım kayıtlarını oluştur
+    await prisma.investment.createMany({
+      data: recordsToCreate,
     });
 
     // Oyun durumunu güncelle
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: {
-        budget: newState.budget,
-        military: newState.military,
-        health: newState.health,
-        education: newState.education,
-        environment: newState.environment,
-        stability: newState.stability,
-        foreignRelations: newState.foreignRelations,
-        factions: newState.factions,
+        budget: updatedState.budget,
+        military: updatedState.military,
+        health: updatedState.health,
+        education: updatedState.education,
+        environment: updatedState.environment,
+        stability: updatedState.stability,
+        foreignRelations: updatedState.foreignRelations,
+        factions: updatedState.factions,
       },
     });
 
     return NextResponse.json({
       game: updatedGame,
-      investedAmount: actualAmount,
-      sector,
+      investedAmount: totalInvestedAmount,
+      investments: recordsToCreate,
     });
   } catch (error) {
     console.error("Yatırım hatası:", error);

@@ -23,7 +23,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Oyun bulunamadı" }, { status: 404 });
     }
 
-    const unlockedTechs: string[] = JSON.parse(game.unlockedTechs);
+    let unlockedTechs: string[] = [];
+    try {
+      unlockedTechs = JSON.parse(game.unlockedTechs);
+    } catch {}
 
     if (unlockedTechs.includes(techId)) {
       return NextResponse.json({ error: "Bu teknoloji zaten açık" }, { status: 400 });
