@@ -180,6 +180,8 @@ export interface Quest {
   turnsRemaining: number;
   rewardText: string;
   rewardEffects: StatEffects;
+  failureText?: string;
+  failureEffects?: StatEffects;
 }
 
 export const STAT_LABELS: Record<string, string> = {

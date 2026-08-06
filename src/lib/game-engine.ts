@@ -583,6 +583,11 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     state.health = clampStat(state.health + 1);
   }
   
+  // İstikrar Bonusu: Güvenli ülke dış dünyada itibar kazanır (Diplomasi Puanı)
+  if (state.stability > 70) {
+    state.foreignRelations = clampStat(state.foreignRelations + 1);
+  }
+  
   // Mutluluk ve sağlık her 2 turda 1 düşer, çevre doğal olarak düşmez (sadece krizlerle)
   if (state.turn % 2 === 0) {
     state.happiness = clampStat(state.happiness - 1);
@@ -610,6 +615,56 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   
   state.popularity = Math.round(totalSupport / 5);
   state.politicalCapital = Math.min(999, Math.max(0, state.politicalCapital + 5));
+
+  // 8.6 Aktif Görevlerin Süresini Düşür ve Başarısızlıkları Kontrol Et
+  let activeQuests: any[] = [];
+  try { activeQuests = JSON.parse(state.activeQuests || "[]"); } catch {}
+  
+  const remainingQuests = [];
+  for (const quest of activeQuests) {
+    quest.turnsRemaining--;
+    if (quest.turnsRemaining <= 0) {
+      turnReports.push(`❌ GÖREV BAŞARISIZ: ${quest.title} - ${quest.failureText || "Halkın taleplerini yerine getiremediniz."}`);
+      if (quest.failureEffects) {
+        Object.assign(state, applyEffects(state, quest.failureEffects, state.isBankrupt));
+      }
+    } else {
+      remainingQuests.push(quest);
+    }
+  }
+  
+  // Eğer görev yoksa %20 ihtimalle yeni bir görev ver
+  if (remainingQuests.length === 0 && Math.random() < 0.20) {
+    const sectors = ["health", "education", "environment", "military", "popularity"];
+    const randSector = sectors[Math.floor(Math.random() * sectors.length)];
+    const currentValue = state[randSector as keyof GameState] as number;
+    const targetVal = Math.min(100, Math.round(currentValue + 15));
+    const isBudgetReward = Math.random() > 0.5;
+    
+    let sectorName = "";
+    if (randSector === "health") sectorName = "Sağlık";
+    else if (randSector === "education") sectorName = "Eğitim";
+    else if (randSector === "environment") sectorName = "Çevre";
+    else if (randSector === "military") sectorName = "Askeriye";
+    else sectorName = "Başkanlık Desteği (Popülarite)";
+
+    const newQuest = {
+      id: "quest_" + Date.now().toString(),
+      title: "Halkın Yeni Talebi",
+      description: `Halk, önümüzdeki 4 tur içinde ${sectorName} seviyesinin ${targetVal} olmasını talep ediyor.`,
+      targetSector: randSector,
+      targetValue: targetVal,
+      turnsRemaining: 4,
+      rewardText: isBudgetReward ? "Hazine Geliri ($2000)" : "Siyasi Sermaye (+20)",
+      rewardEffects: isBudgetReward ? { budget: 2000 } : { politicalCapital: 20 },
+      failureText: "Talep karşılanamadı, halk desteği düşüyor.",
+      failureEffects: { popularity: -10, stability: -5 }
+    };
+    remainingQuests.push(newQuest);
+    turnReports.push(`📜 YENİ HALK TALEBİ: ${newQuest.description}`);
+  }
+  
+  state.activeQuests = JSON.stringify(remainingQuests);
 
   // 9. Seçim Kontrolü
   if (state.turn === state.nextElectionTurn) {

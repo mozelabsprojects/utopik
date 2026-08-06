@@ -58,6 +58,10 @@ export async function POST(request: Request) {
       const baseReturn = 1 + riskProfile.minReturn;
       const variableReturn = Math.random() * (riskProfile.maxReturn - riskProfile.minReturn);
       totalExpectedReturn = investmentAmount * (baseReturn + variableReturn);
+      // Başarılı dış ticaret diplomasimizi güçlendirir
+      if (!partner.isPlayer) {
+        game.foreignRelations = Math.min(100, game.foreignRelations + 2);
+      }
     } else {
       // Başarısız anlaşma (Zarar)
       const lossSeverity = riskProfile.minLoss + (Math.random() * (riskProfile.maxLoss - riskProfile.minLoss));
