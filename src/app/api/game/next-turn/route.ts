@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       where: { id: gameId },
       include: {
         tradeAgreements: true,
-        worldCountries: true,
+        worldCountries: { orderBy: { name: 'asc' } },
       }
     });
 
@@ -431,7 +431,7 @@ export async function POST(request: Request) {
         unlockedTechs: newState.unlockedTechs,
       },
       include: {
-        worldCountries: true,
+        worldCountries: { orderBy: { name: 'asc' } },
         tradeAgreements: true,
         investments: true,
       }

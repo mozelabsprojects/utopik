@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: updatedData,
-      include: { worldCountries: true }
+      include: { worldCountries: { orderBy: { name: 'asc' } } }
     });
 
     return NextResponse.json({ game: updatedGame });

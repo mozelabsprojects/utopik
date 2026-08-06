@@ -8,7 +8,7 @@ export async function POST(request: Request) {
 
     const game = await prisma.game.findUnique({ 
       where: { id: gameId },
-      include: { worldCountries: true }
+      include: { worldCountries: { orderBy: { name: 'asc' } } }
     });
     
     if (!game) return NextResponse.json({ error: "Oyun bulunamadı" }, { status: 404 });

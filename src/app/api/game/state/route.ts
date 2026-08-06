@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       where: { id: gameId },
       include: { 
         investments: true,
-        worldCountries: true,
+        worldCountries: { orderBy: { name: 'asc' } },
         tradeAgreements: true
       },
     });
