@@ -108,7 +108,7 @@ export const EVENTS: GameEvent[] = [
         text: "Devlet olarak sanal evrenlere biz de yatırım yapalım.",
         effects: { budget: -800, education: 15, happiness: 5, foreignRelations: 10 },
         factionEffects: { intellectuals: 15 },
-        marketEffects: { tech: 1.3 },
+        marketEffects: { tech: 1.08 },
         hint: "Yenilikçi bir adım! Teknoloji hisseleri fırlar."
       },
       {
@@ -168,7 +168,7 @@ export const EVENTS: GameEvent[] = [
         text: "Kabul et ve devasa bir arena inşa et!",
         effects: { budget: -800, happiness: 15, education: 5, foreignRelations: 10 },
         factionEffects: { intellectuals: 10 },
-        marketEffects: { tech: 1.2 },
+        marketEffects: { tech: 1.05 },
         hint: "Bütçeyi biraz sarsar ama gençlerin mutluluğu tavan yapar, Teknoloji sektörü uçar."
       },
       {
@@ -198,7 +198,7 @@ export const EVENTS: GameEvent[] = [
         text: "Tamamen serbest bırak ve vergi alma.",
         effects: { happiness: 10, stability: -5, budget: 0 },
         factionEffects: { capitalists: 15, workers: -5 },
-        marketEffects: { tech: 1.3 },
+        marketEffects: { tech: 1.08 },
         hint: "Mutluluk artar, teknoloji borsası patlar ama ülke istikrarı sarsılır."
       },
       {
@@ -229,7 +229,7 @@ export const EVENTS: GameEvent[] = [
         text: "AI şirketlerini fonla (Teknolojiye tam destek).",
         effects: { budget: -800, education: 15, happiness: -5, stability: -5 },
         factionEffects: { capitalists: 20, workers: -20 },
-        marketEffects: { tech: 1.4 },
+        marketEffects: { tech: 1.12 },
         hint: "Geleceğe yatırım! Teknoloji hisseleri uçar ancak işçi sınıfı çok öfkelenir."
       },
       {
@@ -290,7 +290,7 @@ export const EVENTS: GameEvent[] = [
         text: "Projeyi başlat! Milyarlarca dolar akıt, uzaya çıkıyoruz!",
         effects: { budget: -2000, education: 25, happiness: 10, foreignRelations: 15 },
         factionEffects: { intellectuals: 30, nationalists: 15 },
-        marketEffects: { tech: 1.5, minerals: 1.2 },
+        marketEffects: { tech: 1.15, minerals: 1.05 },
         hint: "Çok pahalı! Ancak ülkeyi bilim ve prestij şampiyonu yapar."
       },
       {
@@ -320,7 +320,7 @@ export const EVENTS: GameEvent[] = [
         text: "Genç yazılımcılara 5 yıl boyunca Sıfır Vergi ve Hibe sağla.",
         effects: { budget: -500, education: 10, happiness: 15 },
         factionEffects: { intellectuals: 15, capitalists: 10 },
-        marketEffects: { tech: 1.15 },
+        marketEffects: { tech: 1.03 },
         hint: "Hazine destek öder, ancak gençlerin umudu ve teknoloji borsası artar."
       },
       {

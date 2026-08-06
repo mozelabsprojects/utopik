@@ -139,15 +139,41 @@ export async function POST(request: Request) {
       marketState.history.shift();
     }
 
-    // Trend tabanlı dalgalanma (Yeni Risk Profilleriyle)
+    // Trend tabanlı dalgalanma (Yeni Risk Profilleri ve Düzeltme/Crash Mantığı)
     const products = Object.keys(multipliers) as (keyof typeof multipliers)[];
     for (const key of products) {
+      const currentPrice = marketState.prices[key] || 100;
+      const profile = COMMODITY_PROFILES[key];
+      
+      // Mean Reversion (Düzeltme) Oranı Hesapla
+      // Fiyat max sınıra ne kadar yakınsa çökme/düşme ihtimali o kadar artar
+      const pricePercentile = (currentPrice - profile.min) / (profile.max - profile.min);
+      
       // Trend yoksa veya süresi bittiyse yeni trend oluştur
       if (!marketState.trends[key] || marketState.trends[key]!.turnsRemaining <= 0) {
         const r = Math.random();
         let dir: 'up' | 'down' | 'flat' = 'flat';
-        if (r > 0.65) dir = 'up';
-        else if (r < 0.35) dir = 'down';
+        
+        // Fiyat çok yüksekse düşüş ihtimalini artır (Crash riski)
+        let upChance = 0.35;
+        let downChance = 0.35;
+        
+        if (pricePercentile > 0.8) {
+          downChance = 0.65; // %80'den pahalıysa %65 düşüş ihtimali
+          upChance = 0.15;
+        } else if (pricePercentile > 0.6) {
+          downChance = 0.50;
+          upChance = 0.25;
+        } else if (pricePercentile < 0.2) {
+          upChance = 0.60; // Çok ucuzsa yükseliş tepkisi
+          downChance = 0.20;
+        }
+
+        if (r < downChance) {
+          dir = 'down';
+        } else if (r < downChance + upChance) {
+          dir = 'up';
+        }
 
         marketState.trends[key] = {
           direction: dir,
@@ -158,12 +184,14 @@ export async function POST(request: Request) {
       }
 
       const dir = marketState.trends[key]!.direction;
-      const vol = COMMODITY_PROFILES[key].volatility;
+      const vol = profile.volatility;
       
       if (dir === 'up') {
         multipliers[key] = 1.01 + (Math.random() * vol); 
       } else if (dir === 'down') {
-        multipliers[key] = 1.0 - (0.01 + Math.random() * vol); 
+        // Balon patlama (Crash) etkisi: Eğer fiyat çok yüksekse ve düşüş trendine girdiyse daha sert düşsün
+        const crashFactor = pricePercentile > 0.75 ? 1.5 : 1.0; 
+        multipliers[key] = 1.0 - (0.02 + Math.random() * (vol * crashFactor)); 
       } else {
         multipliers[key] = 1.0 + (Math.random() * (vol/2) - (vol/4)); 
       }
