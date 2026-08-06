@@ -1,7 +1,7 @@
 import { FactionId } from "./factions";
 import { GameState, StatEffects } from "./types";
 
-export type PolicyId = "free_healthcare" | "martial_law" | "tax_cuts" | "green_energy" | "censorship" | "welfare_state";
+export type PolicyId = "free_healthcare" | "martial_law" | "tax_cuts" | "green_energy" | "censorship" | "welfare_state" | "conscription_expansion" | "military_modernization";
 
 export interface Policy {
   id: PolicyId;
@@ -63,5 +63,22 @@ export const POLICIES: Record<PolicyId, Policy> = {
     politicalCost: 90,
     factionImpactOnEnact: { workers: 25, capitalists: -15 },
     passiveEffects: { budget: -600, happiness: 1, stability: 1 }
+  },
+  conscription_expansion: {
+    id: "conscription_expansion",
+    name: "Zorunlu Askerlik Uzatımı",
+    description: "Askerlik süresi uzatılır ve kapsamı genişletilir. Ordu memnun olur ancak sivil halkın ve aydınların tepkisini çeker.",
+    politicalCost: 70,
+    factionImpactOnEnact: { military: 20, nationalists: 15, workers: -10, intellectuals: -15 },
+    passiveEffects: { military: 2, happiness: -1, stability: 1, budget: -300 },
+    passiveFactionEffects: { military: 1, intellectuals: -1 }
+  },
+  military_modernization: {
+    id: "military_modernization",
+    name: "Askeri Modernizasyon",
+    description: "Ordunun teçhizatları tamamen yenilenir. Savunma sanayine devasa bütçe aktarılır, dış güçlere gözdağı verilir.",
+    politicalCost: 85,
+    factionImpactOnEnact: { military: 25, capitalists: 10, intellectuals: -10 },
+    passiveEffects: { military: 2, foreignRelations: 1, budget: -1000, education: -1 }
   }
 };
