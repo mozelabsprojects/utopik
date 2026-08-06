@@ -777,15 +777,17 @@ export function applyInvestment(
   const actualAmount = Math.min(amount, Math.max(0, state.budget));
   if (actualAmount <= 0) return { newState: state, actualAmount: 0 };
 
-  const newState = { ...state };
-  newState.budget -= actualAmount;
-
   const efficiencyMultiplier = 1 + (state.education > 50 ? (state.education - 50) / 100 : 0);
   const effectiveAmount = actualAmount * efficiencyMultiplier;
 
   let currentStat = 50;
   if (sector === "popularityFund") {
     const popGained = Math.floor(effectiveAmount / 5000);
+    if (popGained <= 0) return { newState: state, actualAmount: 0 };
+    
+    const finalAmount = Math.ceil((popGained * 5000) / efficiencyMultiplier);
+    const newState = { ...state, budget: state.budget - finalAmount };
+    
     newState.popularity = clampStat(newState.popularity + popGained);
     // Fraksiyonları da otomatik yükselt
     let factions: FactionsState = INITIAL_FACTIONS;
@@ -794,12 +796,18 @@ export function applyInvestment(
       workers: popGained, capitalists: popGained, intellectuals: popGained, nationalists: popGained, military: popGained
     });
     newState.factions = JSON.stringify(factions);
-    return { newState, actualAmount };
+    return { newState, actualAmount: finalAmount };
   }
+  
   if (sector === "politicalFund") {
     const pcGained = Math.floor(effectiveAmount / 400);
+    if (pcGained <= 0) return { newState: state, actualAmount: 0 };
+    
+    const finalAmount = Math.ceil((pcGained * 400) / efficiencyMultiplier);
+    const newState = { ...state, budget: state.budget - finalAmount };
+    
     newState.politicalCapital += pcGained;
-    return { newState, actualAmount };
+    return { newState, actualAmount: finalAmount };
   }
 
   switch (sector) {
@@ -812,9 +820,28 @@ export function applyInvestment(
   }
 
   // Üstel Azalan Getiri (Exponential Diminishing Returns)
-  // Maliyetler statü yükseldikçe inanılmaz bir hızla artar. Fulleme hilesini engeller.
-  const costPerPoint = 250 * Math.pow(1.045, currentStat);
-  const pointsGained = Math.round(effectiveAmount / costPerPoint);
+  // Maliyetler statü yükseldikçe inanılmaz bir hızla artar.
+  // Oyuncunun açık (exploit) yapmasını engellemek için maliyetler her puan için ayrı hesaplanır.
+  let pointsGained = 0;
+  let totalEffectiveCost = 0;
+  let tempStat = currentStat;
+
+  while (tempStat < 100) {
+    const costForNext = 250 * Math.pow(1.045, tempStat);
+    if (totalEffectiveCost + costForNext <= effectiveAmount) {
+      pointsGained++;
+      totalEffectiveCost += costForNext;
+      tempStat++;
+    } else {
+      break;
+    }
+  }
+
+  if (pointsGained <= 0) return { newState: state, actualAmount: 0 };
+
+  // Fazla yatırılan (kullanılmayan) parayı bütçeye iade et
+  const finalActualAmount = Math.ceil(totalEffectiveCost / efficiencyMultiplier);
+  const newState = { ...state, budget: state.budget - finalActualAmount };
 
   switch (sector) {
     case "military": newState.military = clampStat(newState.military + pointsGained); break;
@@ -829,7 +856,7 @@ export function applyInvestment(
   let factions: FactionsState = INITIAL_FACTIONS;
   try { factions = JSON.parse(newState.factions); } catch { factions = INITIAL_FACTIONS; }
   
-  const factionGain = pointsGained; // Eskiden pointsGained / 2 idi. Artık doğrudan 1:1 etki ediyor.
+  const factionGain = pointsGained;
   if (factionGain > 0) {
     if (sector === "military") factions = modifyFactionSupport(factions, { military: factionGain, nationalists: Math.floor(factionGain / 2) });
     if (sector === "health" || sector === "education") factions = modifyFactionSupport(factions, { workers: factionGain, intellectuals: Math.floor(factionGain / 2) });
@@ -837,7 +864,7 @@ export function applyInvestment(
   
   newState.factions = JSON.stringify(factions);
 
-  return { newState, actualAmount };
+  return { newState, actualAmount: finalActualAmount };
 }
 
 // ============================================

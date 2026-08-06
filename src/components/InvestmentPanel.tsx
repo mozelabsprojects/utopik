@@ -78,8 +78,21 @@ export default function InvestmentPanel({
           case "stability": currentStat = gameData.stability; break;
           case "foreignRelations": currentStat = gameData.foreignRelations; break;
         }
-        const costPerPoint = 250 * Math.pow(1.045, currentStat);
-        gains[sec] = Math.round(effectiveAmount / costPerPoint);
+        
+        let tempStat = currentStat;
+        let totalEffectiveCost = 0;
+        let pts = 0;
+        while (tempStat < 100) {
+          const costForNext = 250 * Math.pow(1.045, tempStat);
+          if (totalEffectiveCost + costForNext <= effectiveAmount) {
+            pts++;
+            totalEffectiveCost += costForNext;
+            tempStat++;
+          } else {
+            break;
+          }
+        }
+        gains[sec] = pts;
       }
       onProjectedGainsChange(gains);
     }
@@ -155,10 +168,24 @@ export default function InvestmentPanel({
           if (gameData && investments[sector] > 0) {
             const efficiencyMultiplier = 1 + (gameData.education > 50 ? (gameData.education - 50) / 100 : 0);
             const effectiveAmount = investments[sector] * efficiencyMultiplier;
-            const costPerPoint = 250 * Math.pow(1.045, currentStat);
-            const rawGain = effectiveAmount / costPerPoint;
-            projectedGain = Math.round(rawGain);
-            if (projectedGain === 0 && rawGain > 0) {
+            
+            let tempStat = currentStat;
+            let totalEffectiveCost = 0;
+            let pts = 0;
+            while (tempStat < 100) {
+              const costForNext = 250 * Math.pow(1.045, tempStat);
+              if (totalEffectiveCost + costForNext <= effectiveAmount) {
+                pts++;
+                totalEffectiveCost += costForNext;
+                tempStat++;
+              } else {
+                break;
+              }
+            }
+            projectedGain = pts;
+            
+            // Eğer tam 1 puana yetmediyse ama biraz yatırım yapıldıysa
+            if (projectedGain === 0 && effectiveAmount > 0) {
               isLessThanOne = true;
             }
           }
