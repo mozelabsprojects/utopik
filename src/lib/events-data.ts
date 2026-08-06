@@ -8,6 +8,155 @@ export const EVENTS: GameEvent[] = [
   // POZİTİF OLAYLAR (SÜRPRİZ KAZANÇLAR)
   // ============================================
   {
+    id: "trend_digital_nomad",
+    title: "Dijital Göçebeler Ülkeye Akın Ediyor",
+    description: "Dünyanın dört bir yanından yazılımcılar ve freelancer'lar, güzel iklimimiz ve ucuz hayatımız için ülkemize yerleşmeye başladı. Ancak yerel halk kiraların artmasından şikayetçi.",
+    category: "ekonomi",
+    minTurn: 5,
+    choices: [
+      {
+        label: "A",
+        text: "Dijital Göçebe Vizesi ver (Tam destek).",
+        effects: { budget: 1200, foreignRelations: 10, happiness: -10, stability: -5 },
+        factionEffects: { capitalists: 15, workers: -15 },
+        hint: "Bolca yabancı döviz girer ancak konut krizi yüzünden halk kızar."
+      },
+      {
+        label: "B",
+        text: "Sadece belirli bölgelere yerleşmelerine izin ver.",
+        effects: { budget: 500, foreignRelations: 5, stability: 5 },
+        factionEffects: { capitalists: 5 },
+        hint: "Orta karar bir kazanç ve daha güvenli bir yönetim."
+      },
+      {
+        label: "C",
+        text: "Vize şartlarını zorlaştır, yerli halkı koru.",
+        effects: { happiness: 15, stability: 10, budget: -500 },
+        factionEffects: { nationalists: 20, workers: 15 },
+        hint: "Yabancı geliri azalır ama vatandaşlar sizi kahraman ilan eder."
+      }
+    ]
+  },
+  {
+    id: "trend_streaming_platform",
+    title: "Yerli Dijital Yayın Platformu",
+    description: "Yabancı dizi/film platformları kültürümüzü yozlaştırdığı gerekçesiyle eleştiriliyor. Girişimciler, devlet destekli tamamen yerli bir 'Streaming' platformu kurmak istiyor.",
+    category: "sosyal",
+    minTurn: 4,
+    choices: [
+      {
+        label: "A",
+        text: "Platformu kur ve tüm vatandaşlara ücretsiz yap!",
+        effects: { budget: -1500, happiness: 20, education: 5, stability: 10 },
+        factionEffects: { nationalists: 15, workers: 20 },
+        hint: "Çok masraflı ama halk bu hizmete bayılır."
+      },
+      {
+        label: "B",
+        text: "Girişimcilere sadece vergi indirimi sağla.",
+        effects: { budget: -300, happiness: 10, education: 5 },
+        factionEffects: { capitalists: 10 },
+        hint: "Ucuz ve dengeli bir destek."
+      },
+      {
+        label: "C",
+        text: "Gereksiz! Yabancı platformlara ek vergi koy.",
+        effects: { budget: 800, happiness: -15, foreignRelations: -5 },
+        factionEffects: { nationalists: 10, intellectuals: -15 },
+        hint: "Hazineye para girer ama gençler size ateş püskürür."
+      }
+    ]
+  },
+  {
+    id: "trend_climate_strike",
+    title: "İklim Grevleri Başladı",
+    description: "Ülkedeki Z kuşağı ve çevre aktivistleri, karbon emisyonlarının azaltılması için haftalardır okulları boykot edip sokaklara dökülüyor.",
+    category: "cevre",
+    minTurn: 6,
+    choices: [
+      {
+        label: "A",
+        text: "Talepleri kabul et, fabrikalara yeşil filtre zorunluluğu getir.",
+        effects: { environment: 20, happiness: 10, budget: -1200, stability: 5 },
+        factionEffects: { intellectuals: 20, capitalists: -20 },
+        hint: "Doğa kurtulur, gençler sevinir ama sanayiciler büyük isyan eder."
+      },
+      {
+        label: "B",
+        text: "Sadece sembolik ağaç dikme kampanyası başlat.",
+        effects: { environment: 5, budget: -200, happiness: -5 },
+        hint: "Ucuz bir göz boyama, ama aktivistler tatmin olmaz."
+      },
+      {
+        label: "C",
+        text: "Grevi yasakla ve fabrikaları tam kapasite çalıştır.",
+        effects: { budget: 1500, environment: -15, happiness: -20, stability: -10 },
+        factionEffects: { capitalists: 25, intellectuals: -30 },
+        hint: "Ekonomi şahlanır ama ülke yaşanmaz bir çöplüğe döner."
+      }
+    ]
+  },
+  {
+    id: "trend_metaverse",
+    title: "Sanal Gerçeklik (Metaverse) Çılgınlığı",
+    description: "Sanal evrenlerde (Metaverse) dijital arsalar satılmaya başlandı. Bazı yatırımcılar başkentin dijital ikizini satın alıp sanal devlet kurduklarını iddia ediyor!",
+    category: "ekonomi",
+    minTurn: 7,
+    choices: [
+      {
+        label: "A",
+        text: "Devlet olarak sanal evrenlere biz de yatırım yapalım.",
+        effects: { budget: -800, education: 15, happiness: 5, foreignRelations: 10 },
+        factionEffects: { intellectuals: 15 },
+        marketEffects: { tech: 1.3 },
+        hint: "Yenilikçi bir adım! Teknoloji hisseleri fırlar."
+      },
+      {
+        label: "B",
+        text: "Sanal arsalardan 'Dijital Emlak Vergisi' al.",
+        effects: { budget: 1200, happiness: -10, stability: 5 },
+        factionEffects: { capitalists: -10 },
+        hint: "Havadan iyi para kazanırsınız ama yatırımcılar küser."
+      },
+      {
+        label: "C",
+        text: "Sanal dünya saçmalıktır, hepsini erişime kapat.",
+        effects: { stability: 10, education: -10, happiness: -15 },
+        factionEffects: { nationalists: 10, intellectuals: -15 },
+        hint: "Gerçek dünyaya dönülür ama dijital çağın gerisinde kalırsınız."
+      }
+    ]
+  },
+  {
+    id: "trend_energy_drink",
+    title: "Enerji İçeceği Skandalı",
+    description: "Gençler arasında popüler olan yeni bir enerji içeceğinin, aşırı kafein ve kimyasal bağımlılığı yaptığı tespit edildi. Sağlık bakanlığı acil karar bekliyor.",
+    category: "ic_politika",
+    minTurn: 2,
+    choices: [
+      {
+        label: "A",
+        text: "İçeceği derhal yasakla ve toplat.",
+        effects: { health: 15, happiness: -10, budget: -300 },
+        factionEffects: { capitalists: -15, nationalists: 10 },
+        hint: "Halk sağlığı kurtulur ancak şirketler tazminat davası açar."
+      },
+      {
+        label: "B",
+        text: "Sadece +18 yaş sınırı getir.",
+        effects: { health: 5, stability: 5, happiness: -5 },
+        hint: "Dengeli ve makul bir çözüm."
+      },
+      {
+        label: "C",
+        text: "Dokunma, serbest piyasa. Sadece 'zararlıdır' yazısı eklet.",
+        effects: { budget: 500, health: -15, happiness: 10 },
+        factionEffects: { capitalists: 20, intellectuals: -15 },
+        hint: "Bütçe ve vergi geliri akar ama hastaneler kalp krizi vakalarıyla dolar."
+      }
+    ]
+  },
+  {
     id: "trend_esports",
     title: "E-Spor Dünya Şampiyonası",
     description: "Milyonlarca gencin takip ettiği devasa E-Spor Dünya Şampiyonası için finalin ülkemizde yapılması teklif edildi. Büyük bir altyapı yatırımı gerekiyor ancak gençler heyecandan çıldırıyor!",
@@ -78,7 +227,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "AI şirketlerini fonla (Teknolojiye tam destek).",
-        effects: { budget: -1000, education: 15, foreignRelations: 10, happiness: -5, stability: -5 },
+        effects: { budget: -1000, education: 15, happiness: -5, stability: -5 },
         factionEffects: { capitalists: 20, workers: -20 },
         marketEffects: { tech: 1.4 },
         hint: "Geleceğe yatırım! Teknoloji hisseleri uçar ancak işçi sınıfı çok öfkelenir."
@@ -139,7 +288,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Projeyi başlat! Milyarlarca dolar akıt, uzaya çıkıyoruz!",
-        effects: { budget: -2500, education: 25, foreignRelations: 15, happiness: 10, military: 5 },
+        effects: { budget: -2500, education: 25, happiness: 10, foreignRelations: 15 },
         factionEffects: { intellectuals: 30, nationalists: 15 },
         marketEffects: { tech: 1.5, minerals: 1.2 },
         hint: "Çok pahalı! Ancak ülkeyi bilim ve prestij şampiyonu yapar."
@@ -1934,9 +2083,24 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
         pool = pool.filter(e => e.id !== fallbackPool[randomIndex].id); // Yedek havuzdan aynı şeyi çekmesin
       }
     } else {
-      const randomIndex = Math.floor(Math.random() * pool.length);
-      selectedEvents.push(pool[randomIndex]);
-      pool.splice(randomIndex, 1); // Çekilen olayı havuzdan çıkar
+      // Çeşitliliği sağla: Aynı kategoriden çok fazla olay gelmesini engelle (Örn: Üst üste 3 ekonomi olayı gelmesin)
+      const selectedCategories = selectedEvents.map(e => e.category);
+      let filteredPool = pool;
+      
+      for (const cat of selectedCategories) {
+        const tempPool = filteredPool.filter(e => e.category !== cat);
+        // Eğer havuz tamamen boşalmıyorsa filtreyi uygula
+        if (tempPool.length > 0) {
+          filteredPool = tempPool;
+        }
+      }
+
+      const randomIndex = Math.floor(Math.random() * filteredPool.length);
+      const chosenEvent = filteredPool[randomIndex];
+      selectedEvents.push(chosenEvent);
+      
+      // Çekilen olayı asıl havuzdan çıkar
+      pool = pool.filter(e => e.id !== chosenEvent.id);
     }
   }
   
