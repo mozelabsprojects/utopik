@@ -70,7 +70,14 @@ export async function POST(request: Request) {
         activePetitions: "[]",
         diplomacyState: "{}",
         marketState: JSON.stringify({
-          prices: { energy: 100, food: 50, tech: 200, medical: 150, arms: 300, minerals: 80 },
+          prices: { 
+            food: Math.floor(Math.random() * (150 - 30) + 30),        // min 20, max 300
+            minerals: Math.floor(Math.random() * (300 - 60) + 60),    // min 50, max 600
+            energy: Math.floor(Math.random() * (500 - 120) + 120),    // min 100, max 1200
+            medical: Math.floor(Math.random() * (800 - 250) + 250),   // min 200, max 2000
+            arms: Math.floor(Math.random() * (1500 - 450) + 450),     // min 400, max 3500
+            tech: Math.floor(Math.random() * (2500 - 600) + 600)      // min 500, max 5000
+          },
           inventory: { energy: 0, food: 0, tech: 0, medical: 0, arms: 0, minerals: 0 },
           history: []
         }),
