@@ -117,15 +117,37 @@ export async function POST(request: Request) {
       marketState.trends = {};
     }
 
-    // Trend tabanlı dalgalanma
+    // ------------------------------------------
+    // YENİ EŞSİZ EMTİA PROFİLLERİ (Tiers & Risk)
+    // ------------------------------------------
+    const COMMODITY_PROFILES = {
+      food: { min: 10, max: 50, volatility: 0.03 },      // 3% max shift (Çok Düşük Risk, Güvenli)
+      minerals: { min: 20, max: 120, volatility: 0.06 }, // 6% max shift (Düşük Risk)
+      energy: { min: 50, max: 400, volatility: 0.10 },   // 10% max shift (Orta Risk)
+      medical: { min: 100, max: 800, volatility: 0.12 }, // 12% max shift (Orta Yüksek Risk)
+      arms: { min: 300, max: 2000, volatility: 0.18 },   // 18% max shift (Yüksek Risk)
+      tech: { min: 500, max: 4000, volatility: 0.30 }    // 30% max shift (Balina / Kripto Sınıfı, Aşırı Risk)
+    };
+
+    // Mevcut (Eski) fiyatları arşive al (Bu sayede yüzdelik değişim UX bug'ı çözülür)
+    marketState.history.push({
+      turn: game.turn,
+      prices: { ...marketState.prices }
+    });
+    // Sadece son 30 turu tut (optimizasyon)
+    if (marketState.history.length > 30) {
+      marketState.history.shift();
+    }
+
+    // Trend tabanlı dalgalanma (Yeni Risk Profilleriyle)
     const products = Object.keys(multipliers) as (keyof typeof multipliers)[];
     for (const key of products) {
       // Trend yoksa veya süresi bittiyse yeni trend oluştur
       if (!marketState.trends[key] || marketState.trends[key]!.turnsRemaining <= 0) {
         const r = Math.random();
         let dir: 'up' | 'down' | 'flat' = 'flat';
-        if (r > 0.7) dir = 'up';
-        else if (r < 0.3) dir = 'down';
+        if (r > 0.65) dir = 'up';
+        else if (r < 0.35) dir = 'down';
 
         marketState.trends[key] = {
           direction: dir,
@@ -136,12 +158,14 @@ export async function POST(request: Request) {
       }
 
       const dir = marketState.trends[key]!.direction;
+      const vol = COMMODITY_PROFILES[key].volatility;
+      
       if (dir === 'up') {
-        multipliers[key] = 1.02 + Math.random() * 0.08; // 1.02 to 1.10
+        multipliers[key] = 1.01 + (Math.random() * vol); 
       } else if (dir === 'down') {
-        multipliers[key] = 0.90 + Math.random() * 0.08; // 0.90 to 0.98
+        multipliers[key] = 1.0 - (0.01 + Math.random() * vol); 
       } else {
-        multipliers[key] = 0.97 + Math.random() * 0.06; // 0.97 to 1.03
+        multipliers[key] = 1.0 + (Math.random() * (vol/2) - (vol/4)); 
       }
     }
 
@@ -159,26 +183,14 @@ export async function POST(request: Request) {
       multipliers.tech *= 1.15;
     }
 
-    marketState.prices.energy = Math.min(300, Math.max(20, marketState.prices.energy * multipliers.energy));
-    marketState.prices.food = Math.min(200, Math.max(10, marketState.prices.food * multipliers.food));
-    marketState.prices.tech = Math.min(800, Math.max(50, marketState.prices.tech * multipliers.tech));
-    marketState.prices.medical = Math.min(500, Math.max(30, marketState.prices.medical * multipliers.medical));
-    marketState.prices.arms = Math.min(1000, Math.max(50, marketState.prices.arms * multipliers.arms));
-    marketState.prices.minerals = Math.min(400, Math.max(20, marketState.prices.minerals * multipliers.minerals));
-
-    // Tam sayıya yuvarlama
-    for (const key of Object.keys(marketState.prices) as (keyof typeof marketState.prices)[]) {
-      marketState.prices[key] = Math.round(marketState.prices[key]);
+    for (const key of products) {
+      const prof = COMMODITY_PROFILES[key];
+      marketState.prices[key] = Math.min(prof.max, Math.max(prof.min, marketState.prices[key] * multipliers[key]));
     }
 
-    // Geçmişe (History) kaydet
-    marketState.history.push({
-      turn: game.turn + 1, // Bir sonraki turun başı
-      prices: { ...marketState.prices }
-    });
-    // Sadece son 30 turu tut (optimizasyon)
-    if (marketState.history.length > 30) {
-      marketState.history.shift();
+    // Tam sayıya yuvarlama
+    for (const key of products) {
+      marketState.prices[key] = Math.round(marketState.prices[key]);
     }
 
     // --- Borsa Envanteri Stratejik Tüketim Sistemi ---

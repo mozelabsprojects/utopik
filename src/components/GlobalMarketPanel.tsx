@@ -84,9 +84,10 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
   };
 
   const getPriceChangeInfo = (id: keyof typeof market.prices) => {
-    if (market.history.length < 2) return { diff: 0, percent: 0, isUp: true };
+    if (market.history.length === 0) return { diff: 0, percent: 0, isUp: true };
     const currentPrice = market.prices[id];
-    const oldPrice = market.history[market.history.length - 2].prices[id];
+    // Geçmişteki son fiyat eski fiyattır (Backend artık fiyatları değiştirmeden önce arşive alıyor)
+    const oldPrice = market.history[market.history.length - 1].prices[id];
     const diff = currentPrice - oldPrice;
     const percent = oldPrice > 0 ? (diff / oldPrice) * 100 : 0;
     return { diff, percent, isUp: diff >= 0 };
@@ -155,11 +156,11 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
         </div>
         
         {/* Sparkline (Mini Grafik) */}
-        {market.history.length > 0 && (
+        {chartData.length > 0 && (
           <div className="w-full h-12 mb-4 opacity-70 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={market.history.map(h => ({ turn: h.turn, value: h.prices[id] }))}>
-                <Line type="monotone" dataKey="value" stroke={change.isUp ? "#4ade80" : "#f87171"} strokeWidth={2} dot={false} isAnimationActive={false} />
+              <LineChart data={chartData}>
+                <Line type="monotone" dataKey={id} stroke={change.isUp ? "#4ade80" : "#f87171"} strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -228,10 +229,17 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
     );
   };
 
-  const chartData = market.history.map(h => ({
-    turn: `Tur ${h.turn}`,
-    ...h.prices
-  }));
+  // Grafik verisine güncel fiyatları (Şimdi) ekliyoruz ki her zaman en az 1 veya 2 veri noktası olsun.
+  const chartData = [
+    ...market.history.map(h => ({
+      turn: `Tur ${h.turn}`,
+      ...h.prices
+    })),
+    {
+      turn: 'Şimdi',
+      ...market.prices
+    }
+  ];
 
   const chartColors: Record<keyof typeof market.prices, string> = {
     energy: '#f59e0b', food: '#84cc16', tech: '#8b5cf6', medical: '#10b981', arms: '#ef4444', minerals: '#64748b'
@@ -311,7 +319,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
       </div>
 
       {/* GRAFİK */}
-      {market.history.length > 0 && (
+      {chartData.length > 1 && (
         <div className="glass p-4 rounded-xl">
           <div className="h-48 w-full">
             <ResponsiveContainer width="100%" height="100%">
