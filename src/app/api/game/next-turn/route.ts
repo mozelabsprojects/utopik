@@ -188,11 +188,9 @@ export async function POST(request: Request) {
       marketState.prices[key] = Math.min(prof.max, Math.max(prof.min, marketState.prices[key] * multipliers[key]));
     }
 
-    // Tam sayıya yuvarlama
-    for (const key of products) {
-      marketState.prices[key] = Math.round(marketState.prices[key]);
-    }
-
+    // ARTIK TAM SAYIYA YUVARLAMA YAPMIYORUZ (Fiyatlar arka planda ondalıklı tutulacak)
+    // Böylece küçük yüzdelik değişimler kaybolmayacak ve grafikler düz çizgi kalmayacak.
+    
     // --- Borsa Envanteri Stratejik Tüketim Sistemi ---
     const inv = marketState.inventory;
     const consumeAmt = 5;
