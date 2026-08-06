@@ -19,21 +19,21 @@ export const EVENTS: GameEvent[] = [
         text: "Dijital Göçebe Vizesi ver (Tam destek).",
         effects: { budget: 1500, foreignRelations: 10, happiness: -10, stability: -5 },
         factionEffects: { capitalists: 15, workers: -15 },
-        hint: "Bolca yabancı döviz girer ancak konut krizi yüzünden halk kızar."
+        hint: "Bolca yabancı döviz girer ancak konut krizi yüzünden halk kızar. (+Bütçe Geliri)",
       },
       {
         label: "B",
         text: "Sadece belirli bölgelere yerleşmelerine izin ver.",
         effects: { budget: 500, foreignRelations: 5, stability: 5 },
         factionEffects: { capitalists: 10 },
-        hint: "Orta karar bir kazanç ve daha güvenli bir yönetim."
+        hint: "Orta karar bir kazanç ve daha güvenli bir yönetim. (+Bütçe Geliri)",
       },
       {
         label: "C",
         text: "Vize şartlarını zorlaştır, yerli halkı koru.",
         effects: { happiness: 15, stability: 10, budget: -500 },
         factionEffects: { nationalists: 20, workers: 15 },
-        hint: "Yabancı geliri azalır ama vatandaşlar sizi kahraman ilan eder."
+        hint: "Yabancı geliri azalır ama vatandaşlar sizi kahraman ilan eder. (-Bütçe Gideri)",
       }
     ]
   },
@@ -56,14 +56,14 @@ export const EVENTS: GameEvent[] = [
         text: "Girişimcilere sadece vergi indirimi sağla.",
         effects: { budget: -300, happiness: 10, education: 5 },
         factionEffects: { capitalists: 10 },
-        hint: "Ucuz ve dengeli bir destek."
+        hint: "Ucuz ve dengeli bir destek. (-Bütçe Gideri)",
       },
       {
         label: "C",
         text: "Gereksiz! Yabancı platformlara ek vergi koy.",
         effects: { budget: 800, happiness: -15, foreignRelations: -5 },
         factionEffects: { nationalists: 10, intellectuals: -15 },
-        hint: "Hazineye para girer ama gençler size ateş püskürür."
+        hint: "Hazineye para girer ama gençler size ateş püskürür. (+Bütçe Geliri)",
       }
     ]
   },
@@ -79,20 +79,20 @@ export const EVENTS: GameEvent[] = [
         text: "Talepleri kabul et, fabrikalara yeşil filtre zorunluluğu getir.",
         effects: { environment: 20, happiness: 10, budget: -1500, stability: 5 },
         factionEffects: { intellectuals: 20, capitalists: -5 },
-        hint: "Doğa kurtulur, gençler sevinir ama sanayiciler büyük isyan eder."
+        hint: "Doğa kurtulur, gençler sevinir ama sanayiciler büyük isyan eder. (-Bütçe Gideri)",
       },
       {
         label: "B",
         text: "Sadece sembolik ağaç dikme kampanyası başlat.",
         effects: { environment: 5, budget: -300, happiness: -5 },
-        hint: "Ucuz bir göz boyama, ama aktivistler tatmin olmaz."
+        hint: "Ucuz bir göz boyama, ama aktivistler tatmin olmaz. (-Bütçe Gideri)",
       },
       {
         label: "C",
         text: "Grevi yasakla ve fabrikaları tam kapasite çalıştır.",
         effects: { budget: 1500, environment: -15, happiness: -20, stability: -10 },
         factionEffects: { capitalists: 25, intellectuals: -30 },
-        hint: "Ekonomi şahlanır ama ülke yaşanmaz bir çöplüğe döner."
+        hint: "Ekonomi şahlanır ama ülke yaşanmaz bir çöplüğe döner. (+Bütçe Geliri)",
       }
     ]
   },
@@ -109,14 +109,14 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -800, education: 15, happiness: 5, foreignRelations: 10 },
         factionEffects: { intellectuals: 15 },
         marketEffects: { tech: 1.08 },
-        hint: "Yenilikçi bir adım! Teknoloji hisseleri fırlar."
+        hint: "Yenilikçi bir adım! Teknoloji hisseleri fırlar. (-Bütçe Gideri)",
       },
       {
         label: "B",
         text: "Sanal arsalardan 'Dijital Emlak Vergisi' al.",
         effects: { budget: 1500, happiness: -10, stability: 5 },
         
-        hint: "Havadan iyi para kazanırsınız ama yatırımcılar küser."
+        hint: "Havadan iyi para kazanırsınız ama yatırımcılar küser. (+Bütçe Geliri)",
       },
       {
         label: "C",
@@ -139,7 +139,7 @@ export const EVENTS: GameEvent[] = [
         text: "İçeceği derhal yasakla ve toplat.",
         effects: { health: 15, happiness: -10, budget: -300 },
         factionEffects: { capitalists: -5, nationalists: 10 },
-        hint: "Halk sağlığı kurtulur ancak şirketler tazminat davası açar."
+        hint: "Halk sağlığı kurtulur ancak şirketler tazminat davası açar. (-Bütçe Gideri)",
       },
       {
         label: "B",
@@ -175,7 +175,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Sadece mevcut salonları kullandır (Düşük Bütçe).",
         effects: { budget: -300, happiness: 5, foreignRelations: 5 },
-        hint: "Risksiz, küçük bir mutluluk artışı."
+        hint: "Risksiz, küçük bir mutluluk artışı. (-Bütçe Gideri)",
       },
       {
         label: "C",
@@ -230,14 +230,14 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -800, education: 15, happiness: -5, stability: -5 },
         factionEffects: { capitalists: 20, workers: -20 },
         marketEffects: { tech: 1.12 },
-        hint: "Geleceğe yatırım! Teknoloji hisseleri uçar ancak işçi sınıfı çok öfkelenir."
+        hint: "Geleceğe yatırım! Teknoloji hisseleri uçar ancak işçi sınıfı çok öfkelenir. (-Bütçe Gideri)",
       },
       {
         label: "B",
         text: "İşsiz kalanlara 'Evrensel Temel Gelir' (UBI) bağla.",
         effects: { budget: -1500, happiness: 20, stability: 10 },
         factionEffects: { workers: 25},
-        hint: "Halk sizi kahraman ilan eder ancak Hazine büyük yara alır."
+        hint: "Halk sizi kahraman ilan eder ancak Hazine büyük yara alır. (-Bütçe Gideri)",
       },
       {
         label: "C",
@@ -291,7 +291,7 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -2000, education: 25, happiness: 10, foreignRelations: 15 },
         factionEffects: { intellectuals: 30, nationalists: 15 },
         marketEffects: { tech: 1.15, minerals: 1.05 },
-        hint: "Çok pahalı! Ancak ülkeyi bilim ve prestij şampiyonu yapar."
+        hint: "Çok pahalı! Ancak ülkeyi bilim ve prestij şampiyonu yapar. (-Bütçe Gideri)",
       },
       {
         label: "B",
@@ -321,14 +321,14 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -500, education: 10, happiness: 15 },
         factionEffects: { intellectuals: 15, capitalists: 10 },
         marketEffects: { tech: 1.03 },
-        hint: "Hazine destek öder, ancak gençlerin umudu ve teknoloji borsası artar."
+        hint: "Hazine destek öder, ancak gençlerin umudu ve teknoloji borsası artar. (-Bütçe Gideri)",
       },
       {
         label: "B",
         text: "Sadece devlet destekli 'Milli ve Yerli' oyunları fonla.",
         effects: { budget: -300, stability: 5, happiness: 5 },
         factionEffects: { nationalists: 15, intellectuals: -5 },
-        hint: "Milliyetçi kesim memnun olur ama küresel pazar kaçırılır."
+        hint: "Milliyetçi kesim memnun olur ama küresel pazar kaçırılır. (-Bütçe Gideri)",
       },
       {
         label: "C",
@@ -402,14 +402,14 @@ export const EVENTS: GameEvent[] = [
         text: "Patenti satarak büyük bir bütçe geliri elde et.",
         effects: { budget: 2000, foreignRelations: 5, education: 5 },
         factionEffects: { capitalists: 15, intellectuals: -5 },
-        hint: "Bilimi paraya çevirirsiniz."
+        hint: "Bilimi paraya çevirirsiniz. (+Bütçe Geliri)",
       },
       {
         label: "B",
         text: "Patenti satma, ücretsiz olarak ülkende kullan.",
         effects: { budget: -500, environment: 15, health: 10, education: 15 },
         factionEffects: { intellectuals: 20, capitalists: -5 },
-        hint: "Uzun vadede devasa bir eğitim ve sağlık sıçraması yaşanır."
+        hint: "Uzun vadede devasa bir eğitim ve sağlık sıçraması yaşanır. (-Bütçe Gideri)",
       }
     ]
   },
@@ -453,7 +453,7 @@ export const EVENTS: GameEvent[] = [
         text: "Muafiyet yok, normal vergilerle yatırım yapsınlar.",
         effects: { budget: 1500, education: 5, happiness: 5 },
         factionEffects: { workers: 10 },
-        hint: "Yatırım daha küçük olur ama hazineye iyi para girer."
+        hint: "Yatırım daha küçük olur ama hazineye iyi para girer. (+Bütçe Geliri)",
       }
     ]
   },
@@ -468,14 +468,14 @@ export const EVENTS: GameEvent[] = [
         text: "Ormanları yok et ve hemen çıkarmaya başla.",
         effects: { budget: 2500, environment: -20, stability: 5 },
         factionEffects: { capitalists: 20, nationalists: 10, intellectuals: -20 },
-        hint: "Çok büyük bir ekonomik sıçrama, ancak korkunç bir çevre felaketi."
+        hint: "Çok büyük bir ekonomik sıçrama, ancak korkunç bir çevre felaketi. (+Bütçe Geliri)",
       },
       {
         label: "B",
         text: "Çevre dostu yavaş teknolojiyle çıkar.",
         effects: { budget: 800, environment: -5 },
         factionEffects: { capitalists: 10, intellectuals: 5 },
-        hint: "Orta karar para, kabul edilebilir çevre hasarı."
+        hint: "Orta karar para, kabul edilebilir çevre hasarı. (+Bütçe Geliri)",
       },
       {
         label: "C",
@@ -497,14 +497,14 @@ export const EVENTS: GameEvent[] = [
         text: "Devasa bütçe ayır, mükemmel bir organizasyon yap.",
         effects: { budget: -1500, happiness: 25, foreignRelations: 25, stability: 10 },
         factionEffects: { nationalists: 20, capitalists: 15 },
-        hint: "Pahalıdır ancak halkı sevince boğar ve küresel itibarınızı zirveye taşır."
+        hint: "Pahalıdır ancak halkı sevince boğar ve küresel itibarınızı zirveye taşır. (-Bütçe Gideri)",
       },
       {
         label: "B",
         text: "Sadece mevcut tesisleri kullanarak mütevazı bir organizasyon yap.",
         effects: { budget: -300, happiness: 15, foreignRelations: 10 },
         factionEffects: { nationalists: 5 },
-        hint: "Ekonomik ve güvenli."
+        hint: "Ekonomik ve güvenli. (-Bütçe Gideri)",
       },
       {
         label: "C",
@@ -526,14 +526,14 @@ export const EVENTS: GameEvent[] = [
         text: "Hepsini yurt dışına ihraç et.",
         effects: { budget: 1500, foreignRelations: 5 },
         factionEffects: { capitalists: 15 },
-        hint: "Hazineniz dolar."
+        hint: "Hazineniz dolar. (+Bütçe Geliri)",
       },
       {
         label: "B",
         text: "Ürünleri iç piyasaya çok ucuza sat, enflasyonu düşür.",
         effects: { budget: 300, happiness: 15, health: 10 },
         factionEffects: { workers: 20},
-        hint: "Halk sağlıklı ve mutlu olur, cüzdanları rahatlar."
+        hint: "Halk sağlıklı ve mutlu olur, cüzdanları rahatlar. (+Bütçe Geliri)",
       }
     ]
   },
@@ -548,7 +548,7 @@ export const EVENTS: GameEvent[] = [
         text: "Bunu sivil iletişim ve internet için kullan.",
         effects: { budget: 500, education: 15, happiness: 5 },
         factionEffects: { intellectuals: 20, workers: 10 },
-        hint: "Eğitim ve ekonomi canlanır."
+        hint: "Eğitim ve ekonomi canlanır. (+Bütçe Geliri)",
       },
       {
         label: "B",
@@ -592,14 +592,14 @@ export const EVENTS: GameEvent[] = [
         text: "Kültür Bakanlığı bütçesini artır ve bu akımı destekle.",
         effects: { budget: -500, happiness: 20, foreignRelations: 15, education: 5 },
         factionEffects: { intellectuals: 20, nationalists: 15 },
-        hint: "Halkınız gurur duyar, dış ilişkileriniz ve eğitim seviyeniz artar."
+        hint: "Halkınız gurur duyar, dış ilişkileriniz ve eğitim seviyeniz artar. (-Bütçe Gideri)",
       },
       {
         label: "B",
         text: "Bu popülerliği turizme çevirecek reklamlar yap.",
         effects: { budget: 800, happiness: 5, foreignRelations: 5 },
         factionEffects: { capitalists: 15 },
-        hint: "Sanatı paraya çevirirsiniz."
+        hint: "Sanatı paraya çevirirsiniz. (+Bütçe Geliri)",
       }
     ]
   },
@@ -618,7 +618,7 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: 2500, stability: -20, happiness: -25, environment: -20 },
         factionEffects: { capitalists: 30, workers: -40, nationalists: -40 },
         flagsToSet: ["CORPORATE_STATE"],
-        hint: "İflastan kurtulursunuz ama ülke kalıcı hasar alır (Kelebek Etkisi!)."
+        hint: "İflastan kurtulursunuz ama ülke kalıcı hasar alır (Kelebek Etkisi!). (+Bütçe Geliri)",
       },
       {
         label: "B",
@@ -666,7 +666,7 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -800, education: 15, stability: -5, foreignRelations: -5 },
         factionEffects: { intellectuals: 15, nationalists: -5 },
         flagsToSet: ["FUNDED_SUSPICIOUS_LAB"],
-        hint: "Eğitim fırlar ama gelecekte büyük bir risk barındırır (Kelebek Etkisi!)"
+        hint: "Eğitim fırlar ama gelecekte büyük bir risk barındırır (Kelebek Etkisi!) (-Bütçe Gideri)",
       },
       {
         label: "B",
@@ -674,7 +674,7 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -300, stability: 5, health: 5, education: -5 },
         factionEffects: { intellectuals: -10, nationalists: 10 },
         flagsToSet: ["CLOSED_SUSPICIOUS_LAB"],
-        hint: "Güvenli yol. Herhangi bir sürpriz yaşanmaz."
+        hint: "Güvenli yol. Herhangi bir sürpriz yaşanmaz. (-Bütçe Gideri)",
       }
     ]
   },
@@ -692,7 +692,7 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -500, happiness: -25, stability: -15, health: 15 },
         factionEffects: { workers: -20, nationalists: 15 },
         flagsToSet: ["VIRUS_CONTAINED"],
-        hint: "Halk sizden nefret edecek ama virüs duracak."
+        hint: "Halk sizden nefret edecek ama virüs duracak. (-Bütçe Gideri)",
       },
       {
         label: "B",
@@ -1740,7 +1740,7 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -2000, education: 10, military: 5 },
         factionEffects: { intellectuals: 15, military: 10 },
         flagsToSet: ["AI_PROJECT_STARTED"],
-        hint: "Büyük bir kumar (Kelebek Etkisi!)"
+        hint: "Büyük bir kumar (Kelebek Etkisi!) (-Bütçe Gideri)",
       },
       {
         label: "B",
@@ -1766,7 +1766,7 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: -1500, military: -15, education: -10, stability: 10 },
         factionEffects: { military: -20, intellectuals: -25, nationalists: 10 },
         flagsToSet: ["AI_CHAIN_RESOLVED"],
-        hint: "Proje çöpe gider, büyük güç kaybedersiniz ama güvendesiniz."
+        hint: "Proje çöpe gider, büyük güç kaybedersiniz ama güvendesiniz. (-Bütçe Gideri)",
       },
       {
         label: "B",
@@ -1801,7 +1801,7 @@ export const EVENTS: GameEvent[] = [
         effects: { stability: -25, military: -25, budget: -2500, happiness: 20 },
         factionEffects: { nationalists: 50, workers: 30, intellectuals: -40 },
         flagsToSet: ["AI_CHAIN_RESOLVED"],
-        hint: "Devlet çöküşün eşiğine gelir ama insanlığın onuru kurtulur."
+        hint: "Devlet çöküşün eşiğine gelir ama insanlığın onuru kurtulur. (-Bütçe Gideri)",
       }
     ]
   },

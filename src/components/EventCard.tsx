@@ -135,11 +135,11 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
                       const isPos = val > 0;
                       
                       const factionNames: Record<string, string> = {
-                        capitalists: "Sermaye",
-                        workers: "İşçi",
-                        military: "Asker",
+                        capitalists: "Sermayedarlar",
+                        workers: "İşçiler",
+                        military: "Ordu",
                         intellectuals: "Aydınlar",
-                        nationalists: "Milliyetçi"
+                        nationalists: "Milliyetçiler"
                       };
                       
                       const factionIcons: Record<string, string> = {
