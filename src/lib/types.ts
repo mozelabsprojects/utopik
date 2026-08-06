@@ -81,6 +81,7 @@ export interface GameEvent {
   requiredFlags?: string[]; // Sadece bu bayraklar varsa tetiklenir
   forbiddenFlags?: string[]; // Bu bayraklar varsa ASLA tetiklenmez
   condition?: (state: GameState) => boolean; // Belirli stat şartlarına göre tetiklenmesi için
+  minTurn?: number; // Hangi turdan sonra çıkabileceği (Oyun zorluk eğrisi)
 }
 
 export interface CountryTemplate {

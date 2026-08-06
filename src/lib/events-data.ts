@@ -1642,6 +1642,16 @@ export function getRandomEvent(usedEventIds: string[], eventFlags: string[] = []
       if (!e.condition(state)) return false;
     }
 
+    // 5. Zorluk Eğrisi (Progressive Difficulty)
+    if (state) {
+      let requiredTurn = e.minTurn || 0;
+      if (e.category === "kriz") requiredTurn = Math.max(requiredTurn, 12);
+      if (e.id === "global_embargo" || e.id === "kriz_1" || e.id.includes("ambargo")) {
+        requiredTurn = Math.max(requiredTurn, 20);
+      }
+      if (state.turn < requiredTurn) return false;
+    }
+
     return true;
   });
 
@@ -1687,6 +1697,24 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
     // 4. Özel şart (Condition) kontrolü
     if (e.condition && state) {
       if (!e.condition(state)) return false;
+    }
+
+    // 5. Zorluk Eğrisi (Progressive Difficulty)
+    if (state) {
+      let requiredTurn = e.minTurn || 0;
+      
+      // Krizler asla ilk 12 turda çıkmasın (Oyun başında afet olmasın)
+      if (e.category === "kriz") requiredTurn = Math.max(requiredTurn, 12);
+      
+      // Küresel ambargolar veya devasa cezalı/savaşlı olaylar en az 20. tur
+      if (e.id === "global_embargo" || e.id === "kriz_1" || e.id.includes("ambargo")) {
+        requiredTurn = Math.max(requiredTurn, 20);
+      }
+      
+      // Pozitif olayların bazıları da erken çıkabilir, ama çok büyük olanları biraz geciktirebiliriz.
+      // (Şimdilik ağırlığı negatif/zor olayları ileriye atmak için kullandık)
+
+      if (state.turn < requiredTurn) return false;
     }
 
     return true;
