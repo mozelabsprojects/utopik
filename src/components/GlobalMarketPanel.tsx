@@ -15,7 +15,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [selectedResource, setSelectedResource] = useState<keyof MarketState['prices'] | 'all'>('all');
-  const [tradeAmounts, setTradeAmounts] = useState<Record<string, number>>({});
+  const [tradeAmounts, setTradeAmounts] = useState<Record<string, string>>({});
 
   const market: MarketState = useMemo(() => {
     let m: MarketState = {
@@ -167,43 +167,57 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
         
         {/* İşlem Paneli (Input ve Butonlar) */}
         <div className="w-full mt-auto z-10" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center bg-slate-900/80 rounded-lg overflow-hidden border border-slate-700 p-1 mb-2">
+          <div className="flex justify-between gap-1 mb-1">
             <button 
-              onClick={() => setTradeAmounts(prev => ({ ...prev, [id]: Math.max(1, (prev[id] || 1) - 10) }))}
-              className="px-2 py-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition"
+              onClick={() => setTradeAmounts(prev => ({ ...prev, [id]: Math.floor(budget / price).toString() }))}
+              className="flex-1 text-[10px] font-bold bg-green-500/10 text-green-400 hover:bg-green-500/30 rounded py-1 border border-green-500/20 transition"
             >
-              -10
+              MAX AL
             </button>
+            <button 
+              onClick={() => setTradeAmounts(prev => ({ ...prev, [id]: Math.floor(budget / (price * 2)).toString() }))}
+              className="flex-1 text-[10px] font-bold bg-blue-500/10 text-blue-400 hover:bg-blue-500/30 rounded py-1 border border-blue-500/20 transition"
+            >
+              %50 AL
+            </button>
+            <button 
+              onClick={() => setTradeAmounts(prev => ({ ...prev, [id]: Math.floor(inventory).toString() }))}
+              className="flex-1 text-[10px] font-bold bg-red-500/10 text-red-400 hover:bg-red-500/30 rounded py-1 border border-red-500/20 transition"
+            >
+              TÜMÜNÜ SAT
+            </button>
+          </div>
+
+          <div className="flex items-center bg-slate-900/80 rounded-lg overflow-hidden border border-slate-700 p-1 mb-2">
             <input 
               type="number" 
               min="1"
-              value={tradeAmounts[id] || 1}
+              value={tradeAmounts[id] !== undefined ? tradeAmounts[id] : "1"}
               onChange={(e) => {
-                const val = parseInt(e.target.value);
-                setTradeAmounts(prev => ({ ...prev, [id]: isNaN(val) || val < 1 ? 1 : val }));
+                setTradeAmounts(prev => ({ ...prev, [id]: e.target.value }));
               }}
               className="flex-1 w-full bg-transparent text-center text-white font-bold outline-none no-spinners"
               style={{ MozAppearance: 'textfield' }}
             />
-            <button 
-              onClick={() => setTradeAmounts(prev => ({ ...prev, [id]: (prev[id] || 1) + 10 }))}
-              className="px-2 py-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition"
-            >
-              +10
-            </button>
           </div>
           
           <div className="grid grid-cols-2 gap-2">
             <button 
-              onClick={() => handleTrade(id, 'buy', tradeAmounts[id] || 1)}
-              disabled={loading || budget < price * (tradeAmounts[id] || 1)}
+              onClick={() => {
+                const amt = parseInt(tradeAmounts[id]) || 1;
+                handleTrade(id, 'buy', amt);
+              }}
+              disabled={loading || budget < price * (parseInt(tradeAmounts[id]) || 1)}
               className="bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/40 hover:text-green-200 rounded text-sm py-1.5 disabled:opacity-30 transition-colors font-bold flex items-center justify-center gap-1"
             >
               <span className="text-lg leading-none">💰</span> Al
             </button>
             <button 
-              onClick={() => handleTrade(id, 'sell', tradeAmounts[id] || 1)}
-              disabled={loading || inventory < (tradeAmounts[id] || 1)}
+              onClick={() => {
+                const amt = parseInt(tradeAmounts[id]) || 1;
+                handleTrade(id, 'sell', amt);
+              }}
+              disabled={loading || inventory < (parseInt(tradeAmounts[id]) || 1) || inventory === 0}
               className="bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/40 hover:text-red-200 rounded text-sm py-1.5 disabled:opacity-30 transition-colors font-bold flex items-center justify-center gap-1"
             >
               <span className="text-lg leading-none">📉</span> Sat

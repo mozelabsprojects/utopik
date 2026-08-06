@@ -219,6 +219,16 @@ export async function POST(request: Request) {
     }
     // ------------------------------------------------
 
+    // --- Borsa Envanteri Depo Bakım Masrafı (Hoarding Engeli) ---
+    const totalInventory = Object.values(inv).reduce((sum, val) => sum + val, 0);
+    if (totalInventory > 100) {
+      // Her 10 birim ekstra mal için $5 bakım masrafı kesilir (veya her 100 için 50)
+      const maintenanceCost = Math.floor(totalInventory / 10) * 5;
+      game.budget = Math.max(0, game.budget - maintenanceCost);
+      currentReports.push(`🏭 Depo Masrafı: Devasa borsa stoklarınızın (${totalInventory} birim) depolama ve lojistik masrafları için bütçeden $${maintenanceCost} kesildi.`);
+    }
+    // ------------------------------------------------
+
     // SPK Baskını (Piyasa Manipülasyonu Soruşturması)
     if (triggeredInvestigation) {
       currentReports.push(`🚨 SPK BASKINI: Borsada içeriden bilgi sızdırma (manipülasyon) tespit edildi! Ağır para cezası kesildi.`);
