@@ -121,12 +121,12 @@ export async function POST(request: Request) {
     // YENİ EŞSİZ EMTİA PROFİLLERİ (Tiers & Risk)
     // ------------------------------------------
     const COMMODITY_PROFILES = {
-      food: { min: 10, max: 50, volatility: 0.03 },      // 3% max shift (Çok Düşük Risk, Güvenli)
-      minerals: { min: 20, max: 120, volatility: 0.06 }, // 6% max shift (Düşük Risk)
-      energy: { min: 50, max: 400, volatility: 0.10 },   // 10% max shift (Orta Risk)
-      medical: { min: 100, max: 800, volatility: 0.12 }, // 12% max shift (Orta Yüksek Risk)
-      arms: { min: 300, max: 2000, volatility: 0.18 },   // 18% max shift (Yüksek Risk)
-      tech: { min: 500, max: 4000, volatility: 0.30 }    // 30% max shift (Balina / Kripto Sınıfı, Aşırı Risk)
+      food: { min: 20, max: 300, volatility: 0.15 },      // Önceden 0.03'tü. Artık çok daha hareketli.
+      minerals: { min: 50, max: 600, volatility: 0.18 },  // Önceden 0.06'ydı.
+      energy: { min: 100, max: 1200, volatility: 0.22 },  // Önceden 0.10'du.
+      medical: { min: 200, max: 2000, volatility: 0.25 }, // Önceden 0.12'ydi.
+      arms: { min: 400, max: 3500, volatility: 0.28 },    // Önceden 0.18'di.
+      tech: { min: 500, max: 5000, volatility: 0.35 }     // Çok ekstrem hareketler.
     };
 
     // Mevcut (Eski) fiyatları arşive al (Bu sayede yüzdelik değişim UX bug'ı çözülür)
