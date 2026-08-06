@@ -191,43 +191,7 @@ export async function POST(request: Request) {
     // ARTIK TAM SAYIYA YUVARLAMA YAPMIYORUZ (Fiyatlar arka planda ondalıklı tutulacak)
     // Böylece küçük yüzdelik değişimler kaybolmayacak ve grafikler düz çizgi kalmayacak.
     
-    // --- Borsa Envanteri Stratejik Tüketim Sistemi ---
     const inv = marketState.inventory;
-    const consumeAmt = 5;
-    
-    if (inv.energy >= consumeAmt) {
-      inv.energy -= consumeAmt;
-      game.budget += 150;
-      currentReports.push(`⚡ Stratejik Tüketim: ${consumeAmt} birim Enerji tüketildi. Sanayi çarkları hızlandı (Bütçe +$150).`);
-    }
-    if (inv.food >= consumeAmt) {
-      inv.food -= consumeAmt;
-      game.happiness = clampStat(game.happiness + 1);
-      game.health = clampStat(game.health + 1);
-      currentReports.push(`🌾 Stratejik Tüketim: ${consumeAmt} birim Gıda tüketildi. Halkın refahı arttı (+1 Mutluluk, +1 Sağlık).`);
-    }
-    if (inv.medical >= consumeAmt) {
-      inv.medical -= consumeAmt;
-      game.health = clampStat(game.health + 2);
-      currentReports.push(`🏥 Stratejik Tüketim: ${consumeAmt} birim Medikal ürün tüketildi. Hastaneler rahatladı (+2 Sağlık).`);
-    }
-    if (inv.arms >= consumeAmt) {
-      inv.arms -= consumeAmt;
-      game.military = clampStat(game.military + 2);
-      currentReports.push(`🛡️ Stratejik Tüketim: ${consumeAmt} birim Silah tüketildi. Ordunun gücü artırıldı (+2 Askeriye).`);
-    }
-    if (inv.tech >= consumeAmt) {
-      inv.tech -= consumeAmt;
-      game.education = clampStat(game.education + 1);
-      game.stability = clampStat(game.stability + 1);
-      currentReports.push(`💻 Stratejik Tüketim: ${consumeAmt} birim Teknoloji tüketildi. Okullar ve altyapı modernleşti (+1 Eğitim, +1 İstikrar).`);
-    }
-    if (inv.minerals >= consumeAmt) {
-      inv.minerals -= consumeAmt;
-      game.budget += 200;
-      currentReports.push(`🪨 Stratejik Tüketim: ${consumeAmt} birim Maden tüketildi. İhracat ve ağır sanayi desteklendi (Bütçe +$200).`);
-    }
-    // ------------------------------------------------
 
     // --- Borsa Envanteri Depo Bakım Masrafı (Hoarding Engeli) ---
     const totalInventory = Object.values(inv).reduce((sum, val) => sum + val, 0);
