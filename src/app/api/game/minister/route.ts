@@ -66,16 +66,26 @@ export async function POST(request: Request) {
     eventFlags = eventFlags.filter(f => !f.startsWith(flagPrefix));
     eventFlags.push(`${flagPrefix}${game.turn}`);
 
+    let updatedHappiness = game.happiness;
+    let isEasterEgg = false;
+    
+    // Easter Egg: General Bard (def_hawk)
+    if (minister.id === "def_hawk") {
+      updatedHappiness = Math.min(100, updatedHappiness + 1);
+      isEasterEgg = true;
+    }
+
     await prisma.game.update({
       where: { id: gameId },
       data: {
         politicalCapital: game.politicalCapital - minister.hireCost,
+        happiness: updatedHappiness,
         ministers: JSON.stringify(ministers),
         eventFlags: JSON.stringify(eventFlags)
       }
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, isEasterEgg });
   } catch (error) {
     return NextResponse.json({ error: "Atama başarısız" }, { status: 500 });
   }

@@ -48,6 +48,7 @@ export default function MinistersPanel({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showEasterEgg, setShowEasterEgg] = useState(false);
 
   let currentMinisters: Record<string, string> = {};
   try {
@@ -87,10 +88,14 @@ export default function MinistersPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ gameId, ministerId, action: "hire" }),
       });
+      const data = await res.json();
       if (res.ok) {
+        if (data.isEasterEgg) {
+          setShowEasterEgg(true);
+          setTimeout(() => setShowEasterEgg(false), 5000); // 5 saniye sonra kapat
+        }
         onUpdate();
       } else {
-        const data = await res.json();
         setError(data.error || "Bir hata oluştu");
       }
     } catch (err) {
@@ -136,8 +141,22 @@ export default function MinistersPanel({
   };
 
   return (
-    <div className="tutorial-ministers bg-slate-800/80 p-6 rounded-2xl shadow-xl border border-slate-700 backdrop-blur-sm">
-      <h2 className="text-2xl font-bold text-slate-100 flex items-center gap-2 mb-4">
+    <>
+      {showEasterEgg && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in pointer-events-none">
+          <div className="text-8xl animate-bounce mb-6">❤️</div>
+          <div className="glass-strong p-8 rounded-3xl border-2 border-pink-500/50 flex flex-col items-center max-w-lg text-center animate-slide-up">
+            <h2 className="text-3xl font-bold text-pink-400 mb-4">Teşekkürler General Bard!</h2>
+            <p className="text-xl text-white font-medium">Hizmetleriniz için minnettarız. Utopik halkı sizi çok seviyor!</p>
+            <div className="mt-6 inline-flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full font-bold">
+              <span>🎉</span> Mutluluk +1
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="tutorial-ministers bg-slate-800/80 p-6 rounded-2xl shadow-xl border border-slate-700 backdrop-blur-sm">
+        <h2 className="text-2xl font-bold text-slate-100 flex items-center gap-2 mb-4">
         🏛️ Bakanlar Kurulu
         <span className="text-sm font-normal bg-slate-700 px-3 py-1 rounded-full text-slate-300">
           Siyasi Sermaye: 📜 {politicalCapital}
@@ -260,5 +279,6 @@ export default function MinistersPanel({
         })}
       </div>
     </div>
+    </>
   );
 }
