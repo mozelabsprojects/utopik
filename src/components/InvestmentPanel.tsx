@@ -220,7 +220,7 @@ export default function InvestmentPanel({
               <input
                 type="range"
                 min={0}
-                max={Math.min(2000, maxPerSector)}
+                max={maxPerSector}
                 step={50}
                 value={investments[sector]}
                 onChange={(e) =>
