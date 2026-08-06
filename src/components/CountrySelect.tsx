@@ -277,6 +277,15 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
         )}
       </AnimatePresence>
 
+      {/* Footer / Credits */}
+      <div className="absolute bottom-4 right-6 z-20 text-right opacity-60 hover:opacity-100 transition-opacity">
+        <p className="text-xs text-slate-400 font-medium">Geliştirici:</p>
+        <p className="text-sm font-bold text-cyan-400 tracking-wide font-[family-name:var(--font-display)] drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]">
+          <a href="https://mozelabs.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">mozelabs.com</a>
+        </p>
+        <p className="text-[10px] text-slate-500 font-mono tracking-widest mt-0.5">by Mox</p>
+      </div>
+
     </div>
   );
 }
