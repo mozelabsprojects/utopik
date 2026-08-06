@@ -265,17 +265,32 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <button onClick={() => handleHireExpert(1)} disabled={loading || budget < 1000} className="bg-slate-900 border border-slate-600 p-3 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition text-left disabled:opacity-50">
-              <div className="text-white font-bold">Çaylak Analist ($1k)</div>
-              <div className="text-xs text-slate-400 mt-1">Sadece Enerji piyasasının yönünü bilir.</div>
+            <button 
+              onClick={() => handleHireExpert(1)} 
+              disabled={loading || budget < (1000 + Math.floor(budget * 0.05))} 
+              className="bg-slate-900 border border-slate-600 p-3 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition text-left disabled:opacity-50"
+            >
+              <div className="text-white font-bold">Çaylak Analist</div>
+              <div className="text-yellow-400 font-semibold mt-1 mb-1">${1000 + Math.floor(budget * 0.05)} <span className="text-[10px] text-gray-500">(1k + %5)</span></div>
+              <div className="text-xs text-slate-400">Sadece Enerji piyasasının yönünü bilir.</div>
             </button>
-            <button onClick={() => handleHireExpert(2)} disabled={loading || budget < 3000} className="bg-slate-900 border border-slate-600 p-3 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition text-left disabled:opacity-50">
-              <div className="text-white font-bold">Kıdemli Broker ($3k)</div>
-              <div className="text-xs text-slate-400 mt-1">Enerji, Gıda ve Teknoloji yönünü bilir.</div>
+            <button 
+              onClick={() => handleHireExpert(2)} 
+              disabled={loading || budget < (3000 + Math.floor(budget * 0.10))} 
+              className="bg-slate-900 border border-slate-600 p-3 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition text-left disabled:opacity-50"
+            >
+              <div className="text-white font-bold">Kıdemli Broker</div>
+              <div className="text-yellow-400 font-semibold mt-1 mb-1">${3000 + Math.floor(budget * 0.10)} <span className="text-[10px] text-gray-500">(3k + %10)</span></div>
+              <div className="text-xs text-slate-400">Enerji, Gıda ve Teknoloji yönünü bilir.</div>
             </button>
-            <button onClick={() => handleHireExpert(3)} disabled={loading || budget < 8000} className="bg-slate-900 border border-yellow-600/50 p-3 rounded-lg hover:border-yellow-400 hover:bg-slate-800 transition text-left disabled:opacity-50">
-              <div className="text-yellow-400 font-bold">Wall Street Kurdu ($8k)</div>
-              <div className="text-xs text-slate-400 mt-1">TÜM emtiaların yönünü kesin olarak söyler.</div>
+            <button 
+              onClick={() => handleHireExpert(3)} 
+              disabled={loading || budget < (8000 + Math.floor(budget * 0.20))} 
+              className="bg-slate-900 border border-yellow-600/50 p-3 rounded-lg hover:border-yellow-400 hover:bg-slate-800 transition text-left disabled:opacity-50"
+            >
+              <div className="text-yellow-400 font-bold">Wall Street Kurdu</div>
+              <div className="text-yellow-400 font-semibold mt-1 mb-1">${8000 + Math.floor(budget * 0.20)} <span className="text-[10px] text-yellow-600/50">(8k + %20)</span></div>
+              <div className="text-xs text-slate-400">TÜM emtiaların yönünü kesin olarak söyler.</div>
             </button>
           </div>
         )}

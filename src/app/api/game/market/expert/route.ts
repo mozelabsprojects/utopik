@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { MarketState } from "@/lib/types";
 
-const EXPERT_COSTS = {
+const EXPERT_BASE_COSTS = {
   1: 1000,
   2: 3000,
   3: 8000
+};
+
+const EXPERT_COMMISSION = {
+  1: 0.05, // %5
+  2: 0.10, // %10
+  3: 0.20  // %20
 };
 
 export async function POST(request: Request) {
@@ -24,8 +30,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Geçersiz uzman seviyesi" }, { status: 400 });
     }
 
-    const cost = EXPERT_COSTS[expertLevel as 1 | 2 | 3];
-    if (game.budget < cost) {
+    const baseCost = EXPERT_BASE_COSTS[expertLevel as 1 | 2 | 3];
+    const commission = Math.floor(game.budget * EXPERT_COMMISSION[expertLevel as 1 | 2 | 3]);
+    const totalCost = baseCost + commission;
+
+    if (game.budget < totalCost) {
       return NextResponse.json({ error: "Yetersiz bütçe" }, { status: 400 });
     }
 
@@ -53,7 +62,7 @@ export async function POST(request: Request) {
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: {
-        budget: game.budget - cost,
+        budget: game.budget - totalCost,
         marketState: JSON.stringify(marketState)
       }
     });
