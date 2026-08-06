@@ -107,7 +107,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   // === DIŞİŞLERİ ===
   for_globalist: {
     id: "for_globalist",
-    name: "Alexander Sicksallander",
+    name: "Daniella Stark",
     title: "Küresel Vizyoner",
     ministry: "foreign",
     description: "Ticareti kolaylaştırır. Her tur +3 Dış İlişkiler ve +$200 Bütçe sağlar ancak İstikrarı -1 düşürür.",
@@ -119,7 +119,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   },
   for_nationalist: {
     id: "for_nationalist",
-    name: "Am-in Feriadi",
+    name: "Ulrich Von Blitz",
     title: "Milli Çıkarlar Muhafızı",
     ministry: "foreign",
     description: "İzolasyonist politika izler. Her tur +2 İstikrar sağlar ancak Dış İlişkileri -3 düşürür.",
