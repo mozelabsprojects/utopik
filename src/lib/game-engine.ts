@@ -58,7 +58,7 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   // Kasada para olmasa bile eksiye düşürebilir (borçlandırır).
   if (stability < 60) {
     const instabilityFactor = (60 - stability); // 1 ile 60 arası
-    corruptionPenalty = instabilityFactor * 40; // Max 2400$ ceza (İstikrar 0 ise)
+    corruptionPenalty = instabilityFactor * 15; // Max 900$ ceza (İstikrar 0 ise), (Eskiden 40'tı, çok hızlı iflas getiriyordu)
     total += corruptionPenalty;
   }
 
@@ -400,7 +400,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     eventFlags,
     difficulty
   );
-  const maintenanceCost = calculateMaintenanceCost(
+  let maintenanceCost = calculateMaintenanceCost(
     state.military, 
     state.health, 
     state.education, 
@@ -417,6 +417,12 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // 🇰🇵 KUZEY KORE ÖZEL REJİM MODU (HARDCORE+)
   // ==========================================
   if (state.countryName === "Kuzey Kore") {
+    // 0. ZORUNLU ASKERLİK (Askeriye Bakım İndirimi)
+    // Devasa orduyu beslemek bütçeyi anında sıfırlıyordu. Askerlerin ücretsiz zorunlu hizmeti sayesinde masraf %50 azalır.
+    const conscriptionDiscount = Math.round(maintenanceCost * 0.5);
+    maintenanceCost -= conscriptionDiscount;
+    turnReports.push(`🎖️ ZORUNLU ASKERLİK: Ordu bakımı için yapılan devasa harcamalar, zorunlu hizmet sayesinde $${conscriptionDiscount} azaltıldı.`);
+
     // 1. KARA BORSA KAÇAKÇILIĞI (Kısmi Ambargo)
     if (finalTradeIncome > 0) {
       const originalIncome = finalTradeIncome;
