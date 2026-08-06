@@ -25,7 +25,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Sadece belirli bölgelere yerleşmelerine izin ver.",
         effects: { budget: 500, foreignRelations: 5, stability: 5 },
-        factionEffects: { capitalists: 5 },
+        factionEffects: { capitalists: 10 },
         hint: "Orta karar bir kazanç ve daha güvenli bir yönetim."
       },
       {
@@ -78,7 +78,7 @@ export const EVENTS: GameEvent[] = [
         label: "A",
         text: "Talepleri kabul et, fabrikalara yeşil filtre zorunluluğu getir.",
         effects: { environment: 20, happiness: 10, budget: -1500, stability: 5 },
-        factionEffects: { intellectuals: 20, capitalists: -20 },
+        factionEffects: { intellectuals: 20, capitalists: -5 },
         hint: "Doğa kurtulur, gençler sevinir ama sanayiciler büyük isyan eder."
       },
       {
@@ -115,7 +115,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Sanal arsalardan 'Dijital Emlak Vergisi' al.",
         effects: { budget: 1500, happiness: -10, stability: 5 },
-        factionEffects: { capitalists: -10 },
+        factionEffects: { capitalists: -5 },
         hint: "Havadan iyi para kazanırsınız ama yatırımcılar küser."
       },
       {
@@ -138,7 +138,7 @@ export const EVENTS: GameEvent[] = [
         label: "A",
         text: "İçeceği derhal yasakla ve toplat.",
         effects: { health: 15, happiness: -10, budget: -300 },
-        factionEffects: { capitalists: -15, nationalists: 10 },
+        factionEffects: { capitalists: -5, nationalists: 10 },
         hint: "Halk sağlığı kurtulur ancak şirketler tazminat davası açar."
       },
       {
@@ -205,7 +205,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Devlet güvenceli Ulusal Kripto Borsa'sı kur ve vergilendir.",
         effects: { budget: 1500, stability: 5, happiness: -5 },
-        factionEffects: { nationalists: 10, capitalists: -10 },
+        factionEffects: { nationalists: 10, capitalists: -5 },
         hint: "Güzel bir bütçe geliri elde edersiniz, ancak özgürlükçüler kızar."
       },
       {
@@ -236,7 +236,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "İşsiz kalanlara 'Evrensel Temel Gelir' (UBI) bağla.",
         effects: { budget: -1500, happiness: 20, stability: 10 },
-        factionEffects: { workers: 25, capitalists: -10 },
+        factionEffects: { workers: 25, capitalists: -5 },
         hint: "Halk sizi kahraman ilan eder ancak Hazine büyük yara alır."
       },
       {
@@ -349,7 +349,7 @@ export const EVENTS: GameEvent[] = [
         label: "A",
         text: "Madeni devlet işletsin — Tüm gelir hazineye kalsın.",
         effects: { budget: 2500, stability: 5, environment: -5 },
-        factionEffects: { workers: 10, capitalists: -10, nationalists: 10 },
+        factionEffects: { workers: 10, capitalists: -5, nationalists: 10 },
         marketEffects: { minerals: 0.7 },
         hint: "Büyük gelir, ancak çevre kirliliği artar. Mineral fiyatları düşer."
       },
@@ -364,7 +364,7 @@ export const EVENTS: GameEvent[] = [
         label: "C",
         text: "Madeni çevreye zarar vermemek için kapalı tut.",
         effects: { budget: 0, environment: 15, happiness: -5 },
-        factionEffects: { intellectuals: 20, capitalists: -20 },
+        factionEffects: { intellectuals: 20, capitalists: -5 },
         hint: "Para kazanamazsınız ama doğayı korumak aydınları sevindirir."
       }
     ]
@@ -408,7 +408,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Patenti satma, ücretsiz olarak ülkende kullan.",
         effects: { budget: -500, environment: 15, health: 10, education: 15 },
-        factionEffects: { intellectuals: 20, capitalists: -10 },
+        factionEffects: { intellectuals: 20, capitalists: -5 },
         hint: "Uzun vadede devasa bir eğitim ve sağlık sıçraması yaşanır."
       }
     ]
@@ -452,7 +452,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Muafiyet yok, normal vergilerle yatırım yapsınlar.",
         effects: { budget: 1500, education: 5, happiness: 5 },
-        factionEffects: { capitalists: -10, workers: 10 },
+        factionEffects: { capitalists: -5, workers: 10 },
         hint: "Yatırım daha küçük olur ama hazineye iyi para girer."
       }
     ]
@@ -474,14 +474,14 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Çevre dostu yavaş teknolojiyle çıkar.",
         effects: { budget: 800, environment: -5 },
-        factionEffects: { capitalists: 5, intellectuals: 5 },
+        factionEffects: { capitalists: 10, intellectuals: 5 },
         hint: "Orta karar para, kabul edilebilir çevre hasarı."
       },
       {
         label: "C",
         text: "Rezervi çıkarma, ormanları milli park ilan et.",
         effects: { budget: 0, environment: 15, happiness: 10 },
-        factionEffects: { intellectuals: 20, capitalists: -20 },
+        factionEffects: { intellectuals: 20, capitalists: -5 },
         hint: "Para kazandırmaz ama doğayı korumak halkı ve aydınları çok mutlu eder."
       }
     ]
@@ -646,7 +646,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Meydan Oku — Biz bize yeteriz!",
         effects: { budget: -2500, happiness: -20, stability: 10, military: 10 },
-        factionEffects: { nationalists: 30, military: 20, capitalists: -30 },
+        factionEffects: { nationalists: 30, military: 20, capitalists: -5 },
         hint: "Büyük bir bütçe çöküşü yaşanacak, ancak milliyetçiler arkanızda."
       }
     ]
@@ -729,7 +729,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "C",
         text: "Hiçbir müdahale yapma — serbest piyasaya güven.",
-        effects: { budget: 0, stability: -15, happiness: -15, foreignRelations: -5 }, factionEffects: { capitalists: 5, workers: -10, nationalists: 10 },
+        effects: { budget: 0, stability: -15, happiness: -15, foreignRelations: -5 }, factionEffects: { capitalists: 10, workers: -10, nationalists: 10 },
         hint: "Bedava ama çok riskli — istikrar ve mutluluk çöker",
       },
       {
@@ -750,13 +750,13 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Anlaşmayı tam olarak kabul et — sınırları aç.",
-        effects: { budget: 800, foreignRelations: 15, happiness: -10, stability: -5 }, factionEffects: { capitalists: 5, workers: -10 },
+        effects: { budget: 800, foreignRelations: 15, happiness: -10, stability: -5 }, factionEffects: { capitalists: 10, workers: -10 },
         hint: "Gelir artar, diplomasi güçlenir ama halk tepkili",
       },
       {
         label: "B",
         text: "Sınırlı katılım — sadece belirli sektörlerde ticaret.",
-        effects: { budget: 500, foreignRelations: 10, happiness: 0, stability: 0 }, factionEffects: { capitalists: 5 },
+        effects: { budget: 500, foreignRelations: 10, happiness: 0, stability: 0 }, factionEffects: { capitalists: 10 },
         hint: "Dengeli yaklaşım — orta düzey kazanç",
       },
       {
@@ -768,7 +768,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "D",
         text: "Karşı teklif sun — lehine şartlar iste.",
-        effects: { budget: 300, foreignRelations: -5, happiness: 5, education: 5 }, factionEffects: { capitalists: 5, workers: 10, intellectuals: 10, nationalists: 10 },
+        effects: { budget: 300, foreignRelations: -5, happiness: 5, education: 5 }, factionEffects: { capitalists: 10, workers: 10, intellectuals: 10, nationalists: 10 },
         hint: "Riskli diplomasi ama potansiyel kazanç",
       },
     ],
@@ -783,13 +783,13 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Artan oranlı vergi — zenginlerden çok, fakirlerden az al.",
-        effects: { budget: 500, happiness: 10, stability: -5, foreignRelations: -5 }, factionEffects: { capitalists: 5, workers: 10, nationalists: 10 },
+        effects: { budget: 500, happiness: 10, stability: -5, foreignRelations: -5 }, factionEffects: { capitalists: 10, workers: 10, nationalists: 10 },
         hint: "Halk sevinir, yatırımcılar kaçabilir",
       },
       {
         label: "B",
         text: "Düz vergi — herkesten aynı oran.",
-        effects: { budget: 500, happiness: -5, stability: 5, foreignRelations: 5 }, factionEffects: { capitalists: 5, workers: -10, nationalists: 10 },
+        effects: { budget: 500, happiness: -5, stability: 5, foreignRelations: 5 }, factionEffects: { capitalists: 10, workers: -10, nationalists: 10 },
         hint: "Basit ve öngörülebilir ama halk tepkili",
       },
       {
@@ -801,7 +801,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "D",
         text: "Vergi affi çıkar — kayıt dışı ekonomiyi kayda al.",
-        effects: { budget: 500, happiness: 5, stability: -5, foreignRelations: 5 }, factionEffects: { capitalists: 5, workers: 10 },
+        effects: { budget: 500, happiness: 5, stability: -5, foreignRelations: 5 }, factionEffects: { capitalists: 10, workers: 10 },
         hint: "Kısa vadeli gelir patlaması, uzun vadeli risk",
       },
     ],
@@ -816,13 +816,13 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Tamamen yasakla — finansal istikrarı koru.",
-        effects: { budget: 300, happiness: -15, foreignRelations: -10, stability: 5 }, factionEffects: { capitalists: 5, workers: -10, intellectuals: -10, nationalists: 10 },
+        effects: { budget: 300, happiness: -15, foreignRelations: -10, stability: 5 }, factionEffects: { capitalists: 10, workers: -10, intellectuals: -10, nationalists: 10 },
         hint: "Gençler çok kızgın, istikrar korunur",
       },
       {
         label: "B",
         text: "Düzenle ve vergilendir — kontrollü serbestlik.",
-        effects: { budget: 300, happiness: 5, stability: 5, education: 5 }, factionEffects: { capitalists: 5, workers: 10, intellectuals: 10, nationalists: 10 },
+        effects: { budget: 300, happiness: 5, stability: 5, education: 5 }, factionEffects: { capitalists: 10, workers: 10, intellectuals: 10, nationalists: 10 },
         hint: "Dengeli çözüm — herkes biraz memnun",
       },
       {
@@ -834,7 +834,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "D",
         text: "Tamamen serbest bırak — müdahale etme.",
-        effects: { budget: 0, happiness: 10, stability: -10, foreignRelations: -5 }, factionEffects: { capitalists: 5, workers: 10, nationalists: 10 },
+        effects: { budget: 0, happiness: 10, stability: -10, foreignRelations: -5 }, factionEffects: { capitalists: 10, workers: 10, nationalists: 10 },
         hint: "Gençler mutlu, finansal riskler artar"
       },
     ],
@@ -937,7 +937,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "D",
         text: "Sürü bağışıklığı stratejisi — minimum müdahale.",
-        effects: { budget: 0, health: -20, stability: -10, foreignRelations: -10 }, factionEffects: { capitalists: 5, workers: -10, nationalists: 10 },
+        effects: { budget: 0, health: -20, stability: -10, foreignRelations: -10 }, factionEffects: { capitalists: 10, workers: -10, nationalists: 10 },
         hint: "Bedava ama sağlık felaketi riski çok yüksek",
       },
     ],
@@ -1133,13 +1133,13 @@ export const EVENTS: GameEvent[] = [
       {
         label: "C",
         text: "Karara meydan oku — yaptırımları tanıma.",
-        effects: { budget: 0, foreignRelations: -20, happiness: 10, military: 5 }, factionEffects: { capitalists: 5, workers: 10, military: 10, nationalists: 15 },
+        effects: { budget: 0, foreignRelations: -20, happiness: 10, military: 5 }, factionEffects: { capitalists: 10, workers: 10, military: 10, nationalists: 15 },
         hint: "Milliyetçi dalga yükselir, izolasyon artar",
       },
       {
         label: "D",
         text: "Alternatif ittifaklar kur — Doğu bloğuna yaklaş.",
-        effects: { budget: 300, foreignRelations: -10, military: 5, stability: 5 }, factionEffects: { capitalists: 5, military: 10, nationalists: 15 },
+        effects: { budget: 300, foreignRelations: -10, military: 5, stability: 5 }, factionEffects: { capitalists: 10, military: 10, nationalists: 15 },
         hint: "Yeni müttefikler ama eski dostlar küser",
       },
     ],
@@ -1154,7 +1154,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Karşı ülkenin büyükelçisini sınır dışı et — misilleme.",
-        effects: { budget: 0, foreignRelations: -15, happiness: 10, stability: 5 }, factionEffects: { capitalists: 5, workers: 10, military: 10, nationalists: 15 },
+        effects: { budget: 0, foreignRelations: -15, happiness: 10, stability: 5 }, factionEffects: { capitalists: 10, workers: 10, military: 10, nationalists: 15 },
         hint: "Sert yanıt — diplomatik kriz derinleşir",
       },
       {
@@ -1199,13 +1199,13 @@ export const EVENTS: GameEvent[] = [
       {
         label: "C",
         text: "Zirveyi boykot et — 'gelişmekte olan ülke hakkı' de.",
-        effects: { budget: 0, foreignRelations: -15, environment: -5, happiness: 5 }, factionEffects: { capitalists: 5, workers: 10, intellectuals: -10, nationalists: 10 },
+        effects: { budget: 0, foreignRelations: -15, environment: -5, happiness: 5 }, factionEffects: { capitalists: 10, workers: 10, intellectuals: -10, nationalists: 10 },
         hint: "Ucuz ama diplomatik itibar kaybı ciddi",
       },
       {
         label: "D",
         text: "Karbon vergisi öner — piyasa mekanizmasıyla çöz.",
-        effects: { budget: 300, environment: 10, foreignRelations: 10, happiness: -5 }, factionEffects: { capitalists: 5, workers: -10, intellectuals: 10 },
+        effects: { budget: 300, environment: 10, foreignRelations: 10, happiness: -5 }, factionEffects: { capitalists: 10, workers: -10, intellectuals: 10 },
         hint: "Yaratıcı çözüm — gelir bile getirebilir",
       },
     ],
@@ -1296,7 +1296,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "B",
         text: "Gerçekçi vaatler sun — 'bu vaatler yalanır' de.",
-        effects: { budget: 0, happiness: -5, stability: 5, education: 5 }, factionEffects: { capitalists: 5, workers: -10, intellectuals: 10, nationalists: 10 },
+        effects: { budget: 0, happiness: -5, stability: 5, education: 5 }, factionEffects: { capitalists: 10, workers: -10, intellectuals: 10, nationalists: 10 },
         hint: "Dürüst ama seçim kaybetme riski",
       },
       {
@@ -1335,7 +1335,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "C",
         text: "Talebi reddet — 'şu an sırası değil' de.",
-        effects: { budget: 0, happiness: -10, stability: 10, foreignRelations: -10 }, factionEffects: { capitalists: 5, workers: -10, nationalists: 10 },
+        effects: { budget: 0, happiness: -10, stability: 10, foreignRelations: -10 }, factionEffects: { capitalists: 10, workers: -10, nationalists: 10 },
         hint: "Ucuz ama halk ve uluslararası tepki çekersin",
       },
       {
@@ -1434,7 +1434,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "B",
         text: "Su kısıtlamaları getir — sanayi ve tarıma kota.",
-        effects: { budget: 0, environment: 10, happiness: -10, stability: -5 }, factionEffects: { capitalists: 5, workers: -10, intellectuals: 10 },
+        effects: { budget: 0, environment: 10, happiness: -10, stability: -5 }, factionEffects: { capitalists: 10, workers: -10, intellectuals: 10 },
         hint: "Bedava ama halk ve çiftçiler isyan eder",
       },
       {
@@ -1461,7 +1461,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Fabrikayı kapat ve ağır ceza kes — tolerans yok.",
-        effects: { budget: 300, environment: 10, happiness: 10, stability: 5 }, factionEffects: { capitalists: 5, workers: 10, intellectuals: 10, nationalists: 10 },
+        effects: { budget: 300, environment: 10, happiness: 10, stability: 5 }, factionEffects: { capitalists: 10, workers: 10, intellectuals: 10, nationalists: 10 },
         hint: "Gelir + çevre + halk memnuniyeti — win-win",
       },
       {
@@ -1473,7 +1473,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "C",
         text: "Görmezden gel — işsizlik ve ekonomi daha önemli.",
-        effects: { budget: 0, environment: -10, happiness: -10, health: -10 }, factionEffects: { capitalists: 5, workers: -10, intellectuals: -10 },
+        effects: { budget: 0, environment: -10, happiness: -10, health: -10 }, factionEffects: { capitalists: 10, workers: -10, intellectuals: -10 },
         hint: "En kötü seçenek — her şey kötüleşir",
       },
       {
@@ -1516,7 +1516,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "D",
         text: "Modernizasyonu ertele — diplomasiyi güçlendir.",
-        effects: { budget: 0, foreignRelations: 10, military: -5, happiness: 5 }, factionEffects: { capitalists: 5, workers: 10, military: -10, nationalists: -5 },
+        effects: { budget: 0, foreignRelations: 10, military: -5, happiness: 5 }, factionEffects: { capitalists: 10, workers: 10, military: -10, nationalists: -5 },
         hint: "Ucuz ama ordunun morali düşer",
       },
     ],
@@ -1537,7 +1537,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "B",
         text: "Sessiz diplomasi — arka kapıdan uyar.",
-        effects: { budget: 0, foreignRelations: 5, stability: 5, happiness: -5 }, factionEffects: { capitalists: 5, workers: -10, nationalists: 10 },
+        effects: { budget: 0, foreignRelations: 5, stability: 5, happiness: -5 }, factionEffects: { capitalists: 10, workers: -10, nationalists: 10 },
         hint: "Sakin ama halk 'neden bir şey yapmadık' der",
       },
       {
@@ -1576,7 +1576,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "C",
         text: "Mevcut sistemi koru — değişiklik yok.",
-        effects: { budget: 0, military: 5, happiness: -10, education: -5 }, factionEffects: { capitalists: 5, workers: -10, military: 10, nationalists: 5, intellectuals: -10 },
+        effects: { budget: 0, military: 5, happiness: -10, education: -5 }, factionEffects: { capitalists: 10, workers: -10, military: 10, nationalists: 5, intellectuals: -10 },
         hint: "Bedava ama gençler kızgın",
       },
       {
@@ -1597,25 +1597,25 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Anlaşmayı imzala — ekonomik fırsat çok büyük.",
-        effects: { budget: 1500, foreignRelations: -15, happiness: -10, military: 5 }, factionEffects: { capitalists: 5, workers: -10, military: 10, nationalists: 15 },
+        effects: { budget: 1500, foreignRelations: -15, happiness: -10, military: 5 }, factionEffects: { capitalists: 10, workers: -10, military: 10, nationalists: 15 },
         hint: "Büyük gelir ama diplomatik kriz riski",
       },
       {
         label: "B",
         text: "Savunma amaçlı silahları sat, saldırı silahlarını satma.",
-        effects: { budget: 800, military: 5, foreignRelations: -5, happiness: -5 }, factionEffects: { capitalists: 5, workers: -10, military: 10, nationalists: 15 },
+        effects: { budget: 800, military: 5, foreignRelations: -5, happiness: -5 }, factionEffects: { capitalists: 10, workers: -10, military: 10, nationalists: 15 },
         hint: "Orta yol — herkes biraz memnun",
       },
       {
         label: "C",
         text: "Teklifi reddet — insan hakları öncelikli.",
-        effects: { budget: 0, foreignRelations: 10, happiness: 10, military: -5 }, factionEffects: { capitalists: 5, workers: 10, military: -10, nationalists: 5 },
+        effects: { budget: 0, foreignRelations: 10, happiness: 10, military: -5 }, factionEffects: { capitalists: 10, workers: 10, military: -10, nationalists: 5 },
         hint: "Etik ama gelir kaybı — halk ve dünya saygı duyar",
       },
       {
         label: "D",
         text: "Silah yerine eğitim ve teknik destek teklif et.",
-        effects: { budget: 300, foreignRelations: 5, education: 5, happiness: 5 }, factionEffects: { capitalists: 5, workers: 10, intellectuals: 10 },
+        effects: { budget: 300, foreignRelations: 5, education: 5, happiness: 5 }, factionEffects: { capitalists: 10, workers: 10, intellectuals: 10 },
         hint: "Yaratıcı çözüm — gelir + diplomasi",
       },
     ],
@@ -1713,13 +1713,13 @@ export const EVENTS: GameEvent[] = [
       {
         label: "C",
         text: "Festivali iptal et — bütçeyi daha acil konulara yönelt.",
-        effects: { budget: 0, happiness: -10, foreignRelations: -5, stability: -5 }, factionEffects: { capitalists: 5, workers: -10, nationalists: 10 },
+        effects: { budget: 0, happiness: -10, foreignRelations: -5, stability: -5 }, factionEffects: { capitalists: 10, workers: -10, nationalists: 10 },
         hint: "Bedava ama halk hayal kırıklığı yaşar",
       },
       {
         label: "D",
         text: "Özel sektör sponsorluğuyla festival — devlete yük yok.",
-        effects: { budget: 300, happiness: 10, foreignRelations: 5, stability: 5 }, factionEffects: { capitalists: 5, workers: 10, nationalists: 10 },
+        effects: { budget: 300, happiness: 10, foreignRelations: 5, stability: 5 }, factionEffects: { capitalists: 10, workers: 10, nationalists: 10 },
         hint: "Akıllıca — gelir bile getirir",
       },
     ],
