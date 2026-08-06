@@ -31,7 +31,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Ticaret gelirlerini topla ve sürelerini azalt
+    // Turn reports ve ticaret gelirleri
+    let currentReports: string[] = [];
+    try { currentReports = JSON.parse(game.turnReports); } catch {}
+
     let tradeIncome = 0;
     const activeAgreements = [];
     for (const trade of game.tradeAgreements) {
@@ -134,25 +137,26 @@ export async function POST(request: Request) {
 
       const dir = marketState.trends[key]!.direction;
       if (dir === 'up') {
-        multipliers[key] = 1.05 + Math.random() * 0.15; // 1.05 to 1.20
+        multipliers[key] = 1.02 + Math.random() * 0.08; // 1.02 to 1.10
       } else if (dir === 'down') {
-        multipliers[key] = 0.80 + Math.random() * 0.15; // 0.80 to 0.95
+        multipliers[key] = 0.90 + Math.random() * 0.08; // 0.90 to 0.98
       } else {
-        multipliers[key] = 0.95 + Math.random() * 0.10; // 0.95 to 1.05
+        multipliers[key] = 0.97 + Math.random() * 0.06; // 0.97 to 1.03
       }
     }
 
     // Event etkileri
-    if (eventFlags.includes("ENERGY_CRISIS")) multipliers.energy *= 1.5;
-    if (eventFlags.includes("WAR_PREPARATION") || isAtWar) multipliers.arms *= 1.6;
-    if (eventFlags.includes("WAR_PREPARATION") || isAtWar) multipliers.food *= 1.3;
-    if (eventFlags.includes("PANDEMIC") || eventFlags.includes("VIRUS_OUTBREAK")) multipliers.medical *= 1.8;
-    if (eventFlags.includes("TECH_BOOM")) multipliers.tech *= 1.4;
-    if (eventFlags.includes("MINING_STRIKE")) multipliers.minerals *= 1.5;
+    // Event etkileri (Kısmi olarak yumuşatıldı)
+    if (eventFlags.includes("ENERGY_CRISIS")) multipliers.energy *= 1.30;
+    if (eventFlags.includes("WAR_PREPARATION") || isAtWar) multipliers.arms *= 1.35;
+    if (eventFlags.includes("WAR_PREPARATION") || isAtWar) multipliers.food *= 1.15;
+    if (eventFlags.includes("PANDEMIC") || eventFlags.includes("VIRUS_OUTBREAK")) multipliers.medical *= 1.40;
+    if (eventFlags.includes("TECH_BOOM")) multipliers.tech *= 1.25;
+    if (eventFlags.includes("MINING_STRIKE")) multipliers.minerals *= 1.30;
     if (eventFlags.includes("ECONOMIC_BOOM")) {
-      multipliers.energy *= 1.2;
-      multipliers.minerals *= 1.3;
-      multipliers.tech *= 1.2;
+      multipliers.energy *= 1.15;
+      multipliers.minerals *= 1.20;
+      multipliers.tech *= 1.15;
     }
 
     marketState.prices.energy = Math.min(300, Math.max(20, marketState.prices.energy * multipliers.energy));
@@ -179,7 +183,7 @@ export async function POST(request: Request) {
 
     // SPK Baskını (Piyasa Manipülasyonu Soruşturması)
     if (triggeredInvestigation) {
-      turnReports.push(`🚨 SPK BASKINI: Borsada içeriden bilgi sızdırma (manipülasyon) tespit edildi! Ağır para cezası kesildi.`);
+      currentReports.push(`🚨 SPK BASKINI: Borsada içeriden bilgi sızdırma (manipülasyon) tespit edildi! Ağır para cezası kesildi.`);
       game.budget = Math.max(0, game.budget - 15000);
       game.stability = Math.max(0, game.stability - 15);
       game.popularity = Math.max(0, game.popularity - 15);
@@ -278,8 +282,7 @@ export async function POST(request: Request) {
       }
     }
 
-    let currentReports: string[] = [];
-    try { currentReports = JSON.parse(game.turnReports); } catch {}
+    // currentReports has already been initialized at the top
     
     if (isAtWar && activeAlliesCount > 0) {
       const damageReduction = Math.round(totalAiAttackDamage * (0.3 * Math.min(3, activeAlliesCount)));

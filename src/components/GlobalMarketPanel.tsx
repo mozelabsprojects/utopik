@@ -15,6 +15,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
   const [selectedResource, setSelectedResource] = useState<keyof MarketState['prices'] | 'all'>('all');
+  const [tradeAmounts, setTradeAmounts] = useState<Record<string, number>>({});
 
   const market: MarketState = useMemo(() => {
     let m: MarketState = {
@@ -153,30 +154,60 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
           </div>
         </div>
         
-        <div className="w-full grid grid-cols-2 gap-2 mt-auto z-10" onClick={(e) => e.stopPropagation()}>
-          <div className="flex flex-col gap-1">
-            {[1, 10, 50].map(amt => (
-              <button 
-                key={`buy-${amt}`}
-                onClick={() => handleTrade(id, 'buy', amt)}
-                disabled={loading || budget < price * amt}
-                className="bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/30 rounded text-xs py-1 disabled:opacity-30 transition-colors font-bold"
-              >
-                {amt} Al
-              </button>
-            ))}
+        {/* Sparkline (Mini Grafik) */}
+        {market.history.length > 0 && (
+          <div className="w-full h-12 mb-4 opacity-70 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={market.history.map(h => ({ turn: h.turn, value: h.prices[id] }))}>
+                <Line type="monotone" dataKey="value" stroke={change.isUp ? "#4ade80" : "#f87171"} strokeWidth={2} dot={false} isAnimationActive={false} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-          <div className="flex flex-col gap-1">
-            {[1, 10, 50].map(amt => (
-              <button 
-                key={`sell-${amt}`}
-                onClick={() => handleTrade(id, 'sell', amt)}
-                disabled={loading || inventory < amt}
-                className="bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30 rounded text-xs py-1 disabled:opacity-30 transition-colors font-bold"
-              >
-                {amt} Sat
-              </button>
-            ))}
+        )}
+        
+        {/* İşlem Paneli (Input ve Butonlar) */}
+        <div className="w-full mt-auto z-10" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center bg-slate-900/80 rounded-lg overflow-hidden border border-slate-700 p-1 mb-2">
+            <button 
+              onClick={() => setTradeAmounts(prev => ({ ...prev, [id]: Math.max(1, (prev[id] || 1) - 10) }))}
+              className="px-2 py-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition"
+            >
+              -10
+            </button>
+            <input 
+              type="number" 
+              min="1"
+              value={tradeAmounts[id] || 1}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                setTradeAmounts(prev => ({ ...prev, [id]: isNaN(val) || val < 1 ? 1 : val }));
+              }}
+              className="flex-1 w-full bg-transparent text-center text-white font-bold outline-none no-spinners"
+              style={{ MozAppearance: 'textfield' }}
+            />
+            <button 
+              onClick={() => setTradeAmounts(prev => ({ ...prev, [id]: (prev[id] || 1) + 10 }))}
+              className="px-2 py-1 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition"
+            >
+              +10
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <button 
+              onClick={() => handleTrade(id, 'buy', tradeAmounts[id] || 1)}
+              disabled={loading || budget < price * (tradeAmounts[id] || 1)}
+              className="bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/40 hover:text-green-200 rounded text-sm py-1.5 disabled:opacity-30 transition-colors font-bold flex items-center justify-center gap-1"
+            >
+              <span className="text-lg leading-none">💰</span> Al
+            </button>
+            <button 
+              onClick={() => handleTrade(id, 'sell', tradeAmounts[id] || 1)}
+              disabled={loading || inventory < (tradeAmounts[id] || 1)}
+              className="bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/40 hover:text-red-200 rounded text-sm py-1.5 disabled:opacity-30 transition-colors font-bold flex items-center justify-center gap-1"
+            >
+              <span className="text-lg leading-none">📉</span> Sat
+            </button>
           </div>
         </div>
       </div>
