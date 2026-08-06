@@ -114,7 +114,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
 
     if (trend.direction === 'up') return <span className="text-green-400 font-bold text-xs bg-green-900/30 px-1 rounded flex items-center">📈 Yükseliş</span>;
     if (trend.direction === 'down') return <span className="text-red-400 font-bold text-xs bg-red-900/30 px-1 rounded flex items-center">📉 Düşüş</span>;
-    return <span className="text-gray-400 font-bold text-xs bg-gray-700/50 px-1 rounded flex items-center">➖ Yatay</span>;
+    return <span className="text-yellow-400 font-bold text-xs bg-yellow-900/30 px-1 rounded flex items-center">⚠️ Dalgalı</span>;
   };
 
   const renderResourceCard = (id: keyof typeof market.prices, name: string, icon: string, price: number, inventory: number) => {
@@ -248,6 +248,37 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
     energy: 'Enerji', food: 'Gıda', tech: 'Teknoloji', medical: 'Medikal', arms: 'Silah', minerals: 'Mineral'
   };
 
+  const renderExpertReport = () => {
+    if (!market.activeExpertLevel || !market.trends) return null;
+    
+    const visibleKeys: Array<keyof typeof market.prices> = [];
+    const allKeys = Object.keys(market.prices) as Array<keyof typeof market.prices>;
+    if (market.activeExpertLevel === 1) visibleKeys.push(allKeys[0]);
+    else if (market.activeExpertLevel === 2) { visibleKeys.push(allKeys[0], allKeys[1], allKeys[2]); }
+    else if (market.activeExpertLevel === 3) { visibleKeys.push(...allKeys); }
+
+    const reports: string[] = [];
+    for (const key of visibleKeys) {
+       const trend = market.trends[key];
+       if (!trend) continue;
+       const name = chartNames[key];
+       if (trend.direction === 'up') reports.push(`📈 ${name} piyasasında güçlü bir yükseliş trendi öngörüyorum. Fiyatlar artacak.`);
+       else if (trend.direction === 'down') reports.push(`📉 ${name} hisselerinde çöküş riski yüksek. Fiyatların düşmesini bekliyorum.`);
+       else reports.push(`⚠️ ${name} piyasası belirsiz ve dalgalı (volatil). Net bir yön yok, risk alırken dikkatli olun.`);
+    }
+
+    return (
+      <div className="bg-slate-900/80 border-l-4 border-yellow-500 p-4 rounded-r-xl mt-4 animate-fade-in shadow-lg">
+        <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2 text-sm">
+          <span>👔</span> Baş Analist Raporu (Kalan: {market.expertTurnsRemaining} Tur)
+        </h3>
+        <ul className="text-slate-300 text-sm space-y-2">
+          {reports.map((r, i) => <li key={i}>{r}</li>)}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <div className="animate-fade-in space-y-6">
       {/* BAŞLIK & MESAJ */}
@@ -277,13 +308,16 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
         </h3>
         
         {market.activeExpertLevel && market.activeExpertLevel > 0 ? (
-          <div className="bg-green-900/20 border border-green-500/30 p-3 rounded-lg flex justify-between items-center">
-            <div className="text-green-300 text-sm">
-              <span className="font-bold">Aktif Uzman:</span> Seviye {market.activeExpertLevel}
+          <div>
+            <div className="bg-green-900/20 border border-green-500/30 p-3 rounded-lg flex justify-between items-center">
+              <div className="text-green-300 text-sm">
+                <span className="font-bold">Aktif Uzman:</span> Seviye {market.activeExpertLevel}
+              </div>
+              <div className="text-xs text-green-400">
+                Kalan Süre: <span className="font-bold text-lg">{market.expertTurnsRemaining}</span> Tur
+              </div>
             </div>
-            <div className="text-xs text-green-400">
-              Kalan Süre: <span className="font-bold text-lg">{market.expertTurnsRemaining}</span> Tur
-            </div>
+            {renderExpertReport()}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
