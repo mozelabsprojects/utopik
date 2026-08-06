@@ -12,7 +12,7 @@ export type FactionsState = Record<FactionId, Faction>;
 export const INITIAL_FACTIONS: FactionsState = {
   capitalists: {
     id: "capitalists",
-    name: "İş Dünyası",
+    name: "Sermayedarlar",
     description: "Şirketler ve zengin zümre. Düşük vergi, serbest piyasa ve iç istikrar isterler.",
     support: 50,
   },
