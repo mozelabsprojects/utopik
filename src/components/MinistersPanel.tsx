@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { MINISTERS, Minister, MinisterId, MinistryType } from "@/lib/ministers";
 import { GameState, StatEffects } from "@/lib/types";
 
@@ -49,6 +50,11 @@ export default function MinistersPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   let currentMinisters: Record<string, string> = {};
   try {
@@ -142,17 +148,18 @@ export default function MinistersPanel({
 
   return (
     <>
-      {showEasterEgg && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in pointer-events-none">
+      {mounted && showEasterEgg && createPortal(
+        <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in pointer-events-none" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}>
           <div className="text-8xl animate-bounce mb-6">❤️</div>
-          <div className="glass-strong p-8 rounded-3xl border-2 border-pink-500/50 flex flex-col items-center max-w-lg text-center animate-slide-up">
+          <div className="glass-strong p-8 rounded-3xl border-2 border-pink-500/50 flex flex-col items-center max-w-lg text-center animate-slide-up bg-slate-900/90 shadow-[0_0_50px_rgba(236,72,153,0.5)]">
             <h2 className="text-3xl font-bold text-pink-400 mb-4">Teşekkürler General Bard!</h2>
             <p className="text-xl text-white font-medium">Hizmetleriniz için minnettarız. Utopik halkı sizi çok seviyor!</p>
             <div className="mt-6 inline-flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full font-bold">
               <span>🎉</span> Mutluluk +1
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <div className="tutorial-ministers bg-slate-800/80 p-6 rounded-2xl shadow-xl border border-slate-700 backdrop-blur-sm">
