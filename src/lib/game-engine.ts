@@ -110,7 +110,14 @@ export function getDetailedTaxIncome(
   const statBonusTotal = educationBonus + healthBonus + environmentBonus + militaryBonus;
 
   const stabilityMultiplier = 0.5 + (stability / 200); 
-  const happinessMultiplier = 0.5 + (happiness / 200); 
+  let happinessMultiplier = 0.5 + (happiness / 200); 
+
+  // İFLAS VEYA KRİZ DURUMUNDA ÖLÜM SARMALINI (DEATH SPIRAL) ÖNLEME
+  // Eğer mutluluk çok düşükse, minimum vergi çarpanını 0.75'te tutarak geri dönüş şansı ver.
+  if (happiness < 50) {
+    happinessMultiplier = Math.max(0.75, happinessMultiplier);
+  }
+
   const capitalistsBonus = capitalistsSupport > 70 ? 1.2 : (capitalistsSupport < 30 ? 0.8 : 1);
 
   const baseTotal = BASE_INCOME + statBonusTotal;
@@ -329,11 +336,16 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     if (minister) {
       const requiredFactionSupport = factions[minister.requiredFactionId]?.support || 50;
       if (requiredFactionSupport < 20) {
-        // İSTİFA ETTİ
-        turnReports.push(`⚠️ BAKAN İSTİFASI: ${minister.avatar} ${minister.name} (${minister.title}), temsil ettiği kesime ters düştüğünüz için istifa etti! İstikrar düştü.`);
-        state.stability = clampStat(state.stability - 10);
-        delete ministers[key];
-        continue;
+        if (state.countryName === "Kuzey Kore" && state.military > 80) {
+          // Korku İmparatorluğu bakanları zorla görevde tutar
+          turnReports.push(`🔒 KORKU KABİNESİ: ${minister.avatar} ${minister.name}, temsil ettiği kesimin desteğini tamamen kaybetmesine rağmen askeri baskı yüzünden istifa edemiyor.`);
+        } else {
+          // İSTİFA ETTİ
+          turnReports.push(`⚠️ BAKAN İSTİFASI: ${minister.avatar} ${minister.name} (${minister.title}), temsil ettiği kesime ters düştüğünüz için istifa etti! İstikrar düştü.`);
+          state.stability = clampStat(state.stability - 10);
+          delete ministers[key];
+          continue;
+        }
       }
 
       if (minister.passiveEffects.budget) { minEffects.budget += minister.passiveEffects.budget; state.budget += minister.passiveEffects.budget; }
@@ -405,23 +417,29 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // 🇰🇵 KUZEY KORE ÖZEL REJİM MODU (HARDCORE+)
   // ==========================================
   if (state.countryName === "Kuzey Kore") {
-    // 1. TAM AMBARGO: Ticaret geliri SIFIRLANIR
+    // 1. KARA BORSA KAÇAKÇILIĞI (Kısmi Ambargo)
     if (finalTradeIncome > 0) {
-      turnReports.push(`🚨 AMBARGO: Uluslararası yaptırımlar nedeniyle vadedilen +$${finalTradeIncome} ticaret geliri bloke edildi!`);
-      finalTradeIncome = 0;
+      const originalIncome = finalTradeIncome;
+      finalTradeIncome = Math.round(finalTradeIncome * 0.25);
+      turnReports.push(`🚨 KARA BORSA: Ambargolar nedeniyle +$${originalIncome} ticaret gelirinin büyük kısmı bloke edildi. Sadece +$${finalTradeIncome} ülkeye sokulabildi.`);
     }
 
-    // 2. KRONİK AÇLIK: Her tur sağlık ve mutluluk düşer
-    state.health = Math.max(0, state.health - 1);
-    state.happiness = Math.max(0, state.happiness - 1);
+    // 2. KRONİK AÇLIK: Her tur sağlık ve mutluluk düşer (Ama 15'te durur, oyuncuyu hemen öldürmez)
+    if (state.health > 15) state.health = Math.max(15, state.health - 1);
+    if (state.happiness > 15) state.happiness = Math.max(15, state.happiness - 1);
     turnReports.push(`🚨 KUZEY KORE REJİM ETKİSİ: Gıda yetersizliği ve izolasyon nedeniyle halk acı çekiyor (-1 Sağlık, -1 Mutluluk).`);
 
-    // 3. KORKU DUVARI (FEAR-BASED STABILITY)
+    // 3. KORKU DUVARI & JUCHE BONUSU
     if (state.stability < 80) {
       state.happiness = Math.max(0, state.happiness - 5);
       turnReports.push(`🚨 KORKU DUVARI YIKILDI: Otoriteniz %80'in altına düştüğü için halk artık konuşmaya cüret ediyor! Kaos kapıda (-5 Mutluluk).`);
     } else {
-      turnReports.push(`🔒 KORKU İMPARATORLUĞU: Rejimin demir yumruğu sayesinde isyan sesleri bastırılıyor (İstikrar > %80).`);
+      let jucheMsg = `🔒 KORKU İMPARATORLUĞU: Rejimin demir yumruğu sayesinde isyan sesleri bastırılıyor (İstikrar > %80).`;
+      if (state.stability >= 85) {
+        state.budget += 1500;
+        jucheMsg += ` Ayrıca JUCHE (Öz Yeterlilik) politikası meyvesini verdi: +$1500 Hazineye eklendi.`;
+      }
+      turnReports.push(jucheMsg);
     }
   }
   // ==========================================
@@ -453,13 +471,16 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // ==========================================
   // ZORLUK DERECESİNE GÖRE SİYASİ SERMAYE (POLITICAL CAPITAL) DEĞİŞİMİ
   // ==========================================
-  let diffPoliticalCapitalGain = 0;
-  if (difficulty === "Kolay") diffPoliticalCapitalGain = 5;
-  else if (difficulty === "Zor") diffPoliticalCapitalGain = -2;
-  else if (difficulty === "Çok Zor") diffPoliticalCapitalGain = -5;
+  let basePoliticalCapitalGain = 5; // Taban kazanım (Orta zorluk için)
+  if (difficulty === "Kolay") basePoliticalCapitalGain += 5; // Toplam +10
+  else if (difficulty === "Zor") basePoliticalCapitalGain -= 3; // Toplam +2
+  else if (difficulty === "Çok Zor") basePoliticalCapitalGain -= 5; // Toplam +0
   
-  if (diffPoliticalCapitalGain !== 0) {
-    state.politicalCapital = Math.max(0, Math.min(500, state.politicalCapital + diffPoliticalCapitalGain));
+  if (basePoliticalCapitalGain !== 0) {
+    state.politicalCapital = Math.max(0, Math.min(500, state.politicalCapital + basePoliticalCapitalGain));
+    if (basePoliticalCapitalGain > 0) {
+      turnReports.push(`📜 Siyasi Sermaye kazanıldı: +${basePoliticalCapitalGain} PC`);
+    }
   }
   // ==========================================
 
@@ -493,12 +514,19 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   activeCrises = remainingCrises;
 
   // 6. Fraksiyon Domino Etkileri ve Radikalleşme
+  const isNKPropaganda = state.countryName === "Kuzey Kore" && state.military > 80;
+
   if (state.happiness < 40) {
-    factions = modifyFactionSupport(factions, { workers: -2, intellectuals: -1 });
-    turnReports.push(`📉 Halkın mutsuzluğu işçileri ve aydınları tedirgin ediyor.`);
+    if (isNKPropaganda) {
+      factions = modifyFactionSupport(factions, { workers: -1, intellectuals: -1 });
+      turnReports.push(`📢 DEMİR YUMRUK: Askeri baskı sayesinde halkın mutsuzluğuna rağmen isyan engelleniyor (İşçi düşüşü yavaşladı).`);
+    } else {
+      factions = modifyFactionSupport(factions, { workers: -2, intellectuals: -1 });
+      turnReports.push(`📉 Halkın mutsuzluğu işçileri ve aydınları tedirgin ediyor.`);
+    }
   }
   if (state.health < 40) {
-    factions = modifyFactionSupport(factions, { workers: -2 });
+    factions = modifyFactionSupport(factions, { workers: isNKPropaganda ? -1 : -2 });
   }
   if (state.budget < 0) {
     factions = modifyFactionSupport(factions, { capitalists: -2 }); // -5'ti, iflas ölüm sarmalını engellemek için -2 yapıldı.
@@ -721,7 +749,7 @@ export function applyInvestment(
   let factions: FactionsState = INITIAL_FACTIONS;
   try { factions = JSON.parse(newState.factions); } catch { factions = INITIAL_FACTIONS; }
   
-  const factionGain = Math.floor(pointsGained / 2); // Her 2 puan için 1 fraksiyon desteği
+  const factionGain = pointsGained; // Eskiden pointsGained / 2 idi. Artık doğrudan 1:1 etki ediyor.
   if (factionGain > 0) {
     if (sector === "military") factions = modifyFactionSupport(factions, { military: factionGain, nationalists: Math.floor(factionGain / 2) });
     if (sector === "health" || sector === "education") factions = modifyFactionSupport(factions, { workers: factionGain, intellectuals: Math.floor(factionGain / 2) });
