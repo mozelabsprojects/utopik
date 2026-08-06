@@ -33,11 +33,17 @@ export default function MinistersPanel({
   gameId,
   politicalCapital,
   currentMinistersJson,
+  factionsJson,
+  turn,
+  eventFlagsJson,
   onUpdate
 }: {
   gameId: string;
   politicalCapital: number;
   currentMinistersJson: string;
+  factionsJson: string;
+  turn: number;
+  eventFlagsJson: string;
   onUpdate: () => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -46,6 +52,16 @@ export default function MinistersPanel({
   let currentMinisters: Record<string, string> = {};
   try {
     currentMinisters = JSON.parse(currentMinistersJson);
+  } catch (e) {}
+
+  let factions: Record<string, { support: number }> = {};
+  try {
+    factions = JSON.parse(factionsJson);
+  } catch (e) {}
+
+  let eventFlags: string[] = [];
+  try {
+    eventFlags = JSON.parse(eventFlagsJson || "[]");
   } catch (e) {}
 
   // Kabinenin toplam etkilerini hesapla
@@ -69,13 +85,40 @@ export default function MinistersPanel({
       const res = await fetch("/api/game/minister", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameId, ministerId })
+        body: JSON.stringify({ gameId, ministerId, action: "hire" }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      onUpdate();
-    } catch (err: any /* eslint-disable-line @typescript-eslint/no-explicit-any */) {
-      setError(err.message);
+      if (res.ok) {
+        onUpdate();
+      } else {
+        const data = await res.json();
+        setError(data.error || "Bir hata oluştu");
+      }
+    } catch (err) {
+      setError("Bağlantı hatası");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFire = async (ministerId: MinisterId) => {
+    if (!confirm("Bu bakanı görevden almak istediğinize emin misiniz? Siyasi sermaye iadesi yapılmaz.")) return;
+    
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/game/minister", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gameId, ministerId, action: "fire" }),
+      });
+      if (res.ok) {
+        onUpdate();
+      } else {
+        const data = await res.json();
+        setError(data.error || "Bir hata oluştu");
+      }
+    } catch (err) {
+      setError("Bağlantı hatası");
     } finally {
       setLoading(false);
     }
@@ -129,11 +172,11 @@ export default function MinistersPanel({
               </h3>
               
               {current ? (
-                <div className="mb-4">
+                <div className="mb-4 bg-slate-800/50 p-3 rounded-lg border border-slate-700 relative">
                   <p className="text-sm text-slate-400">Mevcut Bakan:</p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-2xl">{current.avatar}</span>
-                    <div>
+                    <div className="flex-1">
                       <p className="font-bold text-slate-100">{current.name}</p>
                       <p className="text-xs text-blue-400 mb-1">{current.title}</p>
                       <div className="flex flex-wrap gap-1">
@@ -142,6 +185,36 @@ export default function MinistersPanel({
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 mt-2">{current.description}</p>
+                  
+                  {/* KOV BUTONU */}
+                  <div className="mt-3 text-right">
+                    {(() => {
+                      const hireFlag = eventFlags.find(f => f.startsWith(`minister_${ministry}_hired_`));
+                      let canFire = true;
+                      let waitTurns = 0;
+                      if (hireFlag) {
+                        const hiredTurn = parseInt(hireFlag.replace(`minister_${ministry}_hired_`, ""), 10);
+                        if (turn - hiredTurn < 5) {
+                          canFire = false;
+                          waitTurns = 5 - (turn - hiredTurn);
+                        }
+                      }
+
+                      return (
+                        <button
+                          onClick={() => handleFire(current.id)}
+                          disabled={loading || !canFire}
+                          className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-colors ${
+                            !canFire
+                              ? "bg-slate-700 text-slate-500 cursor-not-allowed"
+                              : "bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white"
+                          }`}
+                        >
+                          {canFire ? "Görevden Al" : `${waitTurns} Tur Bekle`}
+                        </button>
+                      );
+                    })()}
+                  </div>
                 </div>
               ) : (
                 <div className="mb-4 text-slate-500 italic text-sm">Bakan atanmadı.</div>
@@ -149,27 +222,38 @@ export default function MinistersPanel({
 
               <div className="space-y-2 mt-4 pt-4 border-t border-slate-700">
                 <p className="text-xs text-slate-400 font-semibold">Adaylar:</p>
-                {availableMinisters.map((candidate) => (
-                  <div key={candidate.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-800 p-2 rounded gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{candidate.avatar}</span>
-                      <div>
-                        <p className="text-sm font-medium text-slate-200">{candidate.name}</p>
-                        <p className="text-[10px] text-slate-400 mb-1">{candidate.title} (📜 {candidate.hireCost})</p>
-                        <div className="flex flex-wrap gap-1">
-                          {renderEffects(candidate.passiveEffects)}
+                  {availableMinisters.map((candidate) => {
+                    const reqFaction = factions[candidate.requiredFactionId];
+                    const hasEnoughSupport = reqFaction ? reqFaction.support >= 20 : false;
+                    const factionName = candidate.requiredFactionId === "military" ? "Askeriye" : candidate.requiredFactionId === "intellectuals" ? "Aydınlar" : candidate.requiredFactionId === "workers" ? "İşçiler" : candidate.requiredFactionId === "capitalists" ? "Sermaye" : "Milliyetçiler";
+
+                    return (
+                      <div key={candidate.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-800 p-2 rounded gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{candidate.avatar}</span>
+                          <div>
+                            <p className="text-sm font-medium text-slate-200">{candidate.name}</p>
+                            <p className="text-[10px] text-slate-400 mb-1">{candidate.title} (📜 {candidate.hireCost})</p>
+                            <div className="flex flex-wrap gap-1">
+                              {renderEffects(candidate.passiveEffects)}
+                            </div>
+                            {!hasEnoughSupport && currentId !== candidate.id && (
+                              <p className="text-[10px] text-red-400 mt-1 flex items-center gap-1">
+                                <span>🔒</span> {factionName} desteği yetersiz (%{reqFaction?.support || 0} / %20)
+                              </p>
+                            )}
+                          </div>
                         </div>
+                        <button
+                          onClick={() => handleHire(candidate.id)}
+                          disabled={loading || currentId === candidate.id || politicalCapital < candidate.hireCost || !hasEnoughSupport}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-xs rounded font-medium text-white transition-colors whitespace-nowrap"
+                        >
+                          {currentId === candidate.id ? "Atandı" : "Ata"}
+                        </button>
                       </div>
-                    </div>
-                    <button
-                      onClick={() => handleHire(candidate.id)}
-                      disabled={loading || currentId === candidate.id || politicalCapital < candidate.hireCost}
-                      className="px-3 py-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-xs rounded font-medium text-white transition-colors whitespace-nowrap"
-                    >
-                      {currentId === candidate.id ? "Atandı" : "Ata"}
-                    </button>
-                  </div>
-                ))}
+                    );
+                  })}
               </div>
             </div>
           );

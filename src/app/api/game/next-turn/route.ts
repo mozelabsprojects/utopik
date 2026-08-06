@@ -96,9 +96,50 @@ export async function POST(request: Request) {
     // Borsa Fiyat Dalgalanması (Event'lere Göre Dinamik)
     const multipliers = { energy: 1, food: 1, tech: 1, medical: 1, arms: 1, minerals: 1 };
     
-    // Rastgele hafif dalgalanma (±%10)
-    for (const key of Object.keys(multipliers) as (keyof typeof multipliers)[]) {
-      multipliers[key] = 0.9 + Math.random() * 0.2;
+    // Uzman süresini düş ve manipülasyon riskini hesapla
+    let triggeredInvestigation = false;
+    if (marketState.expertTurnsRemaining && marketState.expertTurnsRemaining > 0) {
+      const riskChance = marketState.activeExpertLevel === 3 ? 0.15 : (marketState.activeExpertLevel === 2 ? 0.10 : 0.05);
+      if (Math.random() < riskChance) {
+        triggeredInvestigation = true;
+      }
+
+      marketState.expertTurnsRemaining -= 1;
+      if (marketState.expertTurnsRemaining === 0) {
+        marketState.activeExpertLevel = 0;
+      }
+    }
+
+    if (!marketState.trends) {
+      marketState.trends = {};
+    }
+
+    // Trend tabanlı dalgalanma
+    const products = Object.keys(multipliers) as (keyof typeof multipliers)[];
+    for (const key of products) {
+      // Trend yoksa veya süresi bittiyse yeni trend oluştur
+      if (!marketState.trends[key] || marketState.trends[key]!.turnsRemaining <= 0) {
+        const r = Math.random();
+        let dir: 'up' | 'down' | 'flat' = 'flat';
+        if (r > 0.7) dir = 'up';
+        else if (r < 0.3) dir = 'down';
+
+        marketState.trends[key] = {
+          direction: dir,
+          turnsRemaining: Math.floor(Math.random() * 3) + 2 // 2 to 4 turns
+        };
+      } else {
+        marketState.trends[key]!.turnsRemaining -= 1;
+      }
+
+      const dir = marketState.trends[key]!.direction;
+      if (dir === 'up') {
+        multipliers[key] = 1.05 + Math.random() * 0.15; // 1.05 to 1.20
+      } else if (dir === 'down') {
+        multipliers[key] = 0.80 + Math.random() * 0.15; // 0.80 to 0.95
+      } else {
+        multipliers[key] = 0.95 + Math.random() * 0.10; // 0.95 to 1.05
+      }
     }
 
     // Event etkileri
@@ -134,6 +175,14 @@ export async function POST(request: Request) {
     // Sadece son 30 turu tut (optimizasyon)
     if (marketState.history.length > 30) {
       marketState.history.shift();
+    }
+
+    // SPK Baskını (Piyasa Manipülasyonu Soruşturması)
+    if (triggeredInvestigation) {
+      turnReports.push(`🚨 SPK BASKINI: Borsada içeriden bilgi sızdırma (manipülasyon) tespit edildi! Ağır para cezası kesildi.`);
+      game.budget = Math.max(0, game.budget - 15000);
+      game.stability = Math.max(0, game.stability - 15);
+      game.popularity = Math.max(0, game.popularity - 15);
     }
 
     // AI Ülkeleri ve Diplomasi simülasyonu
@@ -298,7 +347,7 @@ export async function POST(request: Request) {
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: {
-        turn: newState.turn,
+        turn: game.turn + 1,
         budget: newState.budget,
         military: newState.military,
         happiness: newState.happiness,

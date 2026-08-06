@@ -58,9 +58,17 @@ export default function StatBar({ label, value, icon, color, previousValue, proj
           </span>
         </div>
       </div>
-      <div className="stat-bar-track h-2.5">
+      <div className="stat-bar-track h-2.5 relative bg-slate-800 rounded overflow-hidden">
+        {projectedGain !== undefined && projectedGain > 0 && (
+          <div
+            className="absolute top-0 bottom-0 left-0 bg-white/20 animate-pulse"
+            style={{
+              width: `${Math.max(0, Math.min(100, value + projectedGain))}%`,
+            }}
+          />
+        )}
         <div
-          className="stat-bar-fill"
+          className="stat-bar-fill relative z-10 h-full transition-all duration-500 ease-out"
           style={{
             width: `${Math.max(0, Math.min(100, value))}%`,
             background: getGradient(),

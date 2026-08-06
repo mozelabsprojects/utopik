@@ -454,8 +454,9 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   }
 
   // 8. Doğal Yıpranma ve Pasif Bonuslar
-  state.military = clampStat(state.military - 1);
-  state.stability = clampStat(state.stability - 1);
+  // Doğal azalma hiçbir zaman oyuncuyu 0'a düşürüp doğrudan Game Over yapamaz, en fazla 5'te durur.
+  state.military = Math.max(5, clampStat(state.military - 1));
+  state.stability = Math.max(5, clampStat(state.stability - 1));
   
   // Çevre bonusu: Temiz çevre sağlığı iyileştirir
   if (state.environment > 70) {
@@ -469,8 +470,8 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   
   // Mutluluk ve sağlık her 2 turda 1 düşer, çevre doğal olarak düşmez (sadece krizlerle)
   if (state.turn % 2 === 0) {
-    state.happiness = clampStat(state.happiness - 1);
-    state.health = clampStat(state.health - 1);
+    state.happiness = Math.max(5, clampStat(state.happiness - 1));
+    state.health = Math.max(5, clampStat(state.health - 1));
   }
   
   // 8.5. Fraksiyonların Merkeze Dönüşü (Mean Reversion)
@@ -783,6 +784,24 @@ export function applyInvestment(
   const effectiveAmount = actualAmount * efficiencyMultiplier;
 
   let currentStat = 50;
+  if (sector === "popularityFund") {
+    const popGained = Math.floor(effectiveAmount / 5000);
+    newState.popularity = clampStat(newState.popularity + popGained);
+    // Fraksiyonları da otomatik yükselt
+    let factions: FactionsState = INITIAL_FACTIONS;
+    try { factions = JSON.parse(newState.factions); } catch { factions = INITIAL_FACTIONS; }
+    factions = modifyFactionSupport(factions, {
+      workers: popGained, capitalists: popGained, intellectuals: popGained, nationalists: popGained, military: popGained
+    });
+    newState.factions = JSON.stringify(factions);
+    return { newState, actualAmount };
+  }
+  if (sector === "politicalFund") {
+    const pcGained = Math.floor(effectiveAmount / 400);
+    newState.politicalCapital += pcGained;
+    return { newState, actualAmount };
+  }
+
   switch (sector) {
     case "military": currentStat = state.military; break;
     case "health": currentStat = state.health; break;

@@ -108,7 +108,9 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
         throw new Error(data.error);
       }
       
-      setMessage({ text: action === "enact" ? "Yasa başarıyla meclisten geçti." : "Yasa meclis kararıyla iptal edildi.", type: 'success' });
+      const successMsg = action === "enact" ? "Yasa başarıyla meclisten geçti." : "Yasa meclis kararıyla iptal edildi.";
+      const impactMsg = data.impactString ? ` Etkisi: ${data.impactString}` : '';
+      setMessage({ text: `${successMsg}${impactMsg}`, type: 'success' });
       onUpdate(); 
     } catch (e: any) {
       setMessage({ text: e.message || "İşlem başarısız.", type: 'error' });

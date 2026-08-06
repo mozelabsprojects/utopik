@@ -90,17 +90,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Geçersiz işlem" }, { status: 400 });
     }
 
+    const totalNewSupport = Object.values(factions).reduce((acc, f) => acc + f.support, 0);
+    const newPopularity = Math.round(totalNewSupport / 5);
+
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: {
         politicalCapital: game.politicalCapital - finalCost,
+        popularity: newPopularity,
         activeLaws: JSON.stringify(activeLaws),
         factions: JSON.stringify(factions),
         turnReports: JSON.stringify(turnReports)
       }
     });
 
-    return NextResponse.json({ game: updatedGame });
+    const formatImpact = (impactObj: any) => {
+      const parts: string[] = [];
+      if (impactObj.workers) parts.push(`İşçiler: ${impactObj.workers > 0 ? '+' : ''}${impactObj.workers}`);
+      if (impactObj.capitalists) parts.push(`Sermaye: ${impactObj.capitalists > 0 ? '+' : ''}${impactObj.capitalists}`);
+      if (impactObj.intellectuals) parts.push(`Aydınlar: ${impactObj.intellectuals > 0 ? '+' : ''}${impactObj.intellectuals}`);
+      if (impactObj.nationalists) parts.push(`Milliyetçiler: ${impactObj.nationalists > 0 ? '+' : ''}${impactObj.nationalists}`);
+      if (impactObj.military) parts.push(`Askeriye: ${impactObj.military > 0 ? '+' : ''}${impactObj.military}`);
+      return parts.join(', ');
+    };
+    
+    const impactStr = action === "enact" ? formatImpact(policy.factionImpactOnEnact) : formatImpact(Object.fromEntries(
+        Object.entries(policy.factionImpactOnEnact).map(([k, v]) => [k, -(v as number) * 0.5])
+    ));
+
+    return NextResponse.json({ game: updatedGame, impactString: impactStr });
   } catch (error) {
     console.error("Yasa işlem hatası:", error);
     return NextResponse.json(

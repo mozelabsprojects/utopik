@@ -22,6 +22,8 @@ const STAT_ICONS: Record<string, string> = {
   education: "📚",
   stability: "🏛️",
   foreignRelations: "🌍",
+  popularity: "👑",
+  politicalCapital: "📜",
 };
 
 interface EventCardProps {
@@ -123,6 +125,38 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
                             : 'bg-red-500/10 text-red-300 border border-red-500/20'
                         }`}>
                           {icon} ? {isPos ? '⬆️' : '⬇️'}
+                        </span>
+                      );
+                    })}
+                    
+                    {/* Fraksiyon Etkileri (Toplum) */}
+                    {choice.factionEffects && Object.entries(choice.factionEffects).map(([key, val]) => {
+                      if (val === 0) return null;
+                      const isPos = val > 0;
+                      
+                      const factionNames: Record<string, string> = {
+                        capitalists: "Sermaye",
+                        workers: "İşçi",
+                        military: "Asker",
+                        intellectuals: "Aydınlar",
+                        nationalists: "Milliyetçi"
+                      };
+                      
+                      const factionIcons: Record<string, string> = {
+                        capitalists: "💼",
+                        workers: "👷",
+                        military: "🎖️",
+                        intellectuals: "🎓",
+                        nationalists: "🦅"
+                      };
+
+                      return (
+                        <span key={`fac_${key}`} title={isPos ? "Bu kesimin desteği artacak" : "Bu kesimin desteği düşecek"} className={`text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 ${
+                          isPos 
+                            ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' 
+                            : 'bg-orange-500/10 text-orange-300 border border-orange-500/20'
+                        }`}>
+                          {factionIcons[key]} {factionNames[key]} {isPos ? '⬆️' : '⬇️'}
                         </span>
                       );
                     })}

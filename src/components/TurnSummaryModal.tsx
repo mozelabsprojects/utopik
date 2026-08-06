@@ -74,7 +74,7 @@ export default function TurnSummaryModal({
       )}
 
       {phase === "results" && (
-        <div className="glass-strong rounded-2xl w-full max-w-4xl max-h-[85vh] md:max-h-[80vh] flex flex-col overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,240,255,0.15)] animate-slide-up">
+        <div className="glass-strong rounded-2xl w-full max-w-4xl max-h-[95dvh] md:max-h-[90dvh] flex flex-col overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,240,255,0.15)] animate-slide-up">
           <div className="p-4 sm:p-6 border-b border-white/10 bg-gradient-to-r from-cyan-900/40 to-transparent flex justify-between items-center shrink-0">
             <h2 className="text-2xl font-bold text-white flex items-center gap-3">
               <span className="text-3xl">📋</span> TUR {turnNumber} KAPSAMLI RAPORU

@@ -18,6 +18,14 @@ export interface MarketState {
     turn: number;
     prices: MarketPrices;
   }[];
+  trends?: {
+    [key in keyof MarketPrices]?: {
+      direction: 'up' | 'down' | 'flat';
+      turnsRemaining: number;
+    }
+  };
+  activeExpertLevel?: number; // 0: None, 1: Çaylak, 2: Kıdemli, 3: Wall Street Kurdu
+  expertTurnsRemaining?: number;
 }
 
 export type EventCategory =

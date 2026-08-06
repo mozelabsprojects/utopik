@@ -79,16 +79,18 @@ export default function TurnTransition({
       )}
 
       {phase === "results" && (
-        <div className={`glass-strong rounded-2xl p-8 max-w-md w-full mx-4 animate-slide-up ${
+        <div className={`glass-strong rounded-2xl w-full max-w-md mx-4 max-h-[85vh] flex flex-col overflow-hidden animate-slide-up ${
           taxIncome - maintenanceCost < 0 || dominoEffects.some(e => e.description.includes("DÜŞÜYOR") || e.description.includes("AZALIYOR"))
             ? "animate-shake"
             : "animate-juice-bounce"
         }`}>
-          <h2 className="text-xl font-[family-name:var(--font-display)] font-bold text-[var(--color-neon-cyan)] mb-4 text-center">
-            TUR {turnNumber} SONUÇLARI
-          </h2>
+          <div className="p-6 shrink-0 border-b border-white/10">
+            <h2 className="text-xl font-[family-name:var(--font-display)] font-bold text-[var(--color-neon-cyan)] text-center">
+              TUR {turnNumber} SONUÇLARI
+            </h2>
+          </div>
 
-          <div className="space-y-3 mb-4">
+          <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-3">
             {/* Tax income */}
             <div className="flex items-center justify-between py-2 border-b border-gray-700/50">
               <span className="text-sm text-gray-300">📈 Vergi Geliri</span>
@@ -139,15 +141,17 @@ export default function TurnTransition({
             )}
           </div>
 
-          <button
-            onClick={() => {
-              setPhase("hidden");
-              onComplete();
-            }}
-            className="w-full btn-primary text-center text-sm"
-          >
-            Devam Et
-          </button>
+          <div className="p-4 border-t border-white/10 shrink-0 bg-black/40">
+            <button
+              onClick={() => {
+                setPhase("hidden");
+                onComplete();
+              }}
+              className="w-full btn-primary py-3 text-center text-sm font-bold tracking-wide transition-transform hover:scale-[1.02] active:scale-95"
+            >
+              Devam Et
+            </button>
+          </div>
         </div>
       )}
     </div>

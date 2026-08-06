@@ -108,6 +108,8 @@ export async function POST(request: Request) {
         environment: updatedState.environment,
         stability: updatedState.stability,
         foreignRelations: updatedState.foreignRelations,
+        popularity: updatedState.popularity,
+        politicalCapital: updatedState.politicalCapital,
         factions: updatedState.factions,
       },
     });

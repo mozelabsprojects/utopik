@@ -499,6 +499,9 @@ function GameContent() {
               gameId={game.id} 
               politicalCapital={game.politicalCapital}
               currentMinistersJson={game.ministers}
+              factionsJson={game.factions}
+              turn={game.turn}
+              eventFlagsJson={game.eventFlags || "[]"}
               onUpdate={fetchGameState}
             />
           </div>

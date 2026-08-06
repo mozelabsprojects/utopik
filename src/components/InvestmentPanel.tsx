@@ -78,7 +78,7 @@ export default function InvestmentPanel({
           case "stability": currentStat = gameData.stability; break;
           case "foreignRelations": currentStat = gameData.foreignRelations; break;
         }
-        const costPerPoint = 100 + Math.pow(currentStat, 1.2) * 4;
+        const costPerPoint = 250 * Math.pow(1.045, currentStat);
         gains[sec] = Math.round(effectiveAmount / costPerPoint);
       }
       onProjectedGainsChange(gains);
@@ -151,11 +151,16 @@ export default function InvestmentPanel({
           const isMax = currentStat >= 100;
           
           let projectedGain = 0;
+          let isLessThanOne = false;
           if (gameData && investments[sector] > 0) {
             const efficiencyMultiplier = 1 + (gameData.education > 50 ? (gameData.education - 50) / 100 : 0);
             const effectiveAmount = investments[sector] * efficiencyMultiplier;
             const costPerPoint = 250 * Math.pow(1.045, currentStat);
-            projectedGain = Math.round(effectiveAmount / costPerPoint);
+            const rawGain = effectiveAmount / costPerPoint;
+            projectedGain = Math.round(rawGain);
+            if (projectedGain === 0 && rawGain > 0) {
+              isLessThanOne = true;
+            }
           }
 
           return (
@@ -168,9 +173,11 @@ export default function InvestmentPanel({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {projectedGain > 0 && (
+                  {projectedGain > 0 ? (
                     <span className="text-xs font-bold text-green-400">+{projectedGain}</span>
-                  )}
+                  ) : isLessThanOne ? (
+                    <span className="text-xs font-bold text-green-400">+&lt;1</span>
+                  ) : null}
                   {isMax ? (
                     <span className="text-sm font-bold text-gray-400">MAX</span>
                   ) : (
@@ -203,6 +210,31 @@ export default function InvestmentPanel({
             </div>
           );
         })}
+      </div>
+
+      {/* Siyasi & Sosyal Fonlar (Kuyu) */}
+      <div className="mb-4 pt-3 border-t border-slate-700/50">
+        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Bütçe Fazlası Fonları</h4>
+        <div className="flex gap-2">
+          <button
+            onClick={() => onInvestBulk && onInvestBulk({ popularityFund: 5000 })}
+            disabled={disabled || budget < 5000}
+            className="flex-1 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 hover:bg-yellow-500/30 text-yellow-300 text-xs font-bold py-2 px-3 rounded-lg disabled:opacity-30 transition-all flex flex-col items-center justify-center gap-1"
+          >
+            <span className="text-lg">👑</span>
+            <span>Halkla İlişkiler ($5k)</span>
+            <span className="text-[9px] text-yellow-500/80">+1 Popülarite</span>
+          </button>
+          <button
+            onClick={() => onInvestBulk && onInvestBulk({ politicalFund: 4000 })}
+            disabled={disabled || budget < 4000}
+            className="flex-1 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 hover:bg-purple-500/30 text-purple-300 text-xs font-bold py-2 px-3 rounded-lg disabled:opacity-30 transition-all flex flex-col items-center justify-center gap-1"
+          >
+            <span className="text-lg">📜</span>
+            <span>Siyasi Lobi ($4k)</span>
+            <span className="text-[9px] text-purple-500/80">+10 Siyasi Sermaye</span>
+          </button>
+        </div>
       </div>
 
       {/* Action buttons */}
