@@ -8,6 +8,189 @@ export const EVENTS: GameEvent[] = [
   // POZİTİF OLAYLAR (SÜRPRİZ KAZANÇLAR)
   // ============================================
   {
+    id: "trend_esports",
+    title: "E-Spor Dünya Şampiyonası",
+    description: "Milyonlarca gencin takip ettiği devasa E-Spor Dünya Şampiyonası için finalin ülkemizde yapılması teklif edildi. Büyük bir altyapı yatırımı gerekiyor ancak gençler heyecandan çıldırıyor!",
+    category: "sosyal",
+    minTurn: 0,
+    choices: [
+      {
+        label: "A",
+        text: "Kabul et ve devasa bir arena inşa et!",
+        effects: { budget: -800, happiness: 15, education: 5, foreignRelations: 10 },
+        factionEffects: { intellectuals: 10 },
+        marketEffects: { tech: 1.2 },
+        hint: "Bütçeyi biraz sarsar ama gençlerin mutluluğu tavan yapar, Teknoloji sektörü uçar."
+      },
+      {
+        label: "B",
+        text: "Sadece mevcut salonları kullandır (Düşük Bütçe).",
+        effects: { budget: -200, happiness: 5, foreignRelations: 5 },
+        hint: "Risksiz, küçük bir mutluluk artışı."
+      },
+      {
+        label: "C",
+        text: "Reddet, 'oyunla vakit kaybedecek zamanımız yok'.",
+        effects: { happiness: -10, education: -2 },
+        factionEffects: { nationalists: 5, intellectuals: -15 },
+        hint: "Geleneksel kesim memnun olur ama gençler size öfkelenir."
+      }
+    ]
+  },
+  {
+    id: "trend_crypto",
+    title: "Kripto Para Çılgınlığı",
+    description: "Gençler ve yatırımcılar yeni bir kripto paraya hücum ediyor. Ekonomi uzmanları bunun bir balon olabileceği konusunda uyardı. Nasıl bir politika izleyelim?",
+    category: "ekonomi",
+    minTurn: 3,
+    choices: [
+      {
+        label: "A",
+        text: "Tamamen serbest bırak ve vergi alma.",
+        effects: { happiness: 10, stability: -5, budget: 0 },
+        factionEffects: { capitalists: 15, workers: -5 },
+        marketEffects: { tech: 1.3 },
+        hint: "Mutluluk artar, teknoloji borsası patlar ama ülke istikrarı sarsılır."
+      },
+      {
+        label: "B",
+        text: "Devlet güvenceli Ulusal Kripto Borsa'sı kur ve vergilendir.",
+        effects: { budget: 1200, stability: 5, happiness: -2 },
+        factionEffects: { nationalists: 10, capitalists: -10 },
+        hint: "Güzel bir bütçe geliri elde edersiniz, ancak özgürlükçüler kızar."
+      },
+      {
+        label: "C",
+        text: "Kripto paraları tamamen yasakla!",
+        effects: { stability: 10, happiness: -15, education: -5 },
+        factionEffects: { nationalists: 15, intellectuals: -20 },
+        hint: "Devlet kontrolü artar ama genç nesil isyan eder."
+      }
+    ]
+  },
+  {
+    id: "trend_ai_jobs",
+    title: "Yapay Zeka Devrimi",
+    description: "Yapay zeka (AI) şirketleri ülkemizde hızla büyüyor, ancak fabrikalardaki ve ofislerdeki birçok çalışan işini kaybetme korkusuyla protestolara başladı.",
+    category: "ekonomi",
+    minTurn: 8,
+    choices: [
+      {
+        label: "A",
+        text: "AI şirketlerini fonla (Teknolojiye tam destek).",
+        effects: { budget: -1000, education: 15, foreignRelations: 10, happiness: -5, stability: -5 },
+        factionEffects: { capitalists: 20, workers: -20 },
+        marketEffects: { tech: 1.4 },
+        hint: "Geleceğe yatırım! Teknoloji hisseleri uçar ancak işçi sınıfı çok öfkelenir."
+      },
+      {
+        label: "B",
+        text: "İşsiz kalanlara 'Evrensel Temel Gelir' (UBI) bağla.",
+        effects: { budget: -1500, happiness: 20, stability: 10 },
+        factionEffects: { workers: 25, capitalists: -10 },
+        hint: "Halk sizi kahraman ilan eder ancak Hazine büyük yara alır."
+      },
+      {
+        label: "C",
+        text: "Yapay zeka şirketlerine ağır vergiler ve kısıtlamalar getir.",
+        effects: { budget: 800, happiness: 5, education: -10 },
+        factionEffects: { workers: 15, intellectuals: -20 },
+        hint: "Bütçe ve işçiler toparlanır, ancak ülke bilimsel olarak geri kalır."
+      }
+    ]
+  },
+  {
+    id: "trend_social_media",
+    title: "Sosyal Medya ve Influencer Krizi",
+    description: "Bazı sosyal medya fenomenleri (Influencer'lar) gençleri yasadışı eylemlere ve lüks tüketime teşvik ediyor. Aileler platformların kapatılmasını istiyor.",
+    category: "ic_politika",
+    minTurn: 2,
+    choices: [
+      {
+        label: "A",
+        text: "Sosyal Medyayı tamamen yasakla/kapat.",
+        effects: { stability: 15, happiness: -25, foreignRelations: -10 },
+        factionEffects: { nationalists: 20, intellectuals: -25 },
+        hint: "Düzen sağlanır ama ülkenin prestiji çöker, gençler isyan eder."
+      },
+      {
+        label: "B",
+        text: "Sadece içerik üreticilerine ağır vergiler ve denetim getir.",
+        effects: { budget: 1000, stability: 5, happiness: -5 },
+        factionEffects: { workers: 10, capitalists: -5 },
+        hint: "Devlete harika bir ek gelir kaynağı yaratır."
+      },
+      {
+        label: "C",
+        text: "Müdahale etme, özgürlüğü sonuna kadar savun.",
+        effects: { happiness: 10, stability: -10, education: -5 },
+        factionEffects: { intellectuals: 15, nationalists: -15 },
+        hint: "Gençler mutlu olur, ancak aileler ve gelenekçi kesim huzursuz olur."
+      }
+    ]
+  },
+  {
+    id: "trend_space_program",
+    title: "Milli Uzay Programı",
+    description: "Ülkedeki en parlak beyinler yurt dışına kaçıyor. Bilim bakanı, onları ülkede tutmak ve uluslararası prestij kazanmak için devasa bir 'Milli Roket ve Uzay Programı' başlatılmasını öneriyor.",
+    category: "sosyal",
+    minTurn: 10,
+    choices: [
+      {
+        label: "A",
+        text: "Projeyi başlat! Milyarlarca dolar akıt, uzaya çıkıyoruz!",
+        effects: { budget: -2500, education: 25, foreignRelations: 15, happiness: 10, military: 5 },
+        factionEffects: { intellectuals: 30, nationalists: 15 },
+        marketEffects: { tech: 1.5, minerals: 1.2 },
+        hint: "Çok pahalı! Ancak ülkeyi bilim ve prestij şampiyonu yapar."
+      },
+      {
+        label: "B",
+        text: "Daha küçük ölçekli, sadece uydu fırlatma projesi yap.",
+        effects: { budget: -800, education: 10, foreignRelations: 5 },
+        hint: "Makul bir bütçeyle güzel bir bilimsel ilerleme."
+      },
+      {
+        label: "C",
+        text: "Dünyadaki dertlerimiz bitmedi, uzayı boşver.",
+        effects: { budget: 0, education: -10, happiness: -5 },
+        factionEffects: { intellectuals: -15 },
+        hint: "Bütçe korunur, ancak beyin göçü hızlanır."
+      }
+    ]
+  },
+  {
+    id: "trend_indie_games",
+    title: "Oyun Sektörü Teşviki",
+    description: "Ülkemizin genç yazılımcıları kendi imkanlarıyla ürettikleri 'İndie' (Bağımsız) oyunlarla dünya çapında ödüller alıyor. Devletten destek bekliyorlar.",
+    category: "ekonomi",
+    minTurn: 1,
+    choices: [
+      {
+        label: "A",
+        text: "Genç yazılımcılara 5 yıl boyunca Sıfır Vergi ve Hibe sağla.",
+        effects: { budget: -600, education: 10, happiness: 15 },
+        factionEffects: { intellectuals: 15, capitalists: 10 },
+        marketEffects: { tech: 1.15 },
+        hint: "Hazine destek öder, ancak gençlerin umudu ve teknoloji borsası artar."
+      },
+      {
+        label: "B",
+        text: "Sadece devlet destekli 'Milli ve Yerli' oyunları fonla.",
+        effects: { budget: -300, stability: 5, happiness: 5 },
+        factionEffects: { nationalists: 15, intellectuals: -5 },
+        hint: "Milliyetçi kesim memnun olur ama küresel pazar kaçırılır."
+      },
+      {
+        label: "C",
+        text: "Oyun yapmak bir iş değildir, herkes fabrikaya dönsün.",
+        effects: { stability: 5, education: -5, happiness: -10 },
+        factionEffects: { workers: 10, intellectuals: -15 },
+        hint: "Disiplin artar ancak genç yetenekler körelir."
+      }
+    ]
+  },
+  {
     id: "poz_altin_madeni",
     title: "Dev Altın Madeni Keşfedildi!",
     description: "Kuzey dağlarında devasa ve yüksek rezervli bir altın madeni keşfedildi! Ekonomi bakanı bu kaynağın nasıl değerlendirileceğini soruyor.",
@@ -16,7 +199,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Madeni devlet işletsin — Tüm gelir hazineye kalsın.",
-        effects: { budget: 3000, stability: 5, environment: -10 },
+        effects: { budget: 3500, stability: 5, environment: -5 },
         factionEffects: { workers: 10, capitalists: -10, nationalists: 10 },
         marketEffects: { minerals: 0.7 },
         hint: "Büyük gelir, ancak çevre kirliliği artar. Mineral fiyatları düşer."
@@ -24,7 +207,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "B",
         text: "Özel sektöre ihale et — Yabancı yatırımcı gelsin.",
-        effects: { budget: 1500, foreignRelations: 10, environment: -5 },
+        effects: { budget: 2000, foreignRelations: 10, environment: -3 },
         factionEffects: { capitalists: 20, nationalists: -10 },
         hint: "Orta düzey gelir, uluslararası ilişkiler ve sermaye güçlenir."
       },
@@ -90,14 +273,14 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Devasa festivaller ve ücretsiz konserler düzenle.",
-        effects: { budget: -1000, happiness: 20, stability: 10 },
+        effects: { budget: -500, happiness: 25, stability: 10 },
         factionEffects: { nationalists: 15, workers: 15 },
         hint: "Bütçeden biraz feda edip halkın kalbini fethedersiniz."
       },
       {
         label: "B",
         text: "Sadece resmi ve mütevazı bir tören yap.",
-        effects: { budget: -100, happiness: 5, stability: 5 },
+        effects: { budget: 0, happiness: 5, stability: 5 },
         factionEffects: { nationalists: 5 },
         hint: "Bütçe dostu, küçük bir pozitif etki."
       }
@@ -112,7 +295,7 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Vergi muafiyeti ver ve gelmelerini sağla.",
-        effects: { budget: -500, education: 15, happiness: 10, foreignRelations: 10 },
+        effects: { budget: -200, education: 20, happiness: 10, foreignRelations: 10 },
         factionEffects: { capitalists: 20, intellectuals: 15, workers: -5 },
         hint: "Kısa vadede bütçeden yersiniz ama eğitim ve prestij uçar."
       },
@@ -163,14 +346,14 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Devasa bütçe ayır, mükemmel bir organizasyon yap.",
-        effects: { budget: -2000, happiness: 25, foreignRelations: 20, stability: 10 },
+        effects: { budget: -1500, happiness: 30, foreignRelations: 25, stability: 10 },
         factionEffects: { nationalists: 20, capitalists: 15 },
         hint: "Pahalıdır ancak halkı sevince boğar ve küresel itibarınızı zirveye taşır."
       },
       {
         label: "B",
         text: "Sadece mevcut tesisleri kullanarak mütevazı bir organizasyon yap.",
-        effects: { budget: -500, happiness: 10, foreignRelations: 5 },
+        effects: { budget: -300, happiness: 15, foreignRelations: 10 },
         factionEffects: { nationalists: 5 },
         hint: "Ekonomik ve güvenli."
       },
