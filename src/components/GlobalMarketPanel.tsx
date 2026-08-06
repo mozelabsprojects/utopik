@@ -331,7 +331,8 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
                   contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }}
                   itemStyle={{ fontSize: '11px', fontWeight: 'bold' }}
                   labelStyle={{ display: 'none' }}
-                  formatter={(value: number) => [`$${value.toFixed(1)}`]}
+                  formatter={(value: any) => [`${typeof value === 'number' ? value.toFixed(2) : value}$`, "Fiyat"]} 
+                  labelFormatter={(label) => `Tur ${label}`}
                 />
                 
                 {selectedResource === 'all' ? (
