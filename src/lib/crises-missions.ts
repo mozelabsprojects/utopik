@@ -38,10 +38,10 @@ export const CRISES: Record<CrisisId, Crisis> = {
   pandemic: {
     id: "pandemic",
     name: "Salgın Hastalık (Pandemi)",
-    description: "Sağlık ve çevre sisteminin çökmesiyle ölümcül bir virüs yayıldı. Çözüm: Sağlık seviyesini 70'in üzerine çıkarın veya Ücretsiz Sağlık Sistemi yasasını geçirin.",
-    triggerCondition: (state, factions, laws = []) => (state.health < 25 && state.environment < 40) && !(state.health > 70 || laws.includes("free_healthcare")),
-    resolutionCondition: (state, laws) => state.health > 70 || laws.includes("free_healthcare"),
-    passiveEffects: { health: -5, happiness: -3, budget: -1000 }
+    description: "Sağlık ve çevre sisteminin çökmesiyle virüsler yayıldı. Çözüm: Sağlık seviyesini 50'nin üzerine çıkarın veya Ücretsiz Sağlık Sistemi yasasını geçirin.",
+    triggerCondition: (state, factions, laws = []) => (state.health < 20 && state.environment < 30) && !(state.health > 50 || laws.includes("free_healthcare")),
+    resolutionCondition: (state, laws) => state.health > 50 || laws.includes("free_healthcare"),
+    passiveEffects: { health: -2, happiness: -3, budget: -500 }
   },
   military_coup_threat: {
     id: "military_coup_threat",

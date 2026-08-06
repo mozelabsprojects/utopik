@@ -267,127 +267,6 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
 
   const turnReports: string[] = [];
   turnReports.push(`📅 Tur ${state.turn} sona erdi.`);
-
-  // Etkileri formatlamak için yardımcı fonksiyon
-  const formatEffects = (effects: Record<string, number>) => {
-    const parts: string[] = [];
-    if (effects.budget) parts.push(`${effects.budget > 0 ? '+' : ''}${effects.budget}$ Bütçe`);
-    if (effects.stability) parts.push(`${effects.stability > 0 ? '+' : ''}${effects.stability} İstikrar`);
-    if (effects.happiness) parts.push(`${effects.happiness > 0 ? '+' : ''}${effects.happiness} Mutluluk`);
-    if (effects.health) parts.push(`${effects.health > 0 ? '+' : ''}${effects.health} Sağlık`);
-    if (effects.military) parts.push(`${effects.military > 0 ? '+' : ''}${effects.military} Askeriye`);
-    if (effects.environment) parts.push(`${effects.environment > 0 ? '+' : ''}${effects.environment} Çevre`);
-    if (effects.education) parts.push(`${effects.education > 0 ? '+' : ''}${effects.education} Eğitim`);
-    if (effects.foreignRelations) parts.push(`${effects.foreignRelations > 0 ? '+' : ''}${effects.foreignRelations} Dış İlişkiler`);
-    return parts.length > 0 ? parts.join(", ") : "Etki yok";
-  };
-
-  // 1. Yasaların (Policies) Pasif Etkileri
-  const lawEffects: Record<string, number> = { budget: 0, stability: 0, happiness: 0, health: 0, military: 0, environment: 0, education: 0 };
-  
-  activeLaws.forEach(lawId => {
-    const law = POLICIES[lawId];
-    if (law.passiveEffects.budget) { lawEffects.budget += law.passiveEffects.budget; state.budget += law.passiveEffects.budget; }
-    if (law.passiveEffects.stability) { lawEffects.stability += law.passiveEffects.stability; state.stability = clampStat(state.stability + law.passiveEffects.stability); }
-    if (law.passiveEffects.happiness) { lawEffects.happiness += law.passiveEffects.happiness; state.happiness = clampStat(state.happiness + law.passiveEffects.happiness); }
-    if (law.passiveEffects.health) { lawEffects.health += law.passiveEffects.health; state.health = clampStat(state.health + law.passiveEffects.health); }
-    if (law.passiveEffects.military) { lawEffects.military += law.passiveEffects.military; state.military = clampStat(state.military + law.passiveEffects.military); }
-    if (law.passiveEffects.environment) { lawEffects.environment += law.passiveEffects.environment; state.environment = clampStat(state.environment + law.passiveEffects.environment); }
-    if (law.passiveEffects.education) { lawEffects.education += law.passiveEffects.education; state.education = clampStat(state.education + law.passiveEffects.education); }
-    
-    // Fraksiyonlar üzerindeki pasif etki
-    if (law.passiveFactionEffects) {
-      factions = modifyFactionSupport(factions, law.passiveFactionEffects);
-    }
-  });
-
-  if (activeLaws.length > 0) {
-    turnReports.push(`📜 Yürürlükteki Yasaların Etkisi: ${formatEffects(lawEffects)}`);
-  }
-
-
-  // 1.2 Teknolojilerin Pasif Etkileri
-  const techEffects: Record<string, number> = { budget: 0, stability: 0, happiness: 0, health: 0, military: 0, environment: 0, education: 0, foreignRelations: 0 };
-  
-  unlockedTechs.forEach(techId => {
-    const tech = TECH_TREE[techId as TechId];
-    if (tech && tech.passiveEffects) {
-      if (tech.passiveEffects.budget) { techEffects.budget += tech.passiveEffects.budget; state.budget += tech.passiveEffects.budget; }
-      if (tech.passiveEffects.stability) { techEffects.stability += tech.passiveEffects.stability; state.stability = clampStat(state.stability + tech.passiveEffects.stability); }
-      if (tech.passiveEffects.happiness) { techEffects.happiness += tech.passiveEffects.happiness; state.happiness = clampStat(state.happiness + tech.passiveEffects.happiness); }
-      if (tech.passiveEffects.health) { techEffects.health += tech.passiveEffects.health; state.health = clampStat(state.health + tech.passiveEffects.health); }
-      if (tech.passiveEffects.military) { techEffects.military += tech.passiveEffects.military; state.military = clampStat(state.military + tech.passiveEffects.military); }
-      if (tech.passiveEffects.environment) { techEffects.environment += tech.passiveEffects.environment; state.environment = clampStat(state.environment + tech.passiveEffects.environment); }
-      if (tech.passiveEffects.education) { techEffects.education += tech.passiveEffects.education; state.education = clampStat(state.education + tech.passiveEffects.education); }
-      if (tech.passiveEffects.foreignRelations) { techEffects.foreignRelations += tech.passiveEffects.foreignRelations; state.foreignRelations = clampStat(state.foreignRelations + tech.passiveEffects.foreignRelations); }
-    }
-  });
-
-  if (unlockedTechs.length > 0) {
-    turnReports.push(`🔬 Ar-Ge ve Teknoloji Etkisi: ${formatEffects(techEffects)}`);
-  }
-
-  // 1.5 Bakanların (Ministers) Pasif Etkileri ve İstifa Kontrolü
-  const currentMinisters = Object.entries(ministers);
-  const minEffects: Record<string, number> = { budget: 0, military: 0, happiness: 0, education: 0, stability: 0, foreignRelations: 0, health: 0, environment: 0 };
-  
-  for (const [key, ministerId] of currentMinisters) {
-    const minister = MINISTERS[ministerId as MinisterId];
-    if (minister) {
-      const requiredFactionSupport = factions[minister.requiredFactionId]?.support || 50;
-      if (requiredFactionSupport < 20) {
-        if (state.countryName === "Kuzey Kore" && state.military > 80) {
-          // Korku İmparatorluğu bakanları zorla görevde tutar
-          turnReports.push(`🔒 KORKU KABİNESİ: ${minister.avatar} ${minister.name}, temsil ettiği kesimin desteğini tamamen kaybetmesine rağmen askeri baskı yüzünden istifa edemiyor.`);
-        } else {
-          // İSTİFA ETTİ
-          turnReports.push(`⚠️ BAKAN İSTİFASI: ${minister.avatar} ${minister.name} (${minister.title}), temsil ettiği kesime ters düştüğünüz için istifa etti! İstikrar düştü.`);
-          state.stability = clampStat(state.stability - 10);
-          delete ministers[key];
-          continue;
-        }
-      }
-
-      if (minister.passiveEffects.budget) { minEffects.budget += minister.passiveEffects.budget; state.budget += minister.passiveEffects.budget; }
-      if (minister.passiveEffects.military) { minEffects.military += minister.passiveEffects.military; state.military = clampStat(state.military + minister.passiveEffects.military); }
-      if (minister.passiveEffects.happiness) { minEffects.happiness += minister.passiveEffects.happiness; state.happiness = clampStat(state.happiness + minister.passiveEffects.happiness); }
-      if (minister.passiveEffects.education) { minEffects.education += minister.passiveEffects.education; state.education = clampStat(state.education + minister.passiveEffects.education); }
-      if (minister.passiveEffects.stability) { minEffects.stability += minister.passiveEffects.stability; state.stability = clampStat(state.stability + minister.passiveEffects.stability); }
-      if (minister.passiveEffects.foreignRelations) { minEffects.foreignRelations += minister.passiveEffects.foreignRelations; state.foreignRelations = clampStat(state.foreignRelations + minister.passiveEffects.foreignRelations); }
-      if (minister.passiveEffects.health) { minEffects.health += minister.passiveEffects.health; state.health = clampStat(state.health + minister.passiveEffects.health); }
-      if (minister.passiveEffects.environment) { minEffects.environment += minister.passiveEffects.environment; state.environment = clampStat(state.environment + minister.passiveEffects.environment); }
-
-      if (minister.passiveFactionEffects) {
-        factions = modifyFactionSupport(factions, minister.passiveFactionEffects);
-      }
-    }
-  }
-
-  if (Object.keys(ministers).length > 0) {
-    turnReports.push(`👔 Kabine Üyelerinin Etkisi: ${formatEffects(minEffects)}`);
-  }
-
-  // 1.7 Lider Profili Etkileri (Sistemik)
-  if (eventFlags.includes("LEADER_TECHNOCRAT")) {
-    state.education = clampStat(state.education + 2);
-    state.happiness = clampStat(state.happiness - 1);
-    turnReports.push(`🧠 Teknokrat Yönetim: Eğitim +2, Mutluluk -1.`);
-  }
-  if (eventFlags.includes("LEADER_GENERAL")) {
-    state.military = clampStat(state.military + 2);
-    state.foreignRelations = clampStat(state.foreignRelations - 1);
-    turnReports.push(`🎖️ Askeri Yönetim: Askeri Güç +2, Bakım Masrafı -%20, Dış İlişkiler -1.`);
-  }
-  if (eventFlags.includes("LEADER_ECONOMIST")) {
-    state.environment = clampStat(state.environment - 1);
-    turnReports.push(`💼 Şirket Yönetimi: Vergi +%25, ancak Çevre -1 (Sanayi kirliliği).`);
-  }
-  if (eventFlags.includes("LEADER_POPULIST")) {
-    state.happiness = clampStat(state.happiness + 1);
-    state.politicalCapital = Math.max(0, state.politicalCapital - 2);
-    turnReports.push(`🤝 Popülist Yönetim: Mutluluk +1, Siyasi Sermaye -2.`);
-  }
-
   // 3. Vergi ve Bakım Hesaplamaları
   const taxIncome = calculateTaxIncome(
     state.education,
@@ -606,6 +485,127 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   }
 
   // Dinamik popülarite hesaplaması (Fraksiyonların ortalaması)
+
+  // Etkileri formatlamak için yardımcı fonksiyon
+  const formatEffects = (effects: Record<string, number>) => {
+    const parts: string[] = [];
+    if (effects.budget) parts.push(`${effects.budget > 0 ? '+' : ''}${effects.budget}$ Bütçe`);
+    if (effects.stability) parts.push(`${effects.stability > 0 ? '+' : ''}${effects.stability} İstikrar`);
+    if (effects.happiness) parts.push(`${effects.happiness > 0 ? '+' : ''}${effects.happiness} Mutluluk`);
+    if (effects.health) parts.push(`${effects.health > 0 ? '+' : ''}${effects.health} Sağlık`);
+    if (effects.military) parts.push(`${effects.military > 0 ? '+' : ''}${effects.military} Askeriye`);
+    if (effects.environment) parts.push(`${effects.environment > 0 ? '+' : ''}${effects.environment} Çevre`);
+    if (effects.education) parts.push(`${effects.education > 0 ? '+' : ''}${effects.education} Eğitim`);
+    if (effects.foreignRelations) parts.push(`${effects.foreignRelations > 0 ? '+' : ''}${effects.foreignRelations} Dış İlişkiler`);
+    return parts.length > 0 ? parts.join(", ") : "Etki yok";
+  };
+
+  // 1. Yasaların (Policies) Pasif Etkileri
+  const lawEffects: Record<string, number> = { budget: 0, stability: 0, happiness: 0, health: 0, military: 0, environment: 0, education: 0 };
+  
+  activeLaws.forEach(lawId => {
+    const law = POLICIES[lawId];
+    if (law.passiveEffects.budget) { lawEffects.budget += law.passiveEffects.budget; state.budget += law.passiveEffects.budget; }
+    if (law.passiveEffects.stability) { lawEffects.stability += law.passiveEffects.stability; state.stability = clampStat(state.stability + law.passiveEffects.stability); }
+    if (law.passiveEffects.happiness) { lawEffects.happiness += law.passiveEffects.happiness; state.happiness = clampStat(state.happiness + law.passiveEffects.happiness); }
+    if (law.passiveEffects.health) { lawEffects.health += law.passiveEffects.health; state.health = clampStat(state.health + law.passiveEffects.health); }
+    if (law.passiveEffects.military) { lawEffects.military += law.passiveEffects.military; state.military = clampStat(state.military + law.passiveEffects.military); }
+    if (law.passiveEffects.environment) { lawEffects.environment += law.passiveEffects.environment; state.environment = clampStat(state.environment + law.passiveEffects.environment); }
+    if (law.passiveEffects.education) { lawEffects.education += law.passiveEffects.education; state.education = clampStat(state.education + law.passiveEffects.education); }
+    
+    // Fraksiyonlar üzerindeki pasif etki
+    if (law.passiveFactionEffects) {
+      factions = modifyFactionSupport(factions, law.passiveFactionEffects);
+    }
+  });
+
+  if (activeLaws.length > 0) {
+    turnReports.push(`📜 Yürürlükteki Yasaların Etkisi: ${formatEffects(lawEffects)}`);
+  }
+
+
+  // 1.2 Teknolojilerin Pasif Etkileri
+  const techEffects: Record<string, number> = { budget: 0, stability: 0, happiness: 0, health: 0, military: 0, environment: 0, education: 0, foreignRelations: 0 };
+  
+  unlockedTechs.forEach(techId => {
+    const tech = TECH_TREE[techId as TechId];
+    if (tech && tech.passiveEffects) {
+      if (tech.passiveEffects.budget) { techEffects.budget += tech.passiveEffects.budget; state.budget += tech.passiveEffects.budget; }
+      if (tech.passiveEffects.stability) { techEffects.stability += tech.passiveEffects.stability; state.stability = clampStat(state.stability + tech.passiveEffects.stability); }
+      if (tech.passiveEffects.happiness) { techEffects.happiness += tech.passiveEffects.happiness; state.happiness = clampStat(state.happiness + tech.passiveEffects.happiness); }
+      if (tech.passiveEffects.health) { techEffects.health += tech.passiveEffects.health; state.health = clampStat(state.health + tech.passiveEffects.health); }
+      if (tech.passiveEffects.military) { techEffects.military += tech.passiveEffects.military; state.military = clampStat(state.military + tech.passiveEffects.military); }
+      if (tech.passiveEffects.environment) { techEffects.environment += tech.passiveEffects.environment; state.environment = clampStat(state.environment + tech.passiveEffects.environment); }
+      if (tech.passiveEffects.education) { techEffects.education += tech.passiveEffects.education; state.education = clampStat(state.education + tech.passiveEffects.education); }
+      if (tech.passiveEffects.foreignRelations) { techEffects.foreignRelations += tech.passiveEffects.foreignRelations; state.foreignRelations = clampStat(state.foreignRelations + tech.passiveEffects.foreignRelations); }
+    }
+  });
+
+  if (unlockedTechs.length > 0) {
+    turnReports.push(`🔬 Ar-Ge ve Teknoloji Etkisi: ${formatEffects(techEffects)}`);
+  }
+
+  // 1.5 Bakanların (Ministers) Pasif Etkileri ve İstifa Kontrolü
+  const currentMinisters = Object.entries(ministers);
+  const minEffects: Record<string, number> = { budget: 0, military: 0, happiness: 0, education: 0, stability: 0, foreignRelations: 0, health: 0, environment: 0 };
+  
+  for (const [key, ministerId] of currentMinisters) {
+    const minister = MINISTERS[ministerId as MinisterId];
+    if (minister) {
+      const requiredFactionSupport = factions[minister.requiredFactionId]?.support || 50;
+      if (requiredFactionSupport < 20) {
+        if (state.countryName === "Kuzey Kore" && state.military > 80) {
+          // Korku İmparatorluğu bakanları zorla görevde tutar
+          turnReports.push(`🔒 KORKU KABİNESİ: ${minister.avatar} ${minister.name}, temsil ettiği kesimin desteğini tamamen kaybetmesine rağmen askeri baskı yüzünden istifa edemiyor.`);
+        } else {
+          // İSTİFA ETTİ
+          turnReports.push(`⚠️ BAKAN İSTİFASI: ${minister.avatar} ${minister.name} (${minister.title}), temsil ettiği kesime ters düştüğünüz için istifa etti! İstikrar düştü.`);
+          state.stability = clampStat(state.stability - 10);
+          delete ministers[key];
+          continue;
+        }
+      }
+
+      if (minister.passiveEffects.budget) { minEffects.budget += minister.passiveEffects.budget; state.budget += minister.passiveEffects.budget; }
+      if (minister.passiveEffects.military) { minEffects.military += minister.passiveEffects.military; state.military = clampStat(state.military + minister.passiveEffects.military); }
+      if (minister.passiveEffects.happiness) { minEffects.happiness += minister.passiveEffects.happiness; state.happiness = clampStat(state.happiness + minister.passiveEffects.happiness); }
+      if (minister.passiveEffects.education) { minEffects.education += minister.passiveEffects.education; state.education = clampStat(state.education + minister.passiveEffects.education); }
+      if (minister.passiveEffects.stability) { minEffects.stability += minister.passiveEffects.stability; state.stability = clampStat(state.stability + minister.passiveEffects.stability); }
+      if (minister.passiveEffects.foreignRelations) { minEffects.foreignRelations += minister.passiveEffects.foreignRelations; state.foreignRelations = clampStat(state.foreignRelations + minister.passiveEffects.foreignRelations); }
+      if (minister.passiveEffects.health) { minEffects.health += minister.passiveEffects.health; state.health = clampStat(state.health + minister.passiveEffects.health); }
+      if (minister.passiveEffects.environment) { minEffects.environment += minister.passiveEffects.environment; state.environment = clampStat(state.environment + minister.passiveEffects.environment); }
+
+      if (minister.passiveFactionEffects) {
+        factions = modifyFactionSupport(factions, minister.passiveFactionEffects);
+      }
+    }
+  }
+
+  if (Object.keys(ministers).length > 0) {
+    turnReports.push(`👔 Kabine Üyelerinin Etkisi: ${formatEffects(minEffects)}`);
+  }
+
+  // 1.7 Lider Profili Etkileri (Sistemik)
+  if (eventFlags.includes("LEADER_TECHNOCRAT")) {
+    state.education = clampStat(state.education + 2);
+    state.happiness = clampStat(state.happiness - 1);
+    turnReports.push(`🧠 Teknokrat Yönetim: Eğitim +2, Mutluluk -1.`);
+  }
+  if (eventFlags.includes("LEADER_GENERAL")) {
+    state.military = clampStat(state.military + 2);
+    state.foreignRelations = clampStat(state.foreignRelations - 1);
+    turnReports.push(`🎖️ Askeri Yönetim: Askeri Güç +2, Bakım Masrafı -%20, Dış İlişkiler -1.`);
+  }
+  if (eventFlags.includes("LEADER_ECONOMIST")) {
+    state.environment = clampStat(state.environment - 1);
+    turnReports.push(`💼 Şirket Yönetimi: Vergi +%25, ancak Çevre -1 (Sanayi kirliliği).`);
+  }
+  if (eventFlags.includes("LEADER_POPULIST")) {
+    state.happiness = clampStat(state.happiness + 1);
+    state.politicalCapital = Math.max(0, state.politicalCapital - 2);
+    turnReports.push(`🤝 Popülist Yönetim: Mutluluk +1, Siyasi Sermaye -2.`);
+  }
+
   const totalSupport = 
     (factions.capitalists?.support ?? 50) + 
     (factions.workers?.support ?? 50) + 

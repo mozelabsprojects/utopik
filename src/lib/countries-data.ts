@@ -10,7 +10,7 @@ export const COUNTRIES: CountryTemplate[] = [
     budget: 2000,
     military: 90,
     happiness: 10,
-    health: 20,
+    health: 25,
     environment: 10,
     education: 30,
     stability: 85,
