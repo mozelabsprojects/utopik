@@ -49,7 +49,7 @@ export default function MinistersPanel({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const [easterEggName, setEasterEggName] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -96,9 +96,9 @@ export default function MinistersPanel({
       });
       const data = await res.json();
       if (res.ok) {
-        if (data.isEasterEgg) {
-          setShowEasterEgg(true);
-          setTimeout(() => setShowEasterEgg(false), 5000); // 5 saniye sonra kapat
+        if (data.easterEggName) {
+          setEasterEggName(data.easterEggName);
+          setTimeout(() => setEasterEggName(null), 5000); // 5 saniye sonra kapat
         }
         onUpdate();
       } else {
@@ -148,11 +148,11 @@ export default function MinistersPanel({
 
   return (
     <>
-      {mounted && showEasterEgg && createPortal(
+      {mounted && easterEggName && createPortal(
         <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in pointer-events-none" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}>
           <div className="text-8xl animate-bounce mb-6">❤️</div>
           <div className="glass-strong p-8 rounded-3xl border-2 border-pink-500/50 flex flex-col items-center max-w-lg text-center animate-slide-up bg-slate-900/90 shadow-[0_0_50px_rgba(236,72,153,0.5)]">
-            <h2 className="text-3xl font-bold text-pink-400 mb-4">Teşekkürler General Bard!</h2>
+            <h2 className="text-3xl font-bold text-pink-400 mb-4">Teşekkürler {easterEggName}!</h2>
             <p className="text-xl text-white font-medium">Hizmetleriniz için minnettarız. Utopik halkı sizi çok seviyor!</p>
             <div className="mt-6 inline-flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full font-bold">
               <span>🎉</span> Mutluluk +1

@@ -67,12 +67,15 @@ export async function POST(request: Request) {
     eventFlags.push(`${flagPrefix}${game.turn}`);
 
     let updatedHappiness = game.happiness;
-    let isEasterEgg = false;
+    let easterEggName = null;
     
-    // Easter Egg: General Bard (def_hawk)
+    // Easter Egg: General Bard (def_hawk) veya Prof. Dr. Ege Demirci
     if (minister.id === "def_hawk") {
       updatedHappiness = Math.min(100, updatedHappiness + 1);
-      isEasterEgg = true;
+      easterEggName = "General Bard";
+    } else if (minister.id === "edu_academic" || minister.name === "Prof. Dr. Ege Demirci") {
+      updatedHappiness = Math.min(100, updatedHappiness + 1);
+      easterEggName = "Prof. Dr. Ege Demirci";
     }
 
     await prisma.game.update({
@@ -85,7 +88,7 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json({ success: true, isEasterEgg });
+    return NextResponse.json({ success: true, easterEggName });
   } catch (error) {
     return NextResponse.json({ error: "Atama başarısız" }, { status: 500 });
   }
