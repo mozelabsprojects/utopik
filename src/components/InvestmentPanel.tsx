@@ -242,7 +242,7 @@ export default function InvestmentPanel({
       {/* Siyasi & Sosyal Fonlar (Kuyu) */}
       <div className="mb-4 pt-3 border-t border-slate-700/50">
         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Bütçe Fazlası Fonları</h4>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => onInvestBulk && onInvestBulk({ popularityFund: 5000 })}
             disabled={disabled || budget < 5000}
@@ -265,7 +265,7 @@ export default function InvestmentPanel({
       </div>
 
       {/* Action buttons */}
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         {totalInvested > 0 && (
           <button
             onClick={handleInvestAll}

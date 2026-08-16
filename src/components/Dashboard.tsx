@@ -122,7 +122,7 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
 
         {/* Stats and Graphs */}
         <div className="lg:col-span-3 flex flex-col gap-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 md:gap-x-6 gap-y-3">
             {STATS.map((stat) => (
               <StatBar
                 key={stat.key}

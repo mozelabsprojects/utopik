@@ -46,7 +46,7 @@ export default function TurnSummaryModal({
   if (phase === "hidden") return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
       {phase === "loading" && (
         <div className="text-center animate-slide-up">
           {/* Spinning gear */}
@@ -74,10 +74,10 @@ export default function TurnSummaryModal({
       )}
 
       {phase === "results" && (
-        <div className="glass-strong rounded-2xl w-full max-w-4xl max-h-[95dvh] md:max-h-[90dvh] flex flex-col overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,240,255,0.15)] animate-slide-up">
+        <div className="glass-strong rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,240,255,0.15)] animate-slide-up">
           <div className="p-4 sm:p-6 border-b border-white/10 bg-gradient-to-r from-cyan-900/40 to-transparent flex justify-between items-center shrink-0">
             <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-              <span className="text-3xl">📋</span> TUR {turnNumber} KAPSAMLI RAPORU
+              <span className="text-2xl sm:text-3xl">📋</span> <span className="text-lg sm:text-2xl">TUR {turnNumber} KAPSAMLI RAPORU</span>
             </h2>
           </div>
 

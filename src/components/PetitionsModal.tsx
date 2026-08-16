@@ -43,7 +43,7 @@ export default function PetitionsModal({
   const activePetitions = PETITIONS.filter(p => activePetitionIds.includes(p.id));
 
   return (
-    <div className="fixed top-24 right-4 z-50 flex flex-col gap-3 w-80">
+    <div className="fixed top-20 right-2 md:top-24 md:right-4 z-50 flex flex-col gap-3 w-[90vw] sm:w-72 md:w-80 max-h-[75vh] overflow-y-auto hide-scrollbar pb-4">
       <AnimatePresence>
         {activePetitions.map(petition => (
           <motion.div

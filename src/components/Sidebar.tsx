@@ -37,9 +37,9 @@ const MENU_ITEMS: { id: SidebarTab; label: string; icon: string; className?: str
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
-    <div className="w-full md:w-64 h-auto md:h-full glass-strong border-b md:border-b-0 md:border-r border-cyan-500/20 flex flex-col shrink-0 z-40 relative">
+    <div className="fixed bottom-0 left-0 right-0 md:relative w-full md:w-64 h-auto md:h-full glass-strong border-t md:border-t-0 md:border-r border-cyan-500/20 flex flex-col shrink-0 z-[100] md:z-40">
       {/* Brand / Logo Area */}
-      <div className="p-6 border-b border-white/5 flex items-center gap-3">
+      <div className="hidden md:flex p-6 border-b border-white/5 items-center gap-3">
         <span className="text-3xl">👑</span>
         <div>
           <h1 className="text-xl font-[family-name:var(--font-display)] font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 tracking-wider">
@@ -52,14 +52,14 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       </div>
 
       {/* Menu Items */}
-      <div className="flex-1 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto custom-scrollbar p-2 md:p-4 flex flex-row md:flex-col gap-2 md:space-y-1">
+      <div className="flex-1 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto hide-scrollbar p-2 md:p-4 flex flex-row md:flex-col gap-2 md:space-y-1">
         {MENU_ITEMS.map((item) => {
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              className={`w-auto md:w-full flex shrink-0 items-center gap-2 md:gap-3 px-3 py-2 md:px-4 md:py-3 rounded-xl transition-all duration-300 relative group overflow-hidden ${item.className || ""} ${
+              className={`w-auto md:w-full flex flex-col md:flex-row shrink-0 items-center justify-center md:justify-start gap-1 md:gap-3 px-3 py-2 md:px-4 md:py-3 rounded-xl transition-all duration-300 relative group overflow-hidden ${item.className || ""} ${
                 isActive
                   ? "bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.1)] border border-cyan-400/30"
                   : "text-gray-400 hover:text-white hover:bg-white/5 border border-transparent"
@@ -68,14 +68,14 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               {isActive && (
                 <motion.div 
                   layoutId="sidebar-active-indicator"
-                  className="absolute left-0 bottom-0 md:top-0 md:bottom-0 w-full h-1 md:w-1 md:h-auto bg-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.8)]"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 md:translate-x-0 md:left-0 md:top-0 md:bottom-0 w-1/2 h-1 md:w-1 md:h-auto bg-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.8)]"
                 />
               )}
               
               <span className={`text-xl transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
                 {item.icon}
               </span>
-              <span className={`font-medium text-sm tracking-wide ${isActive ? "font-bold" : ""}`}>
+              <span className={`font-medium text-[10px] md:text-sm whitespace-nowrap tracking-wide ${isActive ? "font-bold" : ""}`}>
                 {item.label}
               </span>
             </button>

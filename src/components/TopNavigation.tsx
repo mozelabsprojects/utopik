@@ -55,48 +55,48 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
   return (
     <div className="glass-strong rounded-xl p-3 mb-4 flex flex-col md:flex-row justify-between items-center gap-4 animate-slide-in shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-white/5 relative z-30">
       <div className="flex flex-wrap justify-center gap-2 md:gap-4 items-center">
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg border border-white/10">
-          <span className="text-xl">📅</span>
+        <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-white/5 rounded-lg border border-white/10">
+          <span className="text-lg md:text-xl">📅</span>
           <div>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TUR</p>
-            <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{turn}</p>
+            <p className="hidden md:block text-[10px] text-gray-400 font-bold uppercase tracking-wider">TUR</p>
+            <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{turn}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 rounded-lg border border-green-500/20 text-green-400">
-          <span className="text-xl">💰</span>
+        <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-green-500/10 rounded-lg border border-green-500/20 text-green-400">
+          <span className="text-lg md:text-xl">💰</span>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider">BÜTÇE</p>
-            <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">${budget.toLocaleString()}</p>
+            <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">BÜTÇE</p>
+            <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">${budget.toLocaleString()}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 rounded-lg border border-purple-500/20 text-purple-400">
-          <span className="text-xl">📜</span>
+        <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-purple-500/10 rounded-lg border border-purple-500/20 text-purple-400">
+          <span className="text-lg md:text-xl">📜</span>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider">POLİTİK SERMAYE</p>
-            <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{politicalCapital}</p>
+            <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">POLİTİK SERMAYE</p>
+            <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{politicalCapital}</p>
           </div>
         </div>
 
         {/* MİNİ DASHBOARD: Net Gelir & RP */}
         {gameData && (
           <div className="flex gap-2 ml-0 md:ml-4 border-t md:border-t-0 md:border-l border-white/10 pt-2 md:pt-0 md:pl-4">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${netIncome >= 0 ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}>
-              <span className="text-xl">{netIncome >= 0 ? "📈" : "📉"}</span>
+            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg border ${netIncome >= 0 ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}>
+              <span className="text-lg md:text-xl">{netIncome >= 0 ? "📈" : "📉"}</span>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">NET BÜTÇE</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md leading-none">
+                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider text-gray-400">NET BÜTÇE</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">
                   {netIncome > 0 ? "+" : ""}${netIncome.toLocaleString()}
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 rounded-lg border border-cyan-500/30 text-cyan-400">
-              <span className="text-xl">🔬</span>
+            <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-cyan-500/10 rounded-lg border border-cyan-500/30 text-cyan-400">
+              <span className="text-lg md:text-xl">🔬</span>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">AR-GE</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md leading-none">
+                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider text-gray-400">AR-GE</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">
                   +{rpGain} RP
                 </p>
               </div>
