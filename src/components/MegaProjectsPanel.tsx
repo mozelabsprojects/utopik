@@ -44,7 +44,7 @@ export default function MegaProjectsPanel({
   };
 
   return (
-    <div className="bg-slate-800/80 p-6 rounded-2xl shadow-xl border border-slate-700 backdrop-blur-sm">
+    <div className="tutorial-projects bg-slate-800/80 p-6 rounded-2xl shadow-xl border border-slate-700 backdrop-blur-sm">
       <h2 className="text-2xl font-bold text-yellow-500 flex items-center gap-2 mb-4">
         🚀 Mega Projeler
         <span className="text-sm font-normal bg-slate-700 px-3 py-1 rounded-full text-slate-300">

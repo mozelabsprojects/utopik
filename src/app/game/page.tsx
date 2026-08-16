@@ -384,6 +384,13 @@ function GameContent() {
     router.push("/");
   };
 
+  const getThemeClass = () => {
+    if (!game) return "theme-default";
+    if (game.isBankrupt) return "theme-bankrupt";
+    if (game.stability < 30) return "theme-crisis";
+    return "theme-default";
+  };
+
   if (!gameId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -415,8 +422,8 @@ function GameContent() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col md:flex-row h-screen overflow-hidden bg-slate-950"
-      style={{ zoom: uiScale / 100 } as React.CSSProperties}
+      className={`min-h-screen flex flex-col md:flex-row h-screen overflow-hidden bg-bureaucracy transition-colors duration-1000 ${getThemeClass()}`}
+      style={{ zoom: uiScale / 100, backgroundColor: 'var(--color-bg-main)' } as React.CSSProperties}
     >
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
@@ -470,7 +477,7 @@ function GameContent() {
               ) : phase === "invest" ? (
                 <div className="glass-strong rounded-2xl p-4 animate-slide-up flex flex-col items-center justify-center h-full min-h-[200px]">
                   <div className="text-4xl mb-2">✅</div>
-                  <h3 className="text-lg font-[family-name:var(--font-display)] font-bold text-[var(--color-neon-cyan)] mb-1">
+                  <h3 className="text-lg font-[family-name:var(--font-display)] font-bold text-[var(--color-accent-primary)] mb-1">
                     Olay Tamamlandı
                   </h3>
                   <p className="text-gray-400 text-sm text-center">

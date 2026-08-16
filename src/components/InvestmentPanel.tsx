@@ -126,7 +126,7 @@ export default function InvestmentPanel({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-xl">📊</span>
-          <h3 className="text-lg font-[family-name:var(--font-display)] font-bold text-[var(--color-neon-cyan)]">
+          <h3 className="text-lg font-[family-name:var(--font-display)] font-bold text-[var(--color-accent-primary)]">
             Yatırım Paneli
           </h3>
         </div>

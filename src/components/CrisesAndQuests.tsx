@@ -10,13 +10,13 @@ interface CrisesAndQuestsProps {
 export default function CrisesAndQuests({ gameState }: CrisesAndQuestsProps) {
   let activeCrises: CrisisId[] = [];
   try { activeCrises = JSON.parse(gameState.activeCrises); } catch {}
+  let activeQuests: QuestId[] = [];
+  try { activeQuests = JSON.parse(gameState.activeQuests || "[]"); } catch {}
 
-  // Quests feature'ı tam aktif değil ama şimdilik statik liste veya gameState'ten alınabilir.
-  // V4'te görevleri rastgele tetiklemek yerine şimdilik krizlere odaklanalım.
-  // Ancak UI kısmını hazır bırakıyoruz.
+  if (activeCrises.length === 0 && activeQuests.length === 0) return null;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="tutorial-crises space-y-6 animate-fade-in">
       {/* Aktif Krizler */}
       <div className="glass-strong p-6 rounded-2xl border-l-4 border-l-red-500">
         <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">

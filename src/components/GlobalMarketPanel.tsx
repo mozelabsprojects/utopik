@@ -268,7 +268,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
     }
 
     return (
-      <div className="bg-slate-900/80 border-l-4 border-yellow-500 p-4 rounded-r-xl mt-4 animate-fade-in shadow-lg">
+      <div className="tutorial-market bg-slate-900/80 border-l-4 border-yellow-500 p-4 rounded-r-xl mt-4 animate-fade-in shadow-lg">
         <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2 text-sm">
           <span>👔</span> Baş Analist Raporu (Kalan: {market.expertTurnsRemaining} Tur)
         </h3>
@@ -280,7 +280,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
   };
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="tutorial-market animate-fade-in space-y-6">
       {/* BAŞLIK & MESAJ */}
       <div className="flex justify-between items-center">
         <div>

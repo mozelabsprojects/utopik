@@ -63,7 +63,7 @@ export default function WorldMap({ countries, gameState, onTrade, onUpdate }: Wo
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+    <div className="tutorial-world grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
       <div className="lg:col-span-2 glass p-6 rounded-2xl">
         <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
           <span className="text-3xl">🌍</span> Dünya Sıralaması

@@ -51,7 +51,7 @@ export default function TechTreePanel({ gameState, onTechUnlocked }: TechTreePan
   const techs = Object.values(TECH_TREE) as TechNode[];
 
   return (
-    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700">
+    <div className="tutorial-tech bg-slate-800 p-6 rounded-xl border border-slate-700">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">

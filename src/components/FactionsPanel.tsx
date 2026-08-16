@@ -17,7 +17,7 @@ export default function FactionsPanel({ factionsStr }: FactionsPanelProps) {
   const factionList = Object.values(factions);
 
   return (
-    <div className="glass p-6 rounded-2xl animate-fade-in">
+    <div className="tutorial-factions glass p-6 rounded-2xl animate-fade-in">
       <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
         <span className="text-3xl">👥</span> Toplumsal Fraksiyonlar
       </h2>

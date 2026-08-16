@@ -51,14 +51,14 @@ export default function TurnSummaryModal({
         <div className="text-center animate-slide-up">
           {/* Spinning gear */}
           <div className="text-6xl mb-4 animate-spin-gear">⚙️</div>
-          <h2 className="text-2xl font-[family-name:var(--font-display)] font-bold text-[var(--color-neon-cyan)] mb-2">
+          <h2 className="text-2xl font-[family-name:var(--font-display)] font-bold text-[var(--color-text-main)] mb-2">
             TUR {turnNumber}
           </h2>
-          <p className="text-gray-400 text-sm">Hesaplamalar yapılıyor ve raporlar derleniyor...</p>
+          <p className="text-[var(--color-text-muted)] text-sm">Resmi raporlar derleniyor...</p>
           {/* Loading bar */}
-          <div className="mt-4 w-64 h-1 mx-auto rounded-full overflow-hidden bg-gray-800">
+          <div className="mt-4 w-64 h-1 mx-auto rounded-full overflow-hidden bg-[var(--color-bg-panel)]">
             <div
-              className="h-full bg-gradient-to-r from-[var(--color-neon-cyan)] to-[var(--color-neon-blue)] rounded-full"
+              className="h-full bg-[var(--color-accent-primary)] rounded-full"
               style={{
                 animation: "loadingBar 0.4s ease-out forwards",
               }}
@@ -74,11 +74,12 @@ export default function TurnSummaryModal({
       )}
 
       {phase === "results" && (
-        <div className="glass-strong rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,240,255,0.15)] animate-slide-up">
-          <div className="p-4 sm:p-6 border-b border-white/10 bg-gradient-to-r from-cyan-900/40 to-transparent flex justify-between items-center shrink-0">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-              <span className="text-2xl sm:text-3xl">📋</span> <span className="text-lg sm:text-2xl">TUR {turnNumber} KAPSAMLI RAPORU</span>
+        <div className="glass-strong rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden animate-slide-up relative">
+          <div className="p-4 sm:p-6 border-b border-[var(--color-border)] bg-[var(--color-bg-panel)] flex justify-between items-center shrink-0">
+            <h2 className="text-2xl font-bold text-[var(--color-text-main)] flex items-center gap-3">
+              <span className="text-2xl sm:text-3xl">📋</span> <span className="text-lg sm:text-2xl font-[family-name:var(--font-display)]">BAŞKANLIK BİLGİ NOTU</span>
             </h2>
+            <div className="stamp confidential hidden md:block text-xs">GİZLİDİR</div>
           </div>
 
           <div className="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -111,8 +112,8 @@ export default function TurnSummaryModal({
               </div>
 
               {/* Danışman Uyarıları */}
-              <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-700 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-cyan-500/20 to-transparent rounded-bl-full pointer-events-none"></div>
+              <div className="bg-[var(--color-bg-panel)] p-5 rounded-xl border border-[var(--color-border)] relative overflow-hidden shadow-md">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[var(--color-accent-glow)] to-transparent rounded-bl-full pointer-events-none"></div>
                 <h3 className="text-lg font-bold text-slate-200 mb-3 border-b border-slate-700 pb-2 flex items-center gap-2">
                   <span>💡</span> Danışman Görüşü
                 </h3>

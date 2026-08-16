@@ -46,7 +46,7 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-[family-name:var(--font-display)] font-bold text-[var(--color-neon-cyan)]">
+          <h2 className="text-lg font-[family-name:var(--font-display)] font-bold text-[var(--color-accent-primary)]">
             {game.countryName}
           </h2>
           <span className="text-xs font-bold text-gray-400 bg-gray-800 px-3 py-1 rounded-full">

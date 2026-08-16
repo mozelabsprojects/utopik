@@ -87,6 +87,14 @@ const TUTORIAL_STEPS = [
       "Sınırlarınızın ötesine bakın. Dünya haritasındaki diğer ülkelerin gücünü, ekonomisini ve liderlerini analiz edip küresel konumunuzu belirleyin."
   },
   {
+    title: "🤝 Diplomasi ve Savaş",
+    icon: "🤝",
+    tab: "diplomacy" as SidebarTab,
+    target: ".tutorial-diplomacy",
+    description:
+      "Güçlü müttefikler edinin veya zayıf komşularınızı işgal edin. Ancak dikkatli olun; düşmanlarınız da sizin zayıf anınızı kolluyor. Başarı şansınız askeri gücünüze ve iç istikrarınıza bağlıdır."
+  },
+  {
     title: "📈 Küresel Borsa ve Ekonomi",
     icon: "📈",
     tab: "market" as SidebarTab,
@@ -95,12 +103,12 @@ const TUTORIAL_STEPS = [
       "Dünya piyasasında Enerji, Gıda ve Teknoloji gibi kaynakların fiyatları sürekli değişir. Krizleri fırsata çevirip ucuza alıp pahalıya satarak devasa bir bütçe oluşturabilirsiniz."
   },
   {
-    title: "🤝 Diplomasi ve Savaş",
-    icon: "🤝",
-    tab: "diplomacy" as SidebarTab,
-    target: ".tutorial-diplomacy",
+    title: "🔬 Ar-Ge ve Teknoloji",
+    icon: "🔬",
+    tab: "tech" as SidebarTab,
+    target: ".tutorial-tech",
     description:
-      "Güçlü müttefikler edinin veya zayıf komşularınızı işgal edin. Ancak dikkatli olun; düşmanlarınız da sizin zayıf anınızı kolluyor. Başarı şansınız askeri gücünüze ve iç istikrarınıza bağlıdır."
+      "Eğitim seviyenize göre kazandığınız Ar-Ge puanlarıyla teknolojiler açın. Yeni teknolojiler bütçenizi, askeri gücünüzü ve genel verimliliğinizi kalıcı olarak artırır."
   }
 ];
 
