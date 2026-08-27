@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Orbitron } from "next/font/google";
 import "./globals.css";
+import ImhaEasterEgg from "@/components/ImhaEasterEgg";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="tr" className={`h-full antialiased ${inter.variable} ${orbitron.variable}`}>
       <body className="min-h-full flex flex-col bg-grid" style={{ fontFamily: "var(--font-inter), sans-serif" }}>
         {children}
+        <ImhaEasterEgg />
       </body>
     </html>
   );

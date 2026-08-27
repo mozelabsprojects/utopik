@@ -107,7 +107,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   // === DIŞİŞLERİ ===
   for_globalist: {
     id: "for_globalist",
-    name: "Daniella Stark",
+    name: "Creed İpekci",
     title: "Küresel Vizyoner",
     ministry: "foreign",
     description: "Ticareti kolaylaştırır. Her tur +2 Dış İlişkiler ve +$600 Bütçe sağlar ancak İstikrarı -1 düşürür.",

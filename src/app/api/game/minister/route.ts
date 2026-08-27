@@ -69,13 +69,16 @@ export async function POST(request: Request) {
     let updatedHappiness = game.happiness;
     let easterEggName = null;
     
-    // Easter Egg: General Bard (def_hawk) veya Prof. Dr. Ege Demirci
+    // Easter Egg: General Bard (def_hawk), Prof. Dr. Ege Demirci, veya Creed İpekci (for_globalist)
     if (minister.id === "def_hawk") {
       updatedHappiness = Math.min(100, updatedHappiness + 1);
       easterEggName = "General Bard";
     } else if (minister.id === "edu_academic" || minister.name === "Prof. Dr. Ege Demirci") {
       updatedHappiness = Math.min(100, updatedHappiness + 1);
       easterEggName = "Prof. Dr. Ege Demirci";
+    } else if (minister.id === "for_globalist" || minister.name === "Creed İpekci") {
+      updatedHappiness = Math.min(100, updatedHappiness + 1);
+      easterEggName = "Creed İpekci";
     }
 
     await prisma.game.update({

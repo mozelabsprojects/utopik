@@ -85,6 +85,13 @@ export default function MinistersPanel({
     }
   });
 
+  const handleMinisterClick = (m: Minister) => {
+    if (m.id === "def_hawk" || m.id === "edu_academic" || m.id === "for_globalist" || m.name.includes("Bard") || m.name.includes("Ege Demirci") || m.name.includes("Creed İpekci")) {
+      setEasterEggName(m.name);
+      setTimeout(() => setEasterEggName(null), 5000);
+    }
+  };
+
   const handleHire = async (ministerId: MinisterId) => {
     setLoading(true);
     setError("");
@@ -200,10 +207,14 @@ export default function MinistersPanel({
               {current ? (
                 <div className="mb-4 bg-slate-800/50 p-3 rounded-lg border border-slate-700 relative">
                   <p className="text-sm text-slate-400">Mevcut Bakan:</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-2xl">{current.avatar}</span>
+                  <div 
+                    onClick={() => handleMinisterClick(current)}
+                    className="flex items-center gap-2 mt-1 cursor-pointer hover:bg-slate-700/40 p-1 rounded-lg transition-colors group"
+                    title="Bakan detayı / Easter Egg"
+                  >
+                    <span className="text-2xl group-hover:scale-110 transition-transform">{current.avatar}</span>
                     <div className="flex-1">
-                      <p className="font-bold text-slate-100">{current.name}</p>
+                      <p className="font-bold text-slate-100 group-hover:text-pink-300 transition-colors">{current.name}</p>
                       <p className="text-xs text-blue-400 mb-1">{current.title}</p>
                       <div className="flex flex-wrap gap-1">
                         {renderEffects(current.passiveEffects)}
@@ -255,10 +266,13 @@ export default function MinistersPanel({
 
                     return (
                       <div key={candidate.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-800 p-2 rounded gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{candidate.avatar}</span>
+                        <div 
+                          onClick={() => handleMinisterClick(candidate)}
+                          className="flex items-center gap-2 cursor-pointer group"
+                        >
+                          <span className="text-xl group-hover:scale-110 transition-transform">{candidate.avatar}</span>
                           <div>
-                            <p className="text-sm font-medium text-slate-200">{candidate.name}</p>
+                            <p className="text-sm font-medium text-slate-200 group-hover:text-pink-300 transition-colors">{candidate.name}</p>
                             <p className="text-[10px] text-slate-400 mb-1">{candidate.title} (📜 {candidate.hireCost})</p>
                             <div className="flex flex-wrap gap-1">
                               {renderEffects(candidate.passiveEffects)}
