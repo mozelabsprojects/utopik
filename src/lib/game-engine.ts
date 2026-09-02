@@ -29,15 +29,15 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   // Eskiden 1400m pop -> çarpan 140'tı. Şimdi 1400 -> çarpan ~3.7, 10 -> çarpan ~1.
   const popScale = Math.max(0.8, Math.sqrt(population / 10));
   
-  let militaryCost = military * 12 * popScale;
-  let healthCost = health * 10 * popScale;
-  let educationCost = education * 10 * popScale;
-  let environmentCost = environment * 8 * popScale; // Çevre koruma maliyeti
+  let militaryCost = military * 8 * popScale;
+  let healthCost = health * 6 * popScale;
+  let educationCost = education * 6 * popScale;
+  let environmentCost = environment * 5 * popScale; // Çevre koruma maliyeti
   
-  if (military > 50) militaryCost += Math.pow(military - 50, 1.5) * 4 * popScale; 
-  if (health > 50) healthCost += Math.pow(health - 50, 1.5) * 3 * popScale;
-  if (education > 50) educationCost += Math.pow(education - 50, 1.5) * 3 * popScale;
-  if (environment > 50) environmentCost += Math.pow(environment - 50, 1.5) * 2 * popScale;
+  if (military > 50) militaryCost += Math.pow(military - 50, 1.5) * 2 * popScale; 
+  if (health > 50) healthCost += Math.pow(health - 50, 1.5) * 1.5 * popScale;
+  if (education > 50) educationCost += Math.pow(education - 50, 1.5) * 1.5 * popScale;
+  if (environment > 50) environmentCost += Math.pow(environment - 50, 1.5) * 1 * popScale;
 
   let total = militaryCost + healthCost + educationCost + environmentCost;
   
