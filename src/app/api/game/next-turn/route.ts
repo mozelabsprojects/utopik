@@ -39,20 +39,29 @@ export async function POST(request: Request) {
     const activeAgreements = [];
     for (const trade of game.tradeAgreements) {
       if (trade.turnsRemaining > 0) {
-        tradeIncome += trade.incomePerTurn;
+        // Fluctuation: +/- 20% each turn
+        const fluctuation = 0.8 + (Math.random() * 0.4); 
+        const currentTurnIncome = Math.round(trade.incomePerTurn * fluctuation);
+        
+        tradeIncome += currentTurnIncome;
+        
+        // Push with original base income, just decrement turn
         activeAgreements.push({
           id: trade.id,
-          turnsRemaining: trade.turnsRemaining - 1
+          turnsRemaining: trade.turnsRemaining - 1,
+          incomePerTurn: trade.incomePerTurn // keep base
         });
       }
     }
 
-    // Ticaret sürelerini güncelle (süresi bitenleri sil, bitmeyenlerin süresini azalt)
-    await prisma.tradeAgreement.deleteMany({
-      where: { gameId: game.id, turnsRemaining: { lte: 1 } }
-    });
+    // Ticaret sürelerini güncelle (süresi 0 olanları sil, diğerlerini güncelle)
+    // 0 olanlar bu tur son kez para kazandırdı ve bitti.
     for (const active of activeAgreements) {
-      if (active.turnsRemaining > 0) {
+      if (active.turnsRemaining <= 0) {
+        await prisma.tradeAgreement.delete({
+          where: { id: active.id }
+        });
+      } else {
         await prisma.tradeAgreement.update({
           where: { id: active.id },
           data: { turnsRemaining: active.turnsRemaining }

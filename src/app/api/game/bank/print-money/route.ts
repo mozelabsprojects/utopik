@@ -14,18 +14,19 @@ export async function POST(request: Request) {
     }
 
     // Para basmak = +Nakit, ama +Enflasyon
-    // Örn: Her $10.000 para basmak enflasyonu %15 artırır.
-    const inflationIncrease = (amount / 10000) * 15;
+    // Örn: Her $20.000 para basmak enflasyonu %15 artırır.
+    const actualAmount = Math.max(20000, amount);
+    const inflationIncrease = (actualAmount / 20000) * 15;
     
     let turnReports: string[] = [];
     try { turnReports = JSON.parse(game.turnReports); } catch {}
     
-    turnReports.push(`🖨️ Merkez Bankası $${amount.toLocaleString()} karşılıksız para bastı. Enflasyon +%${inflationIncrease.toFixed(1)} fırladı!`);
+    turnReports.push(`🖨️ Merkez Bankası $${actualAmount.toLocaleString()} karşılıksız para bastı. Enflasyon +%${inflationIncrease.toFixed(1)} fırladı!`);
 
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: {
-        budget: game.budget + amount,
+        budget: game.budget + actualAmount,
         inflation: game.inflation + inflationIncrease,
         turnReports: JSON.stringify(turnReports)
       }

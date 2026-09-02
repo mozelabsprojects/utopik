@@ -24,8 +24,9 @@ export interface MarketState {
       turnsRemaining: number;
     }
   };
-  activeExpertLevel?: number; // 0: None, 1: Çaylak, 2: Kıdemli, 3: Wall Street Kurdu
+  activeExpertLevel?: number; // 0: None, 1: Stajyer, 2: Çaylak, 3: Kıdemli, 4: Wall Street Kurdu
   expertTurnsRemaining?: number;
+  expertVisibleKeys?: string[];
   lastBoughtTurn?: {
     [key in keyof MarketPrices]?: number;
   };

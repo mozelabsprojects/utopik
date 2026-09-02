@@ -52,38 +52,45 @@ export async function POST(request: Request) {
 
     const isSuccess = Math.random() < riskProfile.successChance;
     
-    let totalExpectedReturn = 0;
-    if (isSuccess) {
-      // Başarılı anlaşma
-      const baseReturn = 1 + riskProfile.minReturn;
-      const variableReturn = Math.random() * (riskProfile.maxReturn - riskProfile.minReturn);
-      totalExpectedReturn = investmentAmount * (baseReturn + variableReturn);
-      // Başarılı dış ticaret diplomasimizi güçlendirir
-      if (!partner.isPlayer) {
-        game.foreignRelations = Math.min(100, game.foreignRelations + 2);
-      }
-    } else {
-      // Başarısız anlaşma (Zarar)
+    if (!isSuccess) {
+      // Başarısız anlaşma - Anlaşma kurulamadı, paranızın bir kısmı heba oldu
       const lossSeverity = riskProfile.minLoss + (Math.random() * (riskProfile.maxLoss - riskProfile.minLoss));
-      totalExpectedReturn = investmentAmount * (1 - lossSeverity);
+      const lostAmount = Math.round(investmentAmount * lossSeverity);
+      
+      await prisma.game.update({
+        where: { id: gameId },
+        data: {
+          budget: game.budget - lostAmount,
+          foreignRelations: Math.max(0, game.foreignRelations - riskProfile.diplomaticCost),
+        }
+      });
+      return NextResponse.json({ error: `Ticaret görüşmeleri başarısız oldu. Gümrük ve bürokrasi masrafları nedeniyle $${lostAmount} zarar ettiniz.` }, { status: 400 });
     }
-    const incomePerTurn = Math.round(totalExpectedReturn / 5);
 
-    // Bütçeden ve dış ilişkilerden düş
+    // Başarılı anlaşma
+    const baseReturn = 1 + riskProfile.minReturn;
+    const totalExpectedReturn = investmentAmount * baseReturn;
+    // Base income per turn (will fluctuate in next-turn)
+    const baseIncomePerTurn = Math.round(totalExpectedReturn / 5);
+
+    if (!partner.isPlayer) {
+      game.foreignRelations = Math.min(100, game.foreignRelations + 2);
+    }
+
     await prisma.game.update({
       where: { id: gameId },
       data: {
         budget: game.budget - investmentAmount,
-        foreignRelations: Math.max(0, game.foreignRelations - riskProfile.diplomaticCost),
+        foreignRelations: game.foreignRelations,
       }
     });
 
-    // Anlaşmayı kaydet
+    // Anlaşmayı kaydet (Dalgalanma için base income'u kaydediyoruz)
     const agreement = await prisma.tradeAgreement.create({
       data: {
         gameId: game.id,
         partnerName: partner.name,
-        incomePerTurn: incomePerTurn,
+        incomePerTurn: baseIncomePerTurn,
         turnsRemaining: 5,
       }
     });

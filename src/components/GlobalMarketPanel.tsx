@@ -99,16 +99,8 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
     const trend = market.trends?.[id];
     if (!trend) return null;
 
-    const visibleKeys: Array<keyof typeof market.prices> = [];
-    const allKeys = Object.keys(market.prices) as Array<keyof typeof market.prices>;
-    
-    if (level === 1) visibleKeys.push(allKeys[0]); // Just one static mapping for demo (or random if we stored it, but we'll show first)
-    else if (level === 2) { visibleKeys.push(allKeys[0], allKeys[1], allKeys[2]); }
-    else if (level === 3) { visibleKeys.push(...allKeys); }
-
-    // Basit mantık: Level'a göre indexli ürünleri gösterelim (ya da Hepsine izin verelim ama sadece belirli ürünlere random gösterelim).
-    // Daha doğrusu, Level 1: sadece Energy'yi göster. Level 2: ilk 3'ü. Level 3: hepsini.
-    const isVisible = visibleKeys.includes(id);
+    const visibleKeys = market.expertVisibleKeys || [];
+    const isVisible = visibleKeys.includes(id as string);
 
     if (!isVisible) return <span className="text-gray-500 text-xs">🔒 Gizli</span>;
 
@@ -251,12 +243,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
   const renderExpertReport = () => {
     if (!market.activeExpertLevel || !market.trends) return null;
     
-    const visibleKeys: Array<keyof typeof market.prices> = [];
-    const allKeys = Object.keys(market.prices) as Array<keyof typeof market.prices>;
-    if (market.activeExpertLevel === 1) visibleKeys.push(allKeys[0]);
-    else if (market.activeExpertLevel === 2) { visibleKeys.push(allKeys[0], allKeys[1], allKeys[2]); }
-    else if (market.activeExpertLevel === 3) { visibleKeys.push(...allKeys); }
-
+    const visibleKeys = (market.expertVisibleKeys || []) as Array<keyof typeof market.prices>;
     const reports: string[] = [];
     for (const key of visibleKeys) {
        const trend = market.trends[key];
@@ -320,32 +307,41 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
             {renderExpertReport()}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <button 
               onClick={() => handleHireExpert(1)} 
-              disabled={loading || budget < (1000 + Math.floor(budget * 0.05))} 
-              className="bg-slate-900 border border-slate-600 p-3 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition text-left disabled:opacity-50"
+              disabled={loading || budget < (1000 + Math.floor(budget * 0.02))} 
+              className="bg-slate-900 border border-slate-600 p-3 rounded-lg hover:border-blue-500/50 hover:bg-slate-800 transition text-left disabled:opacity-50"
             >
-              <div className="text-white font-bold">Çaylak Analist</div>
-              <div className="text-yellow-400 font-semibold mt-1 mb-1">${1000 + Math.floor(budget * 0.05)} <span className="text-[10px] text-gray-500">(1k + %5)</span></div>
-              <div className="text-xs text-slate-400">Sadece Enerji piyasasının yönünü bilir.</div>
+              <div className="text-white font-bold">Stajyer</div>
+              <div className="text-blue-400 font-semibold mt-1 mb-1">${1000 + Math.floor(budget * 0.02)} <span className="text-[10px] text-gray-500">(1k + %2)</span></div>
+              <div className="text-xs text-slate-400">Rastgele 1 emtianın yönünü bilir.</div>
             </button>
             <button 
               onClick={() => handleHireExpert(2)} 
-              disabled={loading || budget < (3000 + Math.floor(budget * 0.10))} 
+              disabled={loading || budget < (3000 + Math.floor(budget * 0.05))} 
               className="bg-slate-900 border border-slate-600 p-3 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition text-left disabled:opacity-50"
             >
-              <div className="text-white font-bold">Kıdemli Broker</div>
-              <div className="text-yellow-400 font-semibold mt-1 mb-1">${3000 + Math.floor(budget * 0.10)} <span className="text-[10px] text-gray-500">(3k + %10)</span></div>
-              <div className="text-xs text-slate-400">Enerji, Gıda ve Teknoloji yönünü bilir.</div>
+              <div className="text-white font-bold">Çaylak Analist</div>
+              <div className="text-yellow-400 font-semibold mt-1 mb-1">${3000 + Math.floor(budget * 0.05)} <span className="text-[10px] text-gray-500">(3k + %5)</span></div>
+              <div className="text-xs text-slate-400">Rastgele 2 emtianın yönünü bilir.</div>
             </button>
             <button 
               onClick={() => handleHireExpert(3)} 
-              disabled={loading || budget < (8000 + Math.floor(budget * 0.20))} 
+              disabled={loading || budget < (8000 + Math.floor(budget * 0.10))} 
+              className="bg-slate-900 border border-slate-600 p-3 rounded-lg hover:border-yellow-500/50 hover:bg-slate-800 transition text-left disabled:opacity-50"
+            >
+              <div className="text-white font-bold">Kıdemli Broker</div>
+              <div className="text-orange-400 font-semibold mt-1 mb-1">${8000 + Math.floor(budget * 0.10)} <span className="text-[10px] text-gray-500">(8k + %10)</span></div>
+              <div className="text-xs text-slate-400">Rastgele 4 emtianın yönünü bilir.</div>
+            </button>
+            <button 
+              onClick={() => handleHireExpert(4)} 
+              disabled={loading || budget < (20000 + Math.floor(budget * 0.20))} 
               className="bg-slate-900 border border-yellow-600/50 p-3 rounded-lg hover:border-yellow-400 hover:bg-slate-800 transition text-left disabled:opacity-50"
             >
               <div className="text-yellow-400 font-bold">Wall Street Kurdu</div>
-              <div className="text-yellow-400 font-semibold mt-1 mb-1">${8000 + Math.floor(budget * 0.20)} <span className="text-[10px] text-yellow-600/50">(8k + %20)</span></div>
+              <div className="text-yellow-400 font-semibold mt-1 mb-1">${20000 + Math.floor(budget * 0.20)} <span className="text-[10px] text-yellow-600/50">(20k + %20)</span></div>
               <div className="text-xs text-slate-400">TÜM emtiaların yönünü kesin olarak söyler.</div>
             </button>
           </div>
@@ -354,8 +350,8 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
 
       {/* GRAFİK */}
       {chartData.length > 1 && (
-        <div className="glass p-4 rounded-xl">
-          <div className="h-48 w-full">
+        <div className="glass p-4 rounded-xl overflow-x-auto custom-scrollbar">
+          <div className="h-48" style={{ minWidth: `${Math.max(100, chartData.length * 5)}%` }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />

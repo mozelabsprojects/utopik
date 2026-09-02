@@ -89,19 +89,19 @@ export default function CentralBankPanel({ gameState, onUpdate }: CentralBankPan
           </p>
           <div className="space-y-3">
             <button 
-              onClick={() => handlePrintMoney(10000)}
+              onClick={() => handlePrintMoney(20000)}
               disabled={isProcessing}
               className="w-full py-3 bg-red-900/40 hover:bg-red-700/60 border border-red-500/50 rounded-xl font-bold text-red-200 transition-colors flex justify-between px-6"
             >
-              <span>$10,000 Bas</span>
+              <span>$20,000 Bas</span>
               <span className="text-xs opacity-75">Enflasyon +%15</span>
             </button>
             <button 
-              onClick={() => handlePrintMoney(50000)}
+              onClick={() => handlePrintMoney(100000)}
               disabled={isProcessing}
               className="w-full py-3 bg-red-900/60 hover:bg-red-600/80 border border-red-500/80 rounded-xl font-bold text-white transition-colors flex justify-between px-6"
             >
-              <span>$50,000 Bas</span>
+              <span>$100,000 Bas</span>
               <span className="text-xs opacity-75">Enflasyon +%75 (KRİTİK)</span>
             </button>
           </div>

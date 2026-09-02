@@ -3,15 +3,17 @@ import { prisma } from "@/lib/prisma";
 import { MarketState } from "@/lib/types";
 
 const EXPERT_BASE_COSTS = {
-  1: 1000,
-  2: 3000,
-  3: 8000
+  1: 1000, // Stajyer (1 random)
+  2: 3000, // Çaylak (2 random)
+  3: 8000, // Kıdemli (4 random)
+  4: 20000 // Wall Street Kurdu (Hepsi)
 };
 
 const EXPERT_COMMISSION = {
-  1: 0.05, // %5
-  2: 0.10, // %10
-  3: 0.20  // %20
+  1: 0.02, // %2
+  2: 0.05, // %5
+  3: 0.10, // %10
+  4: 0.20  // %20
 };
 
 export async function POST(request: Request) {
@@ -26,12 +28,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Oyun bulunamadı" }, { status: 404 });
     }
 
-    if (![1, 2, 3].includes(expertLevel)) {
+    if (![1, 2, 3, 4].includes(expertLevel)) {
       return NextResponse.json({ error: "Geçersiz uzman seviyesi" }, { status: 400 });
     }
 
-    const baseCost = EXPERT_BASE_COSTS[expertLevel as 1 | 2 | 3];
-    const commission = Math.floor(game.budget * EXPERT_COMMISSION[expertLevel as 1 | 2 | 3]);
+    const baseCost = EXPERT_BASE_COSTS[expertLevel as 1 | 2 | 3 | 4];
+    const commission = Math.floor(game.budget * EXPERT_COMMISSION[expertLevel as 1 | 2 | 3 | 4]);
     const totalCost = baseCost + commission;
 
     if (game.budget < totalCost) {
@@ -55,9 +57,24 @@ export async function POST(request: Request) {
       }
     } catch {}
 
-    // 4 tur boyunca uzman aktif kalır
+    // Eğer stajyer veya diğerleriyse rastgele bir "focus" oluşturabiliriz ama bunu UI'da yapacağız.
+    // Ancak stajyerin her satın alındığında farklı (random) bir emtiayı seçmesi için buraya kaydedebiliriz:
+    const allKeys = ["energy", "food", "tech", "medical", "arms", "minerals"];
     marketState.activeExpertLevel = expertLevel;
     marketState.expertTurnsRemaining = 4;
+    
+    // Rastgele seçimi marketState'in içine kaydediyoruz (visibleKeys) ki sayfayı yenileyince değişmesin
+    if (expertLevel === 1) {
+      marketState.expertVisibleKeys = [allKeys[Math.floor(Math.random() * allKeys.length)]];
+    } else if (expertLevel === 2) {
+      const shuffled = [...allKeys].sort(() => 0.5 - Math.random());
+      marketState.expertVisibleKeys = shuffled.slice(0, 2);
+    } else if (expertLevel === 3) {
+      const shuffled = [...allKeys].sort(() => 0.5 - Math.random());
+      marketState.expertVisibleKeys = shuffled.slice(0, 4);
+    } else {
+      marketState.expertVisibleKeys = allKeys;
+    }
 
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
