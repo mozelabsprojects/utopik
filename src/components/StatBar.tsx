@@ -11,9 +11,10 @@ interface StatBarProps {
   previousValue?: number;
   projectedGain?: number;
   pressures?: StatPressure[];
+  onClick?: () => void;
 }
 
-export default function StatBar({ label, value, icon, color, previousValue, projectedGain, pressures }: StatBarProps) {
+export default function StatBar({ label, value, icon, color, previousValue, projectedGain, pressures, onClick }: StatBarProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCritical = value < 30;
   const diff = previousValue !== undefined ? value - previousValue : 0;
@@ -35,11 +36,12 @@ export default function StatBar({ label, value, icon, color, previousValue, proj
 
   return (
     <div 
-      className={`relative animate-slide-in ${isCritical ? "animate-pulse-danger rounded-lg" : ""}`}
+      className={`relative animate-slide-in ${isCritical ? "animate-pulse-danger rounded-lg" : ""} ${onClick ? 'cursor-pointer hover:bg-white/5 p-2 -m-2 rounded-xl transition-colors' : ''}`}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
+      onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-1.5 cursor-help">
+      <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
           <span className="text-lg">{icon}</span>
           <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
@@ -95,7 +97,7 @@ export default function StatBar({ label, value, icon, color, previousValue, proj
 
       {/* Tooltip */}
       {showTooltip && pressures && pressures.length > 0 && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#111827] border border-gray-700 rounded-lg p-3 shadow-2xl z-50 animate-fade-in pointer-events-none">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#111827] border border-gray-700 rounded-lg p-3 shadow-2xl z-[100] animate-fade-in pointer-events-none">
           <p className="text-xs text-gray-400 font-bold uppercase tracking-wider border-b border-gray-700 pb-2 mb-2">
             Pasif Etkiler ({label})
           </p>

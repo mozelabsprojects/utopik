@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { POLICIES, PolicyId, Policy } from "@/lib/policies";
+import PolicyResultModal from "./PolicyResultModal";
 import { EXECUTIVE_ACTIONS } from "@/lib/executive-actions";
 import { GameState, StatEffects } from "@/lib/types";
 import { INITIAL_FACTIONS, FactionsState, calculateParliamentSeats } from "@/lib/factions";
@@ -52,6 +53,12 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
   const [isProcessing, setIsProcessing] = useState(false);
   const [isActionProcessing, setIsActionProcessing] = useState(false);
   const [message, setMessage] = useState<{text: string, type: 'success'|'error'}|null>(null);
+  const [resultModal, setResultModal] = useState<{isOpen: boolean, success: boolean, title: string, message: string}>({
+    isOpen: false,
+    success: true,
+    title: "",
+    message: ""
+  });
   
   // Lobbying state
   const [lobbyPrompt, setLobbyPrompt] = useState<{
@@ -151,10 +158,20 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
       
       const successMsg = action === "enact" ? "Yasa başarıyla meclisten geçti." : "Yasa meclis kararıyla iptal edildi.";
       const impactMsg = data.impactString ? ` Etkisi: ${data.impactString}` : '';
-      setMessage({ text: `${successMsg}${impactMsg}`, type: 'success' });
+      setResultModal({
+        isOpen: true,
+        success: true,
+        title: "Tasarı Onaylandı",
+        message: `${successMsg}${impactMsg}`
+      });
       onUpdate(); 
     } catch (e: any) {
-      setMessage({ text: e.message || "İşlem başarısız.", type: 'error' });
+      setResultModal({
+        isOpen: true,
+        success: false,
+        title: "Tasarı Reddedildi",
+        message: e.message || "İşlem başarısız."
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -371,6 +388,14 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
         })}
       </div>
       </div>
+
+      <PolicyResultModal
+        isOpen={resultModal.isOpen}
+        onClose={() => setResultModal(prev => ({ ...prev, isOpen: false }))}
+        success={resultModal.success}
+        title={resultModal.title}
+        message={resultModal.message}
+      />
     </div>
   );
 }

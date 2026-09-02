@@ -4,6 +4,7 @@ import StatBar from "./StatBar";
 import BudgetDisplay from "./BudgetDisplay";
 import FinanceAnalysis from "./FinanceAnalysis";
 import ImpactGraph from "./ImpactGraph";
+import StatDetailsModal from "./StatDetailsModal";
 import { GameState, TradeDeal } from "@/lib/types";
 import { generateAdvisorHints } from "@/lib/advisor";
 import { TECH_TREE, TechId } from "@/lib/tech-tree";
@@ -54,6 +55,8 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
     try { eventFlags = JSON.parse(game.eventFlags || "[]"); } catch {}
     return { activeLaws, activeCrises, ministers, eventFlags };
   }, [game]);
+
+  const [selectedStat, setSelectedStat] = React.useState<typeof STATS[0] | null>(null);
 
   const statPressures = React.useMemo(() => {
     return calculateStatPressures(
@@ -185,13 +188,26 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
                 }
                 projectedGain={projectedInvestments?.[stat.key]}
                 pressures={statPressures[stat.key]}
+                onClick={() => setSelectedStat(stat)}
               />
             ))}
           </div>
 
-          <ImpactGraph currentGame={game} previousGame={previousGame} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <ImpactGraph currentGame={game} previousGame={previousGame} />
+          </div>
         </div>
       </div>
+
+      <StatDetailsModal
+        isOpen={!!selectedStat}
+        onClose={() => setSelectedStat(null)}
+        statKey={selectedStat?.key || ""}
+        label={selectedStat?.label || ""}
+        value={(selectedStat ? game[selectedStat.key as keyof GameData] : 0) as number}
+        icon={selectedStat?.icon || ""}
+        pressures={selectedStat ? statPressures[selectedStat.key] || [] : []}
+      />
     </div>
   );
 }
