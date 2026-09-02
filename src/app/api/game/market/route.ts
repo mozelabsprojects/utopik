@@ -43,6 +43,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Yetersiz bütçe" }, { status: 400 });
       }
       marketState.inventory[resource as keyof typeof marketState.inventory] += amount;
+      if (!marketState.lastBoughtTurn) marketState.lastBoughtTurn = {};
+      marketState.lastBoughtTurn[resource as keyof typeof marketState.prices] = game.turn;
       
       await prisma.game.update({
         where: { id: gameId },
@@ -52,6 +54,9 @@ export async function POST(request: Request) {
         }
       });
     } else if (action === "sell") {
+      if (marketState.lastBoughtTurn && marketState.lastBoughtTurn[resource as keyof typeof marketState.prices] === game.turn) {
+        return NextResponse.json({ error: "Bu tur satın aldığınız hisseleri ancak bir sonraki tur satabilirsiniz!" }, { status: 400 });
+      }
       const currentInv = marketState.inventory[resource as keyof typeof marketState.inventory];
       if (currentInv < amount) {
         return NextResponse.json({ error: "Yetersiz envanter" }, { status: 400 });

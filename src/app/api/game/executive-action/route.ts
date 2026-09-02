@@ -56,6 +56,12 @@ export async function POST(request: Request) {
         stability: newState.stability,
         foreignRelations: newState.foreignRelations,
         politicalCapital: newState.politicalCapital,
+        energy: newState.energy,
+        food: newState.food,
+        materials: newState.materials,
+        inflation: newState.inflation,
+        popularity: newState.popularity,
+        researchPoints: newState.researchPoints,
         turnReports: JSON.stringify(turnReports)
       }
     });

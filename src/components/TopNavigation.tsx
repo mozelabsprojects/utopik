@@ -59,95 +59,77 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
   }
 
   return (
-    <div className="glass-strong rounded-xl p-3 mb-4 flex flex-col md:flex-row justify-between items-center gap-4 animate-slide-in shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-white/5 relative z-30">
-      <div className="flex flex-wrap justify-center gap-2 md:gap-4 items-center">
-        <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border border-[var(--color-border)]">
-          <span className="text-lg md:text-xl">📅</span>
-          <div>
-            <p className="hidden md:block text-[10px] text-gray-400 font-bold uppercase tracking-wider">TUR</p>
-            <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{turn}</p>
+    <div className="glass-strong rounded-xl p-3 mb-4 flex flex-col gap-3 animate-slide-in shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-white/5 relative z-30">
+      
+      {/* Üst Sıra: Yönetim & Ekonomi */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-white/5 pb-3">
+        
+        {/* Sol: Yönetim & Siyaset */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 shadow-inner">
+            <span className="text-xl">📅</span>
+            <div>
+              <p className="hidden md:block text-[9px] text-gray-400 font-bold uppercase tracking-wider">TUR</p>
+              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none text-white">{turn}</p>
+            </div>
           </div>
+
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 text-[var(--color-accent-secondary)] shadow-inner">
+            <span className="text-xl">📜</span>
+            <div>
+              <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">POLİTİK SERMAYE</p>
+              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{politicalCapital}</p>
+            </div>
+          </div>
+
+          {gameData && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 text-purple-400 shadow-inner">
+              <span className="text-xl">👥</span>
+              <div>
+                <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">NÜFUS</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{gameData.population?.toFixed(1) || "10.0"}M</p>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border border-[var(--color-border)] text-[var(--color-success)]">
-          <span className="text-lg md:text-xl">💰</span>
-          <div>
-            <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">BÜTÇE</p>
-            <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">${budget.toLocaleString()}</p>
+        {/* Sağ: Ekonomi & Bütçe */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 text-[var(--color-success)] shadow-inner">
+            <span className="text-xl">💰</span>
+            <div>
+              <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">BÜTÇE</p>
+              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">${budget.toLocaleString()}</p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border border-[var(--color-border)] text-[var(--color-accent-secondary)]">
-          <span className="text-lg md:text-xl">📜</span>
-          <div>
-            <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">POLİTİK SERMAYE</p>
-            <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{politicalCapital}</p>
-          </div>
-        </div>
-
-        {gameData && (
-          <>
-            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${gameData.inflation && gameData.inflation > 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-cyan-400'}`}>
-              <span className="text-lg md:text-xl">💸</span>
+          {gameData && (
+            <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${gameData.inflation && gameData.inflation > 20 ? 'border-red-500/50 text-red-500' : 'border-white/10 text-cyan-400'}`}>
+              <span className="text-xl">💸</span>
               <div>
-                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">ENFLASYON</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">%{gameData.inflation?.toFixed(1) || "5.0"}</p>
+                <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">ENFLASYON</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">%{gameData.inflation?.toFixed(1) || "5.0"}</p>
               </div>
             </div>
+          )}
 
-            <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border border-[var(--color-border)] text-purple-400">
-              <span className="text-lg md:text-xl">👥</span>
-              <div>
-                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">NÜFUS</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{gameData.population?.toFixed(1) || "10.0"}M</p>
-              </div>
-            </div>
-
-            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${(gameData.energy || 100) < 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-yellow-400'}`}>
-              <span className="text-lg md:text-xl">⚡</span>
-              <div>
-                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">ENERJİ</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{(gameData.energy || 100).toFixed(0)}</p>
-              </div>
-            </div>
-
-            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${(gameData.food || 100) < 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-green-400'}`}>
-              <span className="text-lg md:text-xl">🌾</span>
-              <div>
-                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">GIDA</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{(gameData.food || 100).toFixed(0)}</p>
-              </div>
-            </div>
-
-            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${(gameData.materials || 100) < 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-gray-400'}`}>
-              <span className="text-lg md:text-xl">⚙️</span>
-              <div>
-                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">MATERYAL</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{(gameData.materials || 100).toFixed(0)}</p>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* MİNİ DASHBOARD: Net Gelir & RP */}
-        {gameData && (
-          <div className="flex gap-2 ml-0 md:ml-4 border-t md:border-t-0 md:border-l border-[var(--color-border)] pt-2 md:pt-0 md:pl-4">
+          {gameData && (
             <div 
-              className={`relative flex items-center gap-2 px-2 md:px-3 py-1.5 rounded-lg border bg-[var(--color-bg-main)] cursor-help transition-colors ${netIncome >= 0 ? 'border-[var(--color-success)] text-[var(--color-success)] hover:bg-[var(--color-success)]/10' : 'border-[var(--color-danger)] text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10'}`}
+              className={`relative flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-black/40 cursor-help transition-all shadow-inner ${netIncome >= 0 ? 'border-green-500/30 text-green-400 hover:bg-green-500/10' : 'border-red-500/30 text-red-400 hover:bg-red-500/10'}`}
               onMouseEnter={() => setShowBudgetTooltip(true)}
               onMouseLeave={() => setShowBudgetTooltip(false)}
             >
-              <span className="text-lg md:text-xl">{netIncome >= 0 ? "📈" : "📉"}</span>
+              <span className="text-xl">{netIncome >= 0 ? "📈" : "📉"}</span>
               <div>
-                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider text-gray-400">NET BÜTÇE</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">
+                <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">NET BÜTÇE</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">
                   {netIncome > 0 ? "+" : ""}${netIncome.toLocaleString()}
                 </p>
               </div>
 
               {/* Bütçe Kırılımı Tooltip */}
               {showBudgetTooltip && budgetBreakdown && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 bg-[#111827] border border-gray-700 rounded-lg p-3 shadow-2xl z-50 animate-fade-in pointer-events-none">
+                <div className="absolute top-full right-0 md:left-1/2 md:-translate-x-1/2 mt-2 w-64 bg-[#111827] border border-gray-700 rounded-lg p-3 shadow-2xl z-50 animate-fade-in pointer-events-none">
                   <p className="text-xs text-gray-400 font-bold uppercase tracking-wider border-b border-gray-700 pb-2 mb-2">Net Bütçe Dağılımı</p>
                   <div className="space-y-1.5 text-sm font-medium">
                     <div className="flex justify-between items-center text-green-400">
@@ -198,35 +180,73 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                 </div>
               )}
             </div>
-            
-            <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border border-[var(--color-border)] text-[var(--color-education)]">
-              <span className="text-lg md:text-xl">🔬</span>
+          )}
+        </div>
+      </div>
+
+      {/* Alt Sıra: Kaynaklar, Ar-Ge & Araçlar */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+        
+        {/* Sol: Stratejik Kaynaklar */}
+        <div className="flex flex-wrap items-center gap-2">
+          {gameData && (
+            <>
+              <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${(gameData.energy || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-yellow-400'}`}>
+                <span className="text-xl">⚡</span>
+                <div>
+                  <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">ENERJİ</p>
+                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.energy || 100).toFixed(0)}</p>
+                </div>
+              </div>
+
+              <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${(gameData.food || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-green-400'}`}>
+                <span className="text-xl">🌾</span>
+                <div>
+                  <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">GIDA</p>
+                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.food || 100).toFixed(0)}</p>
+                </div>
+              </div>
+
+              <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${(gameData.materials || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-gray-400'}`}>
+                <span className="text-xl">⚙️</span>
+                <div>
+                  <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">MATERYAL</p>
+                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.materials || 100).toFixed(0)}</p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {gameData && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 text-blue-400 shadow-inner md:ml-4">
+              <span className="text-xl">🔬</span>
               <div>
-                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider text-gray-400">AR-GE</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">
+                <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">AR-GE</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">
                   +{rpGain} RP
                 </p>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={onOpenSettings}
-          className="px-3 py-2 rounded-lg font-bold text-slate-300 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-600/30 transition-all flex items-center justify-center text-sm shadow-sm"
-          title="Ayarlar"
-        >
-          <span className="text-lg">⚙️</span>
-        </button>
-        <button
-          onClick={onOpenTutorial}
-          className="px-4 py-2 rounded-lg font-bold text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 transition-all flex items-center gap-2 text-sm shadow-[0_0_15px_rgba(0,240,255,0.15)]"
-          title="Eğiticiyi Başlat"
-        >
-          <span className="text-lg">ℹ️</span> Rehber
-        </button>
+        {/* Sağ: Butonlar */}
+        <div className="flex gap-2 w-full md:w-auto justify-end">
+          <button
+            onClick={onOpenSettings}
+            className="px-3 py-2 rounded-lg font-bold text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center justify-center text-sm shadow-sm"
+            title="Ayarlar"
+          >
+            <span className="text-lg">⚙️</span>
+          </button>
+          <button
+            onClick={onOpenTutorial}
+            className="px-4 py-2 rounded-lg font-bold text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 transition-all flex items-center gap-2 text-sm shadow-[0_0_15px_rgba(0,240,255,0.15)] whitespace-nowrap"
+            title="Eğiticiyi Başlat"
+          >
+            <span className="text-lg">ℹ️</span> Rehber
+          </button>
+        </div>
       </div>
     </div>
   );

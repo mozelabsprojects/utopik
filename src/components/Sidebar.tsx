@@ -85,10 +85,11 @@ const MENU_FOLDERS: MenuFolder[] = [
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   // Varsayılan olarak aktif sekmenin bulunduğu klasörü açık tut
   const initialOpenFolder = MENU_FOLDERS.find(f => f.items.some(i => i.id === activeTab))?.id || "management";
-  const [openFolders, setOpenFolders] = useState<string[]>([initialOpenFolder]);
+  const [pinnedFolders, setPinnedFolders] = useState<string[]>([initialOpenFolder]);
+  const [hoveredFolders, setHoveredFolders] = useState<string[]>([]);
 
   const toggleFolder = (folderId: string) => {
-    setOpenFolders(prev => 
+    setPinnedFolders(prev => 
       prev.includes(folderId) 
         ? prev.filter(id => id !== folderId) 
         : [...prev, folderId]
@@ -113,18 +114,19 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       {/* Menu Folders */}
       <div className="flex-1 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto hide-scrollbar p-2 md:p-3 flex flex-row md:flex-col gap-2 md:space-y-2">
         {MENU_FOLDERS.map((folder) => {
-          const isOpen = openFolders.includes(folder.id);
           const hasActiveChild = folder.items.some(item => item.id === activeTab);
+          const isOpen = pinnedFolders.includes(folder.id) || hoveredFolders.includes(folder.id) || hasActiveChild;
 
           return (
             <div 
               key={folder.id} 
               className="flex flex-col shrink-0 min-w-fit md:min-w-0"
-              onMouseEnter={() => setOpenFolders(prev => Array.from(new Set([...prev, folder.id])))}
-              onMouseLeave={() => setOpenFolders(prev => prev.filter(id => id !== folder.id || folder.items.some(i => i.id === activeTab)))}
+              onMouseEnter={() => setHoveredFolders(prev => Array.from(new Set([...prev, folder.id])))}
+              onMouseLeave={() => setHoveredFolders(prev => prev.filter(id => id !== folder.id))}
             >
               {/* Folder Header (Desktop Hoverable, Mobile only icon) */}
               <button
+                onClick={() => toggleFolder(folder.id)}
                 className={`hidden md:flex w-full items-center justify-between px-3 py-2 rounded-lg transition-colors duration-200 ${
                   hasActiveChild && !isOpen ? "bg-white/5 text-white" : "text-slate-400 hover:text-white hover:bg-white/5"
                 }`}

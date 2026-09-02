@@ -26,6 +26,9 @@ export interface MarketState {
   };
   activeExpertLevel?: number; // 0: None, 1: Çaylak, 2: Kıdemli, 3: Wall Street Kurdu
   expertTurnsRemaining?: number;
+  lastBoughtTurn?: {
+    [key in keyof MarketPrices]?: number;
+  };
 }
 
 export type EventCategory =

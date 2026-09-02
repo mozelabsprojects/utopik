@@ -141,7 +141,7 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
                       <img 
                         src={`https://flagcdn.com/w160/${country.code}.png`} 
                         alt={country.name} 
-                        className="w-full h-full object-cover sepia-[.5] saturate-[.4] contrast-125 brightness-90"
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                       />
                     </div>
                     <span className={`${DIFFICULTY_BADGES[country.difficulty]} text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg`}>

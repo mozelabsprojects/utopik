@@ -1945,6 +1945,153 @@ export const EVENTS: GameEvent[] = [
         hint: "Küçük bir bütçe tasarrufu, ama büyük bir halkla ilişkiler hezimeti.",
       }
     ]
+  },
+  // ============================================
+  // YENİ ASKERİ VE KAYNAK KARARLARI (V8 Dengeleme)
+  // ============================================
+  {
+    id: "mil_drone_program",
+    title: "Milli SİHA ve Otonom Savunma Programı",
+    description: "Savunma sanayimiz, yapay zeka destekli otonom SİHA'ların seri üretimi için dev bir bütçe ve materyal talep ediyor. Bu teknoloji askeri gücümüzü katlayabilir.",
+    category: "askeri",
+    minTurn: 3,
+    choices: [
+      {
+        label: "A",
+        text: "Tam destek ver (Bütçe ve Materyal akıt)",
+        effects: { budget: -3000, materials: -30, military: 25, education: 5, foreignRelations: -5 },
+        factionEffects: { military: 20, nationalists: 15, intellectuals: 5 },
+        flagsToSet: ["DRONE_PROGRAM_MAX"],
+        hint: "Büyük materyal harcar ama ordu çağ atlar. (Uzun vadeli etkisi var)"
+      },
+      {
+        label: "B",
+        text: "Sadece yazılım Ar-Ge desteği ver",
+        effects: { budget: -1000, education: 10, military: 10 },
+        factionEffects: { military: 5, intellectuals: 10 },
+        flagsToSet: ["DRONE_PROGRAM_MID"],
+        hint: "Materyal tasarrufu sağlar ama üretim yavaş olur."
+      },
+      {
+        label: "C",
+        text: "Programı durdur, dışarıdan hazır sistem al",
+        effects: { budget: -1500, military: 15, foreignRelations: 10, education: -5 },
+        factionEffects: { military: 10, nationalists: -15 },
+        hint: "Yabancı bağımlılığı artar, milliyetçiler kızar."
+      }
+    ]
+  },
+  {
+    id: "mil_drone_success",
+    title: "Milli SİHA'lar İhracat Rekoru Kırdı",
+    description: "Geçmişte tam destek verdiğimiz SİHA programı meyvelerini verdi! Yabancı ülkeler bu teknolojiyi satın almak için sıraya girdi.",
+    category: "ekonomi",
+    requiredFlags: ["DRONE_PROGRAM_MAX"],
+    minTurn: 8,
+    choices: [
+      {
+        label: "A",
+        text: "Sistemleri sat ve teknoloji transferi yap",
+        effects: { budget: 8000, foreignRelations: 15, popularity: 10, tech: 20 },
+        factionEffects: { capitalists: 20, nationalists: -5 },
+        hint: "Devasa para ve itibar kazanırsın, ancak sırlar açığa çıkabilir."
+      },
+      {
+        label: "B",
+        text: "Satışı sadece stratejik müttefiklere yap",
+        effects: { budget: 3000, foreignRelations: 10, military: 10, stability: 5 },
+        factionEffects: { military: 10, nationalists: 10 },
+        hint: "Orta karar gelir, askeri sırları korur."
+      }
+    ]
+  },
+  {
+    id: "mil_border_tension",
+    title: "Sınırda Stratejik Kaynak Krizi",
+    description: "Komşu ülke ile sınırımızda zengin enerji yatakları tespit edildi. Sınır birliklerimiz alarm durumunda ve çatışma riski var.",
+    category: "askeri",
+    minTurn: 2,
+    choices: [
+      {
+        label: "A",
+        text: "Birlikleri sınırda mobilize et ve gövde gösterisi yap",
+        effects: { budget: -1000, military: 10, energy: 30, foreignRelations: -20, stability: -10 },
+        factionEffects: { military: 15, nationalists: 20, capitalists: 10 },
+        hint: "Enerji kaynaklarını güvenceye alırız ancak savaş riski artar."
+      },
+      {
+        label: "B",
+        text: "Komşu ülkeyle masaya oturup kaynakları paylaş",
+        effects: { energy: 10, foreignRelations: 15, stability: 10, happiness: 5 },
+        factionEffects: { military: -10, nationalists: -15 },
+        hint: "Daha az enerji kazanırız ama barışçıl ve güvenli."
+      },
+      {
+        label: "C",
+        text: "Uluslararası mahkemeye taşı (Bekle)",
+        effects: { foreignRelations: 5, stability: 5 },
+        hint: "Sıfır risk, sıfır acil kazanç."
+      }
+    ]
+  },
+  {
+    id: "res_global_food_crisis",
+    title: "Küresel Gıda Tedarik Krizi",
+    description: "Dünya genelinde yaşanan kuraklık nedeniyle gıda fiyatları fırladı. Çiftçilerimiz ihracat yapıp zengin olmak isterken, iç pazarda gıda kıtlığı yaşanabilir.",
+    category: "ekonomi",
+    minTurn: 4,
+    choices: [
+      {
+        label: "A",
+        text: "Tüm tarım ihracatını yasakla, iç pazarı koru",
+        effects: { food: 40, happiness: 10, inflation: -5, budget: -1000 },
+        factionEffects: { workers: 15, capitalists: -20 },
+        hint: "Gıda güvenceye alınır, enflasyon düşer ama şirketler isyan eder."
+      },
+      {
+        label: "B",
+        text: "Serbest piyasaya müdahale etme",
+        effects: { food: -30, inflation: 15, budget: 2000, happiness: -20 },
+        factionEffects: { capitalists: 25, workers: -25 },
+        marketEffects: { food: 1.5 },
+        hint: "Şirketler ve hazine kazanır ancak halk açlık riski çeker."
+      },
+      {
+        label: "C",
+        text: "Stratejik rezervleri piyasaya sür",
+        effects: { food: -10, inflation: 0, budget: -500 },
+        hint: "Piyasayı dengeler ama uzun vadede rezervler erir."
+      }
+    ]
+  },
+  {
+    id: "res_energy_infrastructure",
+    title: "Enerji Altyapısı Modernizasyonu",
+    description: "Eski enerji şebekemiz çok fazla israfa neden oluyor. Üstelik madenlerden (Materyal) elde edilen verim çok düştü.",
+    category: "ic_politika",
+    minTurn: 2,
+    choices: [
+      {
+        label: "A",
+        text: "Geniş çaplı nükleer ve yenilenebilir dönüşüm başlat",
+        effects: { budget: -4000, energy: 50, materials: -20, environment: 20, education: 5 },
+        factionEffects: { intellectuals: 20, capitalists: 10 },
+        hint: "Çok pahalı ama geleceği kurtarır."
+      },
+      {
+        label: "B",
+        text: "Kömür madenlerine ve fosil yakıtlara yüklen",
+        effects: { budget: -500, energy: 30, environment: -25, health: -10 },
+        factionEffects: { workers: 10, intellectuals: -30 },
+        hint: "Ucuz enerji sağlar ama çevre ve sağlık çöker."
+      },
+      {
+        label: "C",
+        text: "Enerji tasarrufu yasası çıkar (Halka kısıtlama)",
+        effects: { energy: 15, happiness: -15, popularity: -10 },
+        hint: "Para harcamadan enerji korunur ama halk karanlıkta kalır."
+      }
+    ]
   }
 ];
 
