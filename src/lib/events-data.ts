@@ -2,6 +2,7 @@
 // YourUtopia — 30+ Olay / Dilemma Verileri
 // =============================================
 import { GameEvent, GameState } from "./types";
+import { COUNTRIES } from "./countries-data";
 
 export const EVENTS: GameEvent[] = [
   // ============================================
@@ -2272,6 +2273,612 @@ export const EVENTS: GameEvent[] = [
         hint: "Güvenli ve dengeli bir ilerleme."
       }
     ]
+  },
+  {
+    id: "geo_space_race_signal",
+    title: "Derin Uzay Teleskobu Sinyali",
+    description: "Devlet gözlemevi, güneş sistemi dışından düzenli bir radyo sinyali tespit etti. Bilim insanları bunun yapay bir kaynağa ait olabileceğinden emin.",
+    category: "sosyal",
+    minTurn: 10,
+    choices: [
+      {
+        label: "A",
+        text: "Sinyali tüm dünya ile paylaş ve uluslararası araştırma başlat.",
+        effects: { education: 5, foreignRelations: 8, budget: -500 },
+        factionEffects: { intellectuals: 10 },
+        hint: "İnsanlık birleşir, bilimsel itibarınız tavan yapar."
+      },
+      {
+        label: "B",
+        text: "Sinyali gizle ve askeri sır olarak incele.",
+        effects: { military: 5, budget: -1000, foreignRelations: -5 },
+        factionEffects: { military: 8, intellectuals: -5 },
+        hint: "Gizli teknoloji araştırmaları başlar."
+      }
+    ]
+  },
+  {
+    id: "geo_oil_spill_disaster",
+    title: "Kıyı Şeridinde Tanker Kazası",
+    description: "Başkent yakınlarındaki deniz ticaret yolunda ham petrol taşıyan dev bir tanker karaya oturdu. Kıyılar petrole bulandı.",
+    category: "cevre",
+    minTurn: 4,
+    choices: [
+      {
+        label: "A",
+        text: "Devlet bütçesinden acil temizleme seferberliği başlat.",
+        effects: { environment: 5, budget: -1500, happiness: 3 },
+        factionEffects: { intellectuals: 8, workers: 4 },
+        hint: "Kıyılar kurtarılır ama hazineden ciddi harcama yapılır."
+      },
+      {
+        label: "B",
+        text: "Şirkete ceza kes ve temizliği şirkete ihale et.",
+        effects: { budget: 1000, environment: -5, happiness: -4 },
+        factionEffects: { capitalists: -6, intellectuals: -8 },
+        hint: "Bütçeye sıcak para girer ama çevre hasarı uzar."
+      }
+    ]
+  },
+  {
+    id: "tech_quantum_leak_scandal",
+    title: "Kuantum Şifreleme Sızıntısı",
+    description: "Ulusal bankaların ve savunma ağlarının kullandığı kuantum güvenlik protokollarının kaynak kodları sızdırıldı.",
+    category: "askeri",
+    minTurn: 12,
+    choices: [
+      {
+        label: "A",
+        text: "Tüm dijital altyapıyı acilen yenile.",
+        effects: { budget: -2000, stability: 5, education: 3 },
+        factionEffects: { intellectuals: 5, military: 4 },
+        hint: "Maliyeti yüksek ama sistemler yenilenir."
+      },
+      {
+        label: "B",
+        text: "Sızıntıyı reddet ve medya karartması uygula.",
+        effects: { stability: -4, happiness: -3, budget: -200 },
+        factionEffects: { nationalists: 3, intellectuals: -8 },
+        hint: "Piyasalar panikler, siber riskler artar."
+      }
+    ]
+  },
+  {
+    id: "soc_youth_climate_strike",
+    title: "Z Kuşağı İklim Boykotu",
+    description: "Liseli ve üniversiteli binlerce genç, fosil yakıtların tamamen yasaklanması talebiyle 3 gündür meclis önünde kamp kurdu.",
+    category: "sosyal",
+    minTurn: 3,
+    choices: [
+      {
+        label: "A",
+        text: "Gençlerin temsilcilerini kabul et ve çevre fonu sözü ver.",
+        effects: { happiness: 5, environment: 4, budget: -800 },
+        factionEffects: { intellectuals: 10, capitalists: -4 },
+        hint: "Gençler mutlu olur, çevreci kanat coşar."
+      },
+      {
+        label: "B",
+        text: "Polis gücüyle gösteriyi dağıt, 'derse dönün' de.",
+        effects: { stability: 3, happiness: -6, popularity: -5 },
+        factionEffects: { nationalists: 6, intellectuals: -10 },
+        hint: "Düzen sağlanır ama genç nesil tamamen kopar."
+      }
+    ]
+  },
+  {
+    id: "min_corrupt_tender_scandal",
+    title: "Bakanlık İhale İddiası",
+    description: "Gazeteler, Ekonomi Bakanlığı'nın dev altyapı ihalesini Bakanın akrabasına verdiğini belgeleyen belgeler yayınladı.",
+    category: "ic_politika",
+    minTurn: 6,
+    choices: [
+      {
+        label: "A",
+        text: "İhaleyi derhal iptal et ve soruşturma aç.",
+        effects: { stability: 4, popularity: 5, budget: -500 },
+        factionEffects: { workers: 6, capitalists: -6 },
+        hint: "Hükümetin şeffaflık imajı güçlenir."
+      },
+      {
+        label: "B",
+        text: "Haberleri yalanla ve gazeteye ceza kes.",
+        effects: { stability: -5, popularity: -8, budget: 300 },
+        factionEffects: { capitalists: 4, intellectuals: -10 },
+        hint: "Yolsuzluk algısı halkın güvenini sarsar."
+      },
+      {
+        label: "D",
+        text: "🤵‍♂️ [BAKAN] Ekonomi Bakanı'nı çağır ve ihaleyi şeffaf konsorsiyuma devret.",
+        effects: { budget: 1500, stability: 5, popularity: 4 },
+        factionEffects: { capitalists: 5, workers: 5 },
+        hint: "Bakanınızın nüfuzu ile kriz fırsata döner. (Ekonomi Bakanı gerekli)",
+        requiredMinister: "eco_capitalist"
+      }
+    ]
+  },
+  {
+    id: "eco_commodity_shock",
+    title: "Küresel Hammadde Fiyat Şoku",
+    description: "Dünya borsalarında maden ve demir-çelik fiyatları bir gecede %40 fırladı. Şirketler hammadde tedarik edemiyor.",
+    category: "ekonomi",
+    minTurn: 8,
+    choices: [
+      {
+        label: "A",
+        text: "Stratejik maden stoklarını piyasaya sür ve fiyatları sabitle.",
+        effects: { budget: -1000, materials: 15, stability: 3 },
+        factionEffects: { capitalists: 8, workers: 4 },
+        hint: "Sanayi rahatlar ama devlet stokları azalır."
+      },
+      {
+        label: "B",
+        text: "Fiyat artışını tüketiciye yansıt (Serbest piyasa).",
+        effects: { budget: 1200, happiness: -6, inflation: 2 },
+        factionEffects: { capitalists: 5, workers: -8 },
+        hint: "Hazineden para çıkmaz ama enflasyon hortlar."
+      }
+    ]
+  },
+  {
+    id: "mil_border_drone_skirmish",
+    title: "Sınır Boyunda İHA İhlali",
+    description: "Komşu ülkeye ait kimliği belirsiz bir silahlı İHA, hava sahamızı 15 kilometre ihlal etti.",
+    category: "askeri",
+    minTurn: 5,
+    choices: [
+      {
+        label: "A",
+        text: "İHA'yı derhal düşür ve nota ver.",
+        effects: { military: 5, popularity: 6, foreignRelations: -6 },
+        factionEffects: { military: 8, nationalists: 8 },
+        hint: "Ulusal gurur şahlanır, komşuyla kriz çıkar."
+      },
+      {
+        label: "B",
+        text: "Telsizle uyar ve dostane diplomatik kanallardan ilet.",
+        effects: { foreignRelations: 4, military: -3, stability: -2 },
+        factionEffects: { military: -5, intellectuals: 4 },
+        hint: "Kriz tırmanmaz ama ordu yumuşaklığa kızar."
+      }
+    ]
+  },
+  {
+    id: "soc_ai_artist_protest",
+    title: "Yapay Zeka Telif İsyanı",
+    description: "Ressamlar, müzisyenler ve yazarlar, ürettikleri eserlerin rızasız olarak yapay zeka modellerinde eğitilmesini protesto ediyor.",
+    category: "sosyal",
+    minTurn: 7,
+    choices: [
+      {
+        label: "A",
+        text: "Sert Telif Yasası çıkar: Yapay Zeka şirketlerine ağır vergi koy.",
+        effects: { happiness: 4, education: 3, budget: -400 },
+        factionEffects: { intellectuals: 10, capitalists: -6 },
+        hint: "Sanatçılar bayram eder, teknoloji şirketleri kızar."
+      },
+      {
+        label: "B",
+        text: "Teknoloji gelişimini kısıtlama, serbest bırak.",
+        effects: { budget: 800, happiness: -4, education: -2 },
+        factionEffects: { capitalists: 8, intellectuals: -8 },
+        hint: "YZ sektörü büyür ama kültürel kesim küser."
+      }
+    ]
+  },
+  {
+    id: "geo_refugee_wave",
+    title: "Komşu Ülkede İç Savaş ve Sığınmacılar",
+    description: "Komşu devlette patlak veren iç savaş nedeniyle sınır kapılarına 50.000 sığınmacı dayandı.",
+    category: "dis_politika",
+    minTurn: 10,
+    choices: [
+      {
+        label: "A",
+        text: "İnsani yardım kapılarını aç ve BM'den destek iste.",
+        effects: { foreignRelations: 8, budget: -1200, happiness: -4 },
+        factionEffects: { intellectuals: 8, nationalists: -10 },
+        hint: "Uluslararası itibar artar ama bütçe ve halk zorlanır."
+      },
+      {
+        label: "B",
+        text: "Sınırı tamamen kapat ve askeri barikat kur.",
+        effects: { stability: 4, foreignRelations: -8, military: 3 },
+        factionEffects: { nationalists: 12, intellectuals: -8 },
+        hint: "Milliyetçi kanat coşar, dış imaj zedelenir."
+      }
+    ]
+  },
+  {
+    id: "tech_synth_meat_approval",
+    title: "Laboratuvar Üretimi Sentetik Et",
+    description: "Gıda teknologları, gerçek etten farksız ve %90 daha az karbon salınımı yapan sentetik etin market satışına izin istiyor.",
+    category: "cevre",
+    minTurn: 6,
+    choices: [
+      {
+        label: "A",
+        text: "Satışa onay ver ve üretimi sübvanse et.",
+        effects: { environment: 5, food: 15, happiness: -3 },
+        factionEffects: { intellectuals: 8, workers: -4 },
+        hint: "Çevre ve gıda stoku uçar, geleneksel çiftçiler tepkili."
+      },
+      {
+        label: "B",
+        text: "Yasakla, 'doğal etten vazgeçilemez'.",
+        effects: { happiness: 4, environment: -3, food: -5 },
+        factionEffects: { nationalists: 6, intellectuals: -6 },
+        hint: "Gelenekçi kesim sevinir, gıda teknolojisi geriler."
+      }
+    ]
+  },
+  {
+    id: "ic_parliament_budget_deadlock",
+    title: "Mecliste Bütçe Kilitlenmesi",
+    description: "Muhalefet ve iktidar blokları yıllık bütçe tasarısında anlaşamadı. Bütçe onaylanmazsa devlet daireleri kapanacak.",
+    category: "ic_politika",
+    minTurn: 9,
+    choices: [
+      {
+        label: "A",
+        text: "Taviz ver: Muhalefetin sosyal yardım şartlarını kabul et.",
+        effects: { politicalCapital: -30, happiness: 4, budget: -800 },
+        factionEffects: { workers: 8, capitalists: -4 },
+        hint: "Bütçe geçer ama bütçe yükü artar."
+      },
+      {
+        label: "B",
+        text: "Kanun Hükmünde Kararname ile bütçeyi zorla yürürlüğe koy.",
+        effects: { stability: -6, politicalCapital: 20, popularity: -5 },
+        factionEffects: { nationalists: 4, intellectuals: -10 },
+        hint: "Otoriter adım atılır, siyasi kriz tırmanır."
+      }
+    ]
+  },
+  {
+    id: "eco_crypto_exchange_crash",
+    title: "Yerli Kripto Borsa İflası",
+    description: "Ülkenin en büyük kripto borsasının kurucusu müşteri fonlarıyla kayıplara karıştı. Binlerce vatandaş parasını kaybetti.",
+    category: "ekonomi",
+    minTurn: 8,
+    choices: [
+      {
+        label: "A",
+        text: "Mağdurlara devlet fonundan kısmi tazminat öde.",
+        effects: { budget: -1500, happiness: 4, stability: 3 },
+        factionEffects: { workers: 6, capitalists: -4 },
+        hint: "Toplumsal öfke yatışır ama hazineye yük biner."
+      },
+      {
+        label: "B",
+        text: "'Kendi riskinizdi' de ve dokunma.",
+        effects: { happiness: -7, stability: -4, budget: 0 },
+        factionEffects: { capitalists: 4, workers: -8 },
+        hint: "Halk öfkelenir, protestolar başlar."
+      }
+    ]
+  },
+  {
+    id: "min_defense_classified_leak",
+    title: "Gizli Savunma Projesi Sızıntısı",
+    description: "Yerli lazer füze savunma sisteminin teknik şemaları yabancı bir forumda yayınlandı.",
+    category: "askeri",
+    minTurn: 11,
+    choices: [
+      {
+        label: "A",
+        text: "Projenin mimarisini sil baştan değiştir.",
+        effects: { budget: -1800, military: 4, stability: 2 },
+        factionEffects: { military: 5 },
+        hint: "Zaman ve para kaybedilir ama güvenlik sağlanır."
+      },
+      {
+        label: "B",
+        text: "Askeri casusluk soruşturması başlat ve basına yayın yasağı koy.",
+        effects: { stability: -3, happiness: -3, military: -2 },
+        factionEffects: { intellectuals: -6, military: 3 },
+        hint: "Sansür tepki çeker."
+      },
+      {
+        label: "D",
+        text: "🦅 [BAKAN] Savunma Bakanı'nın özel ekibiyle sızıntıyı karşı dezenformasyona çevir.",
+        effects: { military: 8, foreignRelations: 5, budget: -300 },
+        factionEffects: { military: 8, nationalists: 6 },
+        hint: "Düşman yanıltılır, askeri prestij artar. (Savunma Bakanı gerekli)",
+        requiredMinister: "def_hawk"
+      }
+    ]
+  },
+  {
+    id: "cevre_rare_earth_discovery",
+    title: "Ulusal Parkta Nadir Maden Keşfi",
+    description: "Jeologlar, koruma altındaki bir milli parkın altında 15 milyar dolar değerinde lityum ve nadir toprak elementleri buldu.",
+    category: "cevre",
+    minTurn: 7,
+    choices: [
+      {
+        label: "A",
+        text: "Parkı madenciliğe aç ve dev maden kompleksleri kur.",
+        effects: { budget: 3500, materials: 30, environment: -12, happiness: -5 },
+        factionEffects: { capitalists: 12, intellectuals: -12 },
+        hint: "Hazine ve materyal coşar ama çevre katliamı yaşanır."
+      },
+      {
+        label: "B",
+        text: "Milli parkı dokunulmaz ilan et ve madenciliği reddet.",
+        effects: { environment: 8, happiness: 5, budget: -300 },
+        factionEffects: { intellectuals: 10, capitalists: -8 },
+        hint: "Doğa korunur ama devasa ekonomik fırsat kaçar."
+      }
+    ]
+  },
+  {
+    id: "soc_workweek_4days_test",
+    title: "4 Günlük Çalışma Haftası Tasarısı",
+    description: "İşçi sendikaları, maaş kesintisi olmadan haftalık çalışma süresinin 4 güne düşürülmesini talep ediyor.",
+    category: "sosyal",
+    minTurn: 6,
+    choices: [
+      {
+        label: "A",
+        text: "Kamu sektöründe pilot uygulama olarak başlat.",
+        effects: { happiness: 8, health: 4, budget: -600 },
+        factionEffects: { workers: 12, capitalists: -8 },
+        hint: "İşçi memnuniyeti ve sağlık artar, sanayiciler kızar."
+      },
+      {
+        label: "B",
+        text: "Talebi reddet, 'ekonomi kaldırmaz'.",
+        effects: { happiness: -5, stability: -2 },
+        factionEffects: { capitalists: 6, workers: -8 },
+        hint: "Üretim hızı korunur ama işçiler grev tehdidi savurur."
+      }
+    ]
+  },
+  {
+    id: "geo_cyber_grid_blackout",
+    title: "Elektrik Şebekesine Siber Saldırı",
+    description: "Dış kaynaklı olduğu düşünülen bir siber saldırı başkentin ve sanayi bölgesinin elektriğini 12 saat kesti.",
+    category: "kriz",
+    minTurn: 12,
+    choices: [
+      {
+        label: "A",
+        text: "Siber savunma bütçesini iki katına çıkar ve siber komutanlık kur.",
+        effects: { budget: -1500, military: 4, stability: 4, energy: 10 },
+        factionEffects: { military: 6, intellectuals: 4 },
+        hint: "Gelecek saldırılara karşı koruma sağlanır."
+      },
+      {
+        label: "B",
+        text: "Misilleme olarak şüpheli ülkeye karşı siber saldırı emri ver.",
+        effects: { foreignRelations: -10, military: 5, stability: -4 },
+        factionEffects: { nationalists: 8, intellectuals: -5 },
+        hint: "Gerilim tırmanır, uluslararası kriz başlar."
+      }
+    ]
+  },
+  {
+    id: "tech_neural_implants_testing",
+    title: "Beyin Çipi Protez Deneyleri",
+    description: "Bir biyoteknoloji firması, felçli hastaların yürümesini sağlayan beyin çiplerinin insanlı deneylerine izin istiyor.",
+    category: "sosyal",
+    minTurn: 9,
+    choices: [
+      {
+        label: "A",
+        text: "Sıkı etik denetim altında klinik deneylere izin ver.",
+        effects: { health: 6, education: 4, budget: -500 },
+        factionEffects: { intellectuals: 8, workers: 4 },
+        hint: "Tıp tarihi baştan yazılır, ülke biyoteknoloji üssü olur."
+      },
+      {
+        label: "B",
+        text: "Etik gerekçelerle beyin çiplerini yasakla.",
+        effects: { happiness: -2, education: -3 },
+        factionEffects: { nationalists: 4, intellectuals: -8 },
+        hint: "Muhafazakar kesim rahatlar ama bilim beyin göçü verir."
+      }
+    ]
+  },
+  {
+    id: "ic_senior_official_leaks",
+    title: "Kıdemli Bürokratın İtiraf Videosu",
+    description: "Eski bir müsteşar, yurt dışına kaçarak geçmiş hükümet kararlarındaki torpil ve rüşvet çarkını açıklayan videolar yayınladı.",
+    category: "ic_politika",
+    minTurn: 11,
+    choices: [
+      {
+        label: "A",
+        text: "Bağımsız Yargı Kurulu oluştur ve tüm iddiaları araştır.",
+        effects: { stability: 5, popularity: 6, budget: -400 },
+        factionEffects: { workers: 8, intellectuals: 8, capitalists: -5 },
+        hint: "Adalet algısı güçlenir, yolsuzluk biter."
+      },
+      {
+        label: "B",
+        text: "Videolara erişim engeli getir ve bürokratı 'vatan haini' ilan et.",
+        effects: { stability: -5, popularity: -8, foreignRelations: -4 },
+        factionEffects: { nationalists: 6, intellectuals: -10 },
+        hint: "Dış dünya eleştirir, iç huzursuzluk tırmanır."
+      }
+    ]
+  },
+  {
+    id: "eco_tourism_housing_crisis",
+    title: "Turizm Patlaması ve Ev Kiralama Krizi",
+    description: "Kıyı şehirlerinde kısa dönemli ev kiralama çılgınlığı nedeniyle yerel memurlar ve öğrenciler ev bulamıyor.",
+    category: "ekonomi",
+    minTurn: 5,
+    choices: [
+      {
+        label: "A",
+        text: "Turistik kiralamalara tavan fiyat ve ruhsat zorunluluğu getir.",
+        effects: { happiness: 4, budget: -300, stability: 3 },
+        factionEffects: { workers: 8, capitalists: -6 },
+        hint: "Halk konut krizinden kurtulur, emlakçılar kızar."
+      },
+      {
+        label: "B",
+        text: "Serbest piyasa, döviz girdisini engelleme.",
+        effects: { budget: 1200, happiness: -6, stability: -3 },
+        factionEffects: { capitalists: 8, workers: -8 },
+        hint: "Döviz akar ama kira protestoları başlar."
+      }
+    ]
+  },
+  {
+    id: "mil_pmc_mercenary_offer",
+    title: "Özel Askeri Şirket (PMC) Kurulması",
+    description: "Emekli generallerden oluşan bir grup, yurt dışı operasyonlar ve tesis güvenliği için özel paralı asker şirketi kurmak istiyor.",
+    category: "askeri",
+    minTurn: 8,
+    choices: [
+      {
+        label: "A",
+        text: "Şirkete lisans ver ve devlet ihaleleri sağla.",
+        effects: { military: 6, budget: 800, foreignRelations: -5 },
+        factionEffects: { military: 6, nationalists: 4, intellectuals: -6 },
+        hint: "Askeri güç artar ama uluslararası alanda başınız ağrıyabilir."
+      },
+      {
+        label: "B",
+        text: "Paralı askerliği yasa dışı ilan et (Tek el devlette).",
+        effects: { stability: 3, foreignRelations: 3 },
+        factionEffects: { military: -4, intellectuals: 5 },
+        hint: "Devletin şiddet tekelini korursunuz."
+      }
+    ]
+  },
+  {
+    id: "cevre_unprecedented_heatwave",
+    title: "Tarihi Sıcaklık Dalgası ve Kuraklık",
+    description: "Yaz mevsiminde sıcaklıklar 48 dereceyi gördü. Barajlardaki doluluk %15'e düştü, tarım arazileri kuruyor.",
+    category: "cevre",
+    minTurn: 6,
+    choices: [
+      {
+        label: "A",
+        text: "Acil durum ilan et: Deniz suyu arıtma tesisleri inşa et.",
+        effects: { environment: 4, budget: -1800, energy: -10, food: 10 },
+        factionEffects: { intellectuals: 6, workers: 4 },
+        hint: "Su krizi çözülür ama dev bütçe harcanır."
+      },
+      {
+        label: "B",
+        text: "Tarımda su kullanımına kota koy ve su kesintisi uygula.",
+        effects: { happiness: -6, food: -10, stability: -3 },
+        factionEffects: { workers: -8, intellectuals: -4 },
+        hint: "Halk ve çiftçiler isyan eder."
+      }
+    ]
+  },
+  {
+    id: "dis_strait_trade_blockade",
+    title: "Kritik Boğazın Ulaşıma Kapanması",
+    description: "Küresel ticaretin %12'sinin geçtiği yakındaki bir boğaz, batan bir konteyner gemisi nedeniyle 2 hafta kapandı.",
+    category: "dis_politika",
+    minTurn: 9,
+    choices: [
+      {
+        label: "A",
+        text: "Kurtarma çalışmalarına ulusal donanma ve römorkörleri gönder.",
+        effects: { foreignRelations: 8, budget: -600, materials: 10 },
+        factionEffects: { intellectuals: 5, military: 4 },
+        hint: "Dünya ticaretini kurtaran kahraman olursunuz."
+      },
+      {
+        label: "B",
+        text: "Alternatif kara yolu koridorunu yüksek ücretle kullanıma aç.",
+        effects: { budget: 2000, foreignRelations: -4 },
+        factionEffects: { capitalists: 8, nationalists: 4 },
+        hint: "Krizden devasa lojistik geliri elde edersiniz."
+      }
+    ]
+  },
+  {
+    id: "soc_ai_school_tutors",
+    title: "Okullarda Yapay Zeka Öğretmenler",
+    description: "Milli Eğitim projesi kapsamında bazı sınıflarda kişiselleştirilmiş YZ öğretmen sistemleri denenmek isteniyor.",
+    category: "sosyal",
+    minTurn: 7,
+    choices: [
+      {
+        label: "A",
+        text: "Projeyi onayla ve öğretmenleri YZ destekçisi olarak eğit.",
+        effects: { education: 6, budget: -700, happiness: 2 },
+        factionEffects: { intellectuals: 8, workers: -3 },
+        hint: "Eğitim kalitesi fırlar, öğretmen sendikaları çekimser."
+      },
+      {
+        label: "B",
+        text: "Projeyi durdur, 'insan teması esastır'.",
+        effects: { happiness: 3, education: -2 },
+        factionEffects: { workers: 6, intellectuals: -5 },
+        hint: "Öğretmenler sevinir ama teknolojik dönüşüm gecikir."
+      },
+      {
+        label: "D",
+        text: "👨‍🏫 [BAKAN] Eğitim Bakanı ile hibrit eğitim modelini başlat.",
+        effects: { education: 10, budget: -400, happiness: 4 },
+        factionEffects: { intellectuals: 10, workers: 5 },
+        hint: "Kusursuz eğitim reformu! (Eğitim Bakanı gerekli)",
+        requiredMinister: "edu_academic"
+      }
+    ]
+  },
+  {
+    id: "min_health_hospital_outbreak",
+    title: "Hastane Enfeksiyonu Krizleri",
+    description: "Şehir hastanelerinde antibiyotiklere dirençli süper bakteri salgını başladı.",
+    category: "ic_politika",
+    minTurn: 6,
+    choices: [
+      {
+        label: "A",
+        text: "Hastaneleri karantinaya al ve hijyen fonu aktar.",
+        effects: { health: 4, budget: -800, happiness: -2 },
+        factionEffects: { workers: 4 },
+        hint: "Salgın kontrol altına alınır."
+      },
+      {
+        label: "B",
+        text: "Olayı örtbas et, panik çıkmasın.",
+        effects: { health: -8, stability: -4, popularity: -6 },
+        factionEffects: { workers: -8, intellectuals: -6 },
+        hint: "Hastalık yayılır, sağlık sistemi çöker."
+      },
+      {
+        label: "D",
+        text: "👩‍⚕️ [BAKAN] Sağlık Bakanı ile acil izolasyon ve yerli antibiyotik protokolü uygula.",
+        effects: { health: 8, happiness: 3, budget: -300 },
+        factionEffects: { workers: 8, intellectuals: 6 },
+        hint: "Bakanınızın uzmanlığı ile salgın 48 saatte biter. (Sağlık Bakanı gerekli)",
+        requiredMinister: "hlt_social"
+      }
+    ]
+  },
+  {
+    id: "eco_sovereign_investment_fund",
+    title: "Ulusal Varlık Fonu Fırsatı",
+    description: "Gelişmekte olan bir yabancı teknoloji devi, hisselerinin %25'ini ulusal varlık fonumuza satmayı teklif etti.",
+    category: "ekonomi",
+    minTurn: 8,
+    choices: [
+      {
+        label: "A",
+        text: "Hisseleri satın al ($3.000 Yatırım).",
+        effects: { budget: -3000, education: 5, foreignRelations: 4 },
+        factionEffects: { capitalists: 10, intellectuals: 5 },
+        hint: "Uzun vadeli temettü ve teknoloji transferi sağlar."
+      },
+      {
+        label: "B",
+        text: "Teklifi reddet, nakiti kasada tut.",
+        effects: { budget: 0 },
+        hint: "Risksiz tutum."
+      }
+    ]
   }
 ];
 
@@ -2380,13 +2987,17 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
   });
 
   const selectedEvents: GameEvent[] = [];
-  
-  // Eğer hiç uygun event yoksa veya istenenden azsa, fallback havuzundan çek
   let pool = [...availableEvents];
+
+  // Ülke zorluğuna göre ağırlıklandırma (Difficulty-Weighted Random Selection)
+  let difficulty = "Dengeli";
+  if (state && state.countryName) {
+    const template = COUNTRIES.find(c => c.name === state.countryName);
+    if (template) difficulty = template.difficulty;
+  }
   
   for (let i = 0; i < count; i++) {
     if (pool.length === 0) {
-      // Fallback havuzunu oluştur (Özel hikayeleri ve büyük krizleri tekrar ettirme)
       const recentEvents = usedEventIds.slice(-5);
       let fallbackPool = EVENTS.filter(e => 
         (!e.requiredFlags || e.requiredFlags.length === 0) && 
@@ -2407,26 +3018,47 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
       if (fallbackPool.length > 0) {
         const randomIndex = Math.floor(Math.random() * fallbackPool.length);
         selectedEvents.push(fallbackPool[randomIndex]);
-        pool = pool.filter(e => e.id !== fallbackPool[randomIndex].id); // Yedek havuzdan aynı şeyi çekmesin
+        pool = pool.filter(e => e.id !== fallbackPool[randomIndex].id);
       }
     } else {
-      // Çeşitliliği sağla: Aynı kategoriden çok fazla olay gelmesini engelle (Örn: Üst üste 3 ekonomi olayı gelmesin)
+      // Çeşitlilik: Aynı kategoriden çok fazla olay üst üste gelmesin
       const selectedCategories = selectedEvents.map(e => e.category);
       let filteredPool = pool;
       
       for (const cat of selectedCategories) {
         const tempPool = filteredPool.filter(e => e.category !== cat);
-        // Eğer havuz tamamen boşalmıyorsa filtreyi uygula
         if (tempPool.length > 0) {
           filteredPool = tempPool;
         }
       }
 
-      const randomIndex = Math.floor(Math.random() * filteredPool.length);
-      const chosenEvent = filteredPool[randomIndex];
+      // Ağırlıklı rastgele seçim (Weighted Random Selection based on Difficulty)
+      const weights = filteredPool.map(e => {
+        let weight = 1.0;
+        if (difficulty === "Kolay") {
+          if (e.category === "ekonomi" || e.category === "sosyal" || e.category === "cevre") weight *= 2.5;
+          if (e.category === "kriz" || e.category === "askeri") weight *= 0.4;
+        } else if (difficulty === "Zor" || difficulty === "Çok Zor") {
+          if (e.category === "kriz" || e.category === "askeri" || e.category === "ic_politika") weight *= 2.5;
+          if (e.category === "sosyal" || e.category === "cevre") weight *= 0.6;
+        }
+        return weight;
+      });
+
+      const totalWeight = weights.reduce((a, b) => a + b, 0);
+      let randomVal = Math.random() * totalWeight;
+      let chosenIndex = 0;
+
+      for (let j = 0; j < filteredPool.length; j++) {
+        randomVal -= weights[j];
+        if (randomVal <= 0) {
+          chosenIndex = j;
+          break;
+        }
+      }
+
+      const chosenEvent = filteredPool[chosenIndex] || filteredPool[0];
       selectedEvents.push(chosenEvent);
-      
-      // Çekilen olayı asıl havuzdan çıkar
       pool = pool.filter(e => e.id !== chosenEvent.id);
     }
   }

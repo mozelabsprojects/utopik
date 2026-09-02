@@ -571,34 +571,6 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   turnReports.push(`🏢 Devlet altyapı bakım giderleri: -$${maintenanceCost}`);
 
   // ==========================================
-  // EMTİA TÜKETİMİ (Her tur enerji, gıda, materyal harcanır)
-  // ==========================================
-  const popDrain = Math.max(1, Math.round(Math.sqrt(state.population / 10)));
-  const energyDrain = Math.round(2 + popDrain * 0.5);
-  const foodDrain = Math.round(3 + popDrain * 0.8);
-  const materialDrain = Math.round(1 + popDrain * 0.3);
-  
-  state.energy = Math.max(0, state.energy - energyDrain);
-  state.food = Math.max(0, state.food - foodDrain);
-  state.materials = Math.max(0, state.materials - materialDrain);
-  
-  // Kaynak kıtlığı cezaları
-  if (state.energy <= 10) {
-    state.happiness = clampStat(state.happiness - 3);
-    state.stability = clampStat(state.stability - 2);
-    turnReports.push(`⚡ ENERJİ KRİZİ: Enerji stoklarınız kritik seviyede! Halk karanlıkta kaldı. (-3 Mutluluk, -2 İstikrar)`);
-  }
-  if (state.food <= 10) {
-    state.health = clampStat(state.health - 4);
-    state.happiness = clampStat(state.happiness - 5);
-    turnReports.push(`🍞 GIDA KRİZİ: Gıda stoklarınız tükeniyor! Açlık kapıda. (-4 Sağlık, -5 Mutluluk)`);
-  }
-  if (state.materials <= 10) {
-    state.stability = clampStat(state.stability - 2);
-    turnReports.push(`⛏️ HAMMADDE KRİZİ: Materyal stoğu kritik! İnşaat ve üretim duruyor. (-2 İstikrar)`);
-  }
-
-  // ==========================================
   // ANTİ-HOARDING: ZENGİNLİK CEZASI (Yolsuzluk & İsraf)
   // ==========================================
   if (state.budget > 500000) {

@@ -513,6 +513,7 @@ function GameContent() {
                       event={event}
                       onChoice={(label) => handleChoice(event.id, label)}
                       disabled={actionLoading}
+                      ministersJson={game.ministers}
                     />
                   ))}
                 </div>

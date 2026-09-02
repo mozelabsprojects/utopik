@@ -50,6 +50,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Geçersiz seçim" }, { status: 400 });
     }
 
+    if (choice.requiredMinister) {
+      let ministers: Record<string, string> = {};
+      try { ministers = JSON.parse(game.ministers || "{}"); } catch {}
+      const isMinisterHired = Object.values(ministers).includes(choice.requiredMinister);
+      if (!isMinisterHired) {
+        return NextResponse.json({ error: "Bu özel seçeneği seçebilmek için ilgili Bakanın kabinenizde olması gereklidir." }, { status: 400 });
+      }
+    }
+
     // Mevcut durumu GameState formatına çevir
     const currentState: GameState = {
       id: game.id,

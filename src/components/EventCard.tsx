@@ -52,10 +52,19 @@ interface EventCardProps {
   event: GameEvent;
   onChoice: (label: string) => void;
   disabled?: boolean;
+  ministersJson?: string;
 }
 
-export default function EventCard({ event, onChoice, disabled }: EventCardProps) {
+export default function EventCard({ event, onChoice, disabled, ministersJson }: EventCardProps) {
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+
+  let hiredMinisters: string[] = [];
+  try {
+    if (ministersJson) {
+      const parsed = JSON.parse(ministersJson);
+      hiredMinisters = Object.values(parsed);
+    }
+  } catch {}
 
   const handleChoice = (label: string) => {
     if (disabled || selectedChoice) return;
@@ -94,17 +103,21 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
       <div className="space-y-2">
         {event.choices.map((choice) => {
           const isSelected = selectedChoice === choice.label;
+          const isMinisterMissing = choice.requiredMinister ? !hiredMinisters.includes(choice.requiredMinister) : false;
+          const isBtnDisabled = disabled || !!selectedChoice || isMinisterMissing;
 
           return (
             <motion.button
               key={choice.label}
-              whileHover={!selectedChoice && !disabled ? { scale: 1.02, backgroundColor: "rgba(30, 41, 59, 0.8)" } : {}}
-              whileTap={!selectedChoice && !disabled ? { scale: 0.98 } : {}}
-              onClick={() => handleChoice(choice.label)}
-              disabled={disabled || !!selectedChoice}
+              whileHover={!selectedChoice && !isBtnDisabled ? { scale: 1.02, backgroundColor: "rgba(30, 41, 59, 0.8)" } : {}}
+              whileTap={!selectedChoice && !isBtnDisabled ? { scale: 0.98 } : {}}
+              onClick={() => !isBtnDisabled && handleChoice(choice.label)}
+              disabled={isBtnDisabled}
               className={`w-full text-left relative p-3 rounded-xl border transition-all duration-300 ${
                 isSelected
                   ? "border-cyan-500 bg-cyan-900/20"
+                  : isMinisterMissing
+                  ? "border-red-900/40 bg-slate-900/40 opacity-60 cursor-not-allowed"
                   : "border-slate-700 bg-slate-800/50 hover:border-slate-500"
               } ${
                 selectedChoice && !isSelected ? "opacity-30 grayscale" : ""
@@ -122,8 +135,14 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
                     <p className={`text-[13px] ${isSelected ? "text-cyan-100 font-semibold" : "text-slate-200"}`}>
                       {choice.text}
                     </p>
+                    {/* Required Minister Warning Badge */}
+                    {isMinisterMissing && (
+                      <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        ⚠️ Bakan Gerekli
+                      </span>
+                    )}
                     {/* Budget Badge */}
-                    {choice.effects.budget !== undefined && choice.effects.budget !== 0 && (
+                    {!isMinisterMissing && choice.effects.budget !== undefined && choice.effects.budget !== 0 && (
                       <span className={`flex-shrink-0 text-[11px] px-2 py-0.5 rounded font-bold ${
                         choice.effects.budget > 0 
                           ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
