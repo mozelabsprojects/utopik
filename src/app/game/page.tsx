@@ -552,10 +552,7 @@ function GameContent() {
         {activeTab === "projects" && (
           <div className="animate-fade-in space-y-6">
             <MegaProjectsPanel 
-              gameId={game.id} 
-              turn={game.turn}
-              budget={game.budget}
-              completedProjectsJson={game.megaProjects}
+              game={game}
               onUpdate={fetchGameState}
             />
           </div>

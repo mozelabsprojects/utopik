@@ -4,7 +4,7 @@ import StatBar from "./StatBar";
 import BudgetDisplay from "./BudgetDisplay";
 import FinanceAnalysis from "./FinanceAnalysis";
 import ImpactGraph from "./ImpactGraph";
-import { GameState } from "@/lib/types";
+import { GameState, TradeDeal } from "@/lib/types";
 import { generateAdvisorHints } from "@/lib/advisor";
 import { TECH_TREE, TechId } from "@/lib/tech-tree";
 import { calculateStatPressures, StatPressure } from "@/lib/game-engine";
@@ -12,6 +12,7 @@ import React from "react";
 
 interface GameData extends GameState {
   countryName: string;
+  tradeAgreements?: TradeDeal[];
 }
 
 interface DashboardProps {
@@ -139,6 +140,29 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {/* AKTİF TİCARİ ANLAŞMALAR */}
+          {game.tradeAgreements && game.tradeAgreements.length > 0 && (
+            <div className="mt-4 glass-strong rounded-2xl p-4 border border-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+              <h3 className="text-xs font-bold text-green-400 mb-3 flex items-center gap-2 uppercase tracking-wider">
+                <span>🤝</span> Ticari Anlaşmalar
+              </h3>
+              <div className="flex flex-col gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+                {game.tradeAgreements.map(deal => (
+                  <div key={deal.id} className="bg-slate-900/60 p-3 rounded-xl border border-white/5 flex justify-between items-center hover:border-green-500/30 transition-colors">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-slate-200">{deal.partnerName}</span>
+                      <span className="text-[10px] text-green-400 font-mono">+{deal.incomePerTurn.toLocaleString()}$ / tur</span>
+                    </div>
+                    <div className="flex items-center gap-1 bg-slate-800 px-2 py-1 rounded text-xs font-bold text-slate-300">
+                      <span>⏳</span>
+                      <span>{deal.turnsRemaining} Tur</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

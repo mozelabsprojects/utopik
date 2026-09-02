@@ -1,19 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { MEGA_PROJECTS, MegaProjectId } from "@/lib/mega-projects";
+import { MEGA_PROJECTS, MegaProjectId, canStartMegaProject } from "@/lib/mega-projects";
+import { GameState } from "@/lib/types";
 
 export default function MegaProjectsPanel({
-  gameId,
-  turn,
-  budget,
-  completedProjectsJson,
+  game,
   onUpdate
 }: {
-  gameId: string;
-  turn: number;
-  budget: number;
-  completedProjectsJson: string;
+  game: GameState;
   onUpdate: () => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -21,7 +16,7 @@ export default function MegaProjectsPanel({
 
   let completed: string[] = [];
   try {
-    completed = JSON.parse(completedProjectsJson);
+    completed = JSON.parse(game.megaProjects || "[]");
   } catch (e) {}
 
   const handleStart = async (projectId: MegaProjectId) => {
@@ -31,7 +26,7 @@ export default function MegaProjectsPanel({
       const res = await fetch("/api/game/mega-project", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameId, projectId })
+        body: JSON.stringify({ gameId: game.id, projectId })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -48,7 +43,7 @@ export default function MegaProjectsPanel({
       <h2 className="text-2xl font-bold text-yellow-500 flex items-center gap-2 mb-4">
         🚀 Mega Projeler
         <span className="text-sm font-normal bg-slate-700 px-3 py-1 rounded-full text-slate-300">
-          Devlet Bütçesi: 💰 {budget.toLocaleString()}
+          Devlet Bütçesi: 💰 {game.budget.toLocaleString()}
         </span>
       </h2>
       
@@ -57,8 +52,22 @@ export default function MegaProjectsPanel({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.values(MEGA_PROJECTS).map((project) => {
           const isCompleted = completed.includes(project.id);
-          const isTurnMet = turn >= project.requiredTurn;
-          const isBudgetMet = budget >= project.cost;
+          const isTurnMet = game.turn >= project.requiredTurn;
+          const isBudgetMet = game.budget >= project.cost;
+          const canStart = canStartMegaProject(game, project.id as MegaProjectId);
+          const reqs = project.requiredStats;
+
+          const getStatStatus = (key: keyof typeof reqs, label: string) => {
+            const reqVal = reqs[key];
+            if (reqVal === undefined) return null;
+            const currentVal = (game as any)[key] || 0;
+            const isMet = currentVal >= reqVal;
+            return (
+              <p key={key} className={isMet ? "text-green-400" : "text-red-400"}>
+                {isMet ? "✔" : "✘"} {label}: {currentVal}/{reqVal}
+              </p>
+            );
+          };
 
           return (
             <div key={project.id} className={`border rounded-xl p-4 transition-all duration-300 ${isCompleted ? 'bg-yellow-500/10 border-yellow-500/50' : 'bg-slate-900/50 border-slate-600'}`}>
@@ -81,13 +90,21 @@ export default function MegaProjectsPanel({
                   <p className={isBudgetMet ? "text-green-400" : "text-red-400"}>
                     {isBudgetMet ? "✔" : "✘"} Yeterli Bütçe
                   </p>
-                  <p>Diğer koşullar statlerinize bağlıdır.</p>
+                  {getStatStatus("health", "Sağlık")}
+                  {getStatStatus("happiness", "Mutluluk")}
+                  {getStatStatus("stability", "İstikrar")}
+                  {getStatStatus("education", "Eğitim")}
+                  {getStatStatus("military", "Askeri Güç")}
+                  {getStatStatus("environment", "Çevre")}
+                  {getStatStatus("foreignRelations", "Dış İlişkiler")}
+                  {getStatStatus("popularity", "Halk Desteği")}
+                  {getStatStatus("politicalCapital", "Siyasi Sermaye")}
                 </div>
               )}
 
               <button
-                onClick={() => handleStart(project.id)}
-                disabled={loading || isCompleted || !isTurnMet || !isBudgetMet}
+                onClick={() => handleStart(project.id as MegaProjectId)}
+                disabled={loading || isCompleted || !canStart}
                 className={`w-full py-2 rounded-lg font-bold transition-colors ${
                   isCompleted 
                     ? 'bg-yellow-600/30 text-yellow-300 cursor-default'
