@@ -49,11 +49,12 @@ export default function WorldMap({ countries, gameState, onTrade, onUpdate }: Wo
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ gameId: gameState.id, partnerName: selectedCountry.name, action }),
       });
+      const resData = await res.json();
+      
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error);
+        throw new Error(resData.error);
       }
-      setTradeMessage({ text: action === 'war' ? "Savaş İlan Edildi!" : "İttifak Kuruldu!", type: "success" });
+      setTradeMessage({ text: resData.message || (action === 'war' ? "Savaş İlan Edildi!" : "İttifak Kuruldu!"), type: "success" });
       if (onUpdate) onUpdate();
     } catch (e: any) {
       setTradeMessage({ text: e.message || "İşlem yapılamadı.", type: "error" });

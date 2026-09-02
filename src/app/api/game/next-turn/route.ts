@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { processNextTurn, clampStat, calculateRelationship } from "@/lib/game-engine";
-import { GameState, MarketState } from "@/lib/types";
+import { GameState, MarketState, HistoryRecord } from "@/lib/types";
 import { INITIAL_FACTIONS, modifyFactionSupport, FactionsState } from "@/lib/factions";
 
 export async function POST(request: Request) {
@@ -382,6 +382,7 @@ export async function POST(request: Request) {
     const currentState: GameState = {
       id: game.id,
       countryName: game.countryName,
+      population: game.population,
       turn: game.turn,
       budget: game.budget + aiFinancialAid - totalDebtToPay,
       military: clampStat(game.military - Math.min(100, Math.max(0, totalAiAttackDamage))),
@@ -391,6 +392,9 @@ export async function POST(request: Request) {
       education: game.education,
       stability: clampStat(game.stability - Math.min(100, Math.max(0, totalAiAttackDamage / 2)) - totalWarExhaustion),
       foreignRelations: game.foreignRelations,
+      energy: game.energy,
+      food: game.food,
+      materials: game.materials,
       popularity: game.popularity,
       politicalCapital: game.politicalCapital,
       nextElectionTurn: game.nextElectionTurn,
@@ -425,10 +429,24 @@ export async function POST(request: Request) {
       turnResult.newEvents.forEach(e => usedIds.push(e.id));
     }
 
+    // Tarihçe verisini güncelle
+    const history: HistoryRecord[] = JSON.parse(game.historicalData || "[]");
+    history.push({
+      turn: game.turn,
+      budget: newState.budget,
+      population: newState.population,
+      inflation: newState.inflation || 5.0,
+      stability: newState.stability,
+      happiness: newState.happiness,
+      taxIncome: turnResult.taxIncome
+    });
+
     // Veritabanını güncelle
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: {
+        population: newState.population,
+        historicalData: JSON.stringify(history),
         turn: game.turn + 1,
         budget: newState.budget,
         military: newState.military,

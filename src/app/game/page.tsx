@@ -23,9 +23,12 @@ import CentralBankPanel from "@/components/CentralBankPanel";
 import SettingsModal from "@/components/SettingsModal";
 import Sidebar, { SidebarTab } from "@/components/Sidebar";
 import TechTreePanel from "@/components/TechTreePanel";
+import AnalyticsPanel from "@/components/AnalyticsPanel";
+import ElectionModal from "@/components/ElectionModal";
 import { GameEvent, DominoEffect, Sector, GameState, WorldCountryState } from "@/lib/types";
 import { playClickSound, playTurnSound, playAlertSound } from "@/lib/audio";
 import { generateAdvisorHints, AdvisorHint } from "@/lib/advisor";
+import { COUNTRIES } from "@/lib/countries-data";
 
 interface GameData extends GameState {
   worldCountries: WorldCountryState[];
@@ -389,6 +392,7 @@ function GameContent() {
     if (!game) return "theme-default";
     if (game.isBankrupt) return "theme-bankrupt";
     if (game.stability < 30) return "theme-crisis";
+    if (game.happiness > 80 && game.stability > 80) return "theme-golden";
     return "theme-default";
   };
 
@@ -429,6 +433,18 @@ function GameContent() {
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="flex-1 flex flex-col min-w-0 h-full pb-20 md:pb-4 p-2 md:p-4 max-w-[1600px] mx-auto overflow-hidden relative">
+        
+        {/* Seçim Ekranı */}
+        {game.turn >= (game.nextElectionTurn || 999) && COUNTRIES.find(c => c.name === game.countryName)?.regime === "Demokrasi" && !game.isGameOver && (
+          <ElectionModal 
+            gameId={game.id} 
+            turn={game.turn} 
+            popularity={game.popularity} 
+            politicalCapital={game.politicalCapital}
+            onComplete={fetchGameState}
+          />
+        )}
+        
         <GameTutorial 
           activeTab={activeTab} 
           setActiveTab={setActiveTab as any} 
@@ -565,6 +581,13 @@ function GameContent() {
               onTrade={handleTrade}
               onUpdate={fetchGameState}
             />
+          </div>
+        )}
+
+        {/* ANALYTICS */}
+        {activeTab === "analytics" && (
+          <div className="space-y-6 animate-fade-in">
+            <AnalyticsPanel game={game} />
           </div>
         )}
 

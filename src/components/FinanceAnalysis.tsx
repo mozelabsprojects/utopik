@@ -37,12 +37,12 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
   const taxDetails = getDetailedTaxIncome(
     game.education, game.health, game.environment, game.military, 
     game.stability, game.happiness, factions.capitalists?.support || 50, 
-    eventFlags, difficulty, currentInflation 
+    eventFlags, difficulty, currentInflation, game.population
   );
 
   const maintDetails = getDetailedMaintenanceCost(
     game.military, game.health, game.education, game.environment, 
-    game.stability, eventFlags, game.budget, difficulty, unlockedTechs, currentInflation
+    game.stability, eventFlags, game.budget, difficulty, unlockedTechs, currentInflation, game.population
   );
 
   // 2) KESİN NET BÜTÇE (calculateNetBudget ile)

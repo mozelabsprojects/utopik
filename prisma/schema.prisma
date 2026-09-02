@@ -23,7 +23,13 @@ model Game {
   stability        Float        @default(50)
   foreignRelations Float        @default(50)
   
+  // Yeni Kaynaklar
+  energy           Float        @default(100)
+  food             Float        @default(100)
+  materials        Float        @default(100)
+  
   // Siyasi ve Yeni Statler
+  population       Float        @default(10.0) // Milyon cinsinden nüfus
   popularity       Float        @default(50) // Başkanlık desteği
   politicalCapital Float        @default(100) // Siyasi sermaye
   activeQuests     String       @default("[]") // JSON formatında (Side quests)
@@ -34,6 +40,7 @@ model Game {
   activeCrises     String       @default("[]") // JSON (Devam Eden Krizler)
   factions         String       @default("{}") // JSON (Fraksiyon değerleri)
   activeLaws       String       @default("[]") // JSON (Yürürlükteki Kanunlar)
+  historicalData   String       @default("[]") // JSON (Tur bazlı istatistik geçmişi)
 
   // V5 Ütopya Çağı Sistemleri
   megaProjects     String       @default("[]") // JSON (Başlanan/Biten Mega Projeler)

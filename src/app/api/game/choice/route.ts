@@ -54,6 +54,7 @@ export async function POST(request: Request) {
     const currentState: GameState = {
       id: game.id,
       countryName: game.countryName,
+      population: game.population,
       turn: game.turn,
       budget: game.budget,
       military: game.military,
@@ -63,6 +64,9 @@ export async function POST(request: Request) {
       education: game.education,
       stability: game.stability,
       foreignRelations: game.foreignRelations,
+      energy: game.energy,
+      food: game.food,
+      materials: game.materials,
       popularity: game.popularity,
       politicalCapital: game.politicalCapital,
       activeQuests: game.activeQuests,

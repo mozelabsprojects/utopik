@@ -33,14 +33,18 @@ export async function POST(request: Request) {
       delete ministers[minister.ministry];
       eventFlags = eventFlags.filter(f => !f.startsWith(flagPrefix));
       
+      // Kovma işlemi istikrarsızlık yaratır
+      const updatedStability = Math.max(0, game.stability - 2);
+      
       await prisma.game.update({
         where: { id: gameId },
         data: {
           ministers: JSON.stringify(ministers),
-          eventFlags: JSON.stringify(eventFlags)
+          eventFlags: JSON.stringify(eventFlags),
+          stability: updatedStability
         }
       });
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, message: "Bakan görevden alındı. Kabine değişikliği İstikrarı -2 düşürdü." });
     }
 
     // Atama İşlemi
@@ -58,40 +62,43 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Bu bakanın temsil ettiği grubun halk desteği %20'nin altında olduğu için atama yapılamaz." }, { status: 400 });
     }
 
+    let updatedStability = game.stability;
+    const flagPrefix = `minister_${minister.ministry}_hired_`;
+
     // Aynı bakanlığa başka biri atanmışsa değiştir (üzerine yaz)
+    if (ministers[minister.ministry]) {
+      const hireFlag = eventFlags.find(f => f.startsWith(flagPrefix));
+      if (hireFlag) {
+        const hireTurn = parseInt(hireFlag.replace(flagPrefix, ""), 10);
+        if (game.turn - hireTurn < 5) {
+          return NextResponse.json({ error: `Mevcut bakanı değiştirmek için ${5 - (game.turn - hireTurn)} tur daha beklemelisiniz.` }, { status: 400 });
+        }
+      }
+      // Bakan değiştirmek de küçük bir istikrarsızlık yaratır
+      updatedStability = Math.max(0, updatedStability - 2);
+    }
+    
     ministers[minister.ministry] = minister.id;
     
     // Eski atama flag'ini temizle ve yenisini ekle
-    const flagPrefix = `minister_${minister.ministry}_hired_`;
     eventFlags = eventFlags.filter(f => !f.startsWith(flagPrefix));
     eventFlags.push(`${flagPrefix}${game.turn}`);
-
-    let updatedHappiness = game.happiness;
-    let easterEggName = null;
-    
-    // Easter Egg: General Bard (def_hawk), Prof. Dr. Ege Demirci, veya Creed İpekci (for_globalist)
-    if (minister.id === "def_hawk") {
-      updatedHappiness = Math.min(100, updatedHappiness + 1);
-      easterEggName = "General Bard";
-    } else if (minister.id === "edu_academic" || minister.name === "Prof. Dr. Ege Demirci") {
-      updatedHappiness = Math.min(100, updatedHappiness + 1);
-      easterEggName = "Prof. Dr. Ege Demirci";
-    } else if (minister.id === "for_globalist" || minister.name === "Creed İpekci") {
-      updatedHappiness = Math.min(100, updatedHappiness + 1);
-      easterEggName = "Creed İpekci";
-    }
 
     await prisma.game.update({
       where: { id: gameId },
       data: {
         politicalCapital: game.politicalCapital - minister.hireCost,
-        happiness: updatedHappiness,
+        stability: updatedStability,
         ministers: JSON.stringify(ministers),
         eventFlags: JSON.stringify(eventFlags)
       }
     });
 
-    return NextResponse.json({ success: true, easterEggName });
+    const msg = updatedStability < game.stability 
+      ? "Bakan atandı. Kabine değişikliği İstikrarı -2 düşürdü." 
+      : "Bakan başarıyla atandı.";
+
+    return NextResponse.json({ success: true, message: msg });
   } catch (error) {
     return NextResponse.json({ error: "Atama başarısız" }, { status: 500 });
   }

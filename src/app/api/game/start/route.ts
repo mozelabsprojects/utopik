@@ -48,6 +48,7 @@ export async function POST(request: Request) {
     const game = await prisma.game.create({
       data: {
         countryName: country.name,
+        population: country.population,
         budget: country.budget,
         military: country.military,
         happiness: country.happiness,
@@ -81,6 +82,15 @@ export async function POST(request: Request) {
           inventory: { energy: 0, food: 0, tech: 0, medical: 0, arms: 0, minerals: 0 },
           history: []
         }),
+        historicalData: JSON.stringify([{
+          turn: 1,
+          budget: country.budget,
+          population: country.population,
+          inflation: 5.0,
+          stability: country.stability,
+          happiness: country.happiness,
+          taxIncome: 0 // İlk turda vergi yok, sonraki turlarda eklenecek
+        }]),
         eventFlags: JSON.stringify(eventFlags),
         worldCountries: {
           create: worldCountriesData,

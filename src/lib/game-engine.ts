@@ -24,16 +24,20 @@ const BANKRUPTCY_DURATION = 3;
 // A. BAKIM MALİYETLERİ
 import { COUNTRIES } from "./countries-data";
 
-export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0) {
-  let militaryCost = military * 12;
-  let healthCost = health * 10;
-  let educationCost = education * 10;
-  let environmentCost = environment * 8; // Çevre koruma maliyeti
+export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0, population: number = 10.0) {
+  // Nüfus ölçeklendirmesi: Karesel kök (Square Root) yaklaşımı
+  // Eskiden 1400m pop -> çarpan 140'tı. Şimdi 1400 -> çarpan ~3.7, 10 -> çarpan ~1.
+  const popScale = Math.max(0.8, Math.sqrt(population / 10));
   
-  if (military > 50) militaryCost += Math.pow(military - 50, 1.5) * 4; // Ölçekleme yumuşatıldı ama taban masraf artırıldı
-  if (health > 50) healthCost += Math.pow(health - 50, 1.5) * 3;
-  if (education > 50) educationCost += Math.pow(education - 50, 1.5) * 3;
-  if (environment > 50) environmentCost += Math.pow(environment - 50, 1.5) * 2;
+  let militaryCost = military * 12 * popScale;
+  let healthCost = health * 10 * popScale;
+  let educationCost = education * 10 * popScale;
+  let environmentCost = environment * 8 * popScale; // Çevre koruma maliyeti
+  
+  if (military > 50) militaryCost += Math.pow(military - 50, 1.5) * 4 * popScale; 
+  if (health > 50) healthCost += Math.pow(health - 50, 1.5) * 3 * popScale;
+  if (education > 50) educationCost += Math.pow(education - 50, 1.5) * 3 * popScale;
+  if (environment > 50) environmentCost += Math.pow(environment - 50, 1.5) * 2 * popScale;
 
   let total = militaryCost + healthCost + educationCost + environmentCost;
   
@@ -49,16 +53,16 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
 
   let sickPenalty = 0;
   if (health < 40) {
-    sickPenalty = (40 - health) * 2;
+    sickPenalty = (40 - health) * 2 * popScale;
     total += sickPenalty;
   }
 
   let corruptionPenalty = 0;
-  // Yeni Yolsuzluk Mekaniği: İstikrar 60'ın altındaysa ceza başlar.
-  // Kasada para olmasa bile eksiye düşürebilir (borçlandırır).
+  // Yolsuzluk Mekaniği: İstikrar 60'ın altındaysa ceza başlar. Ölüm sarmalını engellemek için max ceza kısıtlandı.
   if (stability < 60) {
     const instabilityFactor = (60 - stability); // 1 ile 60 arası
-    corruptionPenalty = instabilityFactor * 15; // Max 900$ ceza (İstikrar 0 ise), (Eskiden 40'tı, çok hızlı iflas getiriyordu)
+    // Max ceza stabilitesi 0 iken -> 60 * 5 = 300 * popScale. (Eskiden 15 çarpanı vardı, çok agresifti)
+    corruptionPenalty = instabilityFactor * 5 * popScale; 
     total += corruptionPenalty;
   }
 
@@ -89,8 +93,8 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   };
 }
 
-export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0): number {
-  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty, unlockedTechs, inflation).total;
+export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0, population: number = 10.0): number {
+  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty, unlockedTechs, inflation, population).total;
 }
 
 // ============================================
@@ -106,13 +110,17 @@ export function getDetailedTaxIncome(
   capitalistsSupport: number,
   eventFlags: string[] = [],
   difficulty: string = "Orta",
-  inflation: number = 5.0
+  inflation: number = 5.0,
+  population: number = 10.0
 ) {
+  // Nüfus ölçeklendirmesi: Karesel kök (Square Root) yaklaşımı
+  const popScale = Math.max(0.8, Math.sqrt(population / 10));
+
   // Statların kalıcı getiri (Passive Income) sağlaması
-  const educationBonus = education > 50 ? (education - 50) * 25 : 0; // İnovasyon
-  const healthBonus = health > 50 ? (health - 50) * 20 : 0; // Sağlıklı iş gücü verimliliği
-  const environmentBonus = environment > 50 ? (environment - 50) * 15 : 0; // Yeşil ekonomi / Eko Turizm
-  const militaryBonus = military > 60 ? (military - 60) * 12 : 0; // Silah sanayisi ihracatı
+  const educationBonus = (education > 50 ? (education - 50) * 25 : 0) * popScale; // İnovasyon
+  const healthBonus = (health > 50 ? (health - 50) * 20 : 0) * popScale; // Sağlıklı iş gücü verimliliği
+  const environmentBonus = (environment > 50 ? (environment - 50) * 15 : 0) * popScale; // Yeşil ekonomi / Eko Turizm
+  const militaryBonus = (military > 60 ? (military - 60) * 12 : 0) * popScale; // Silah sanayisi ihracatı
 
   const statBonusTotal = educationBonus + healthBonus + environmentBonus + militaryBonus;
 
@@ -120,14 +128,14 @@ export function getDetailedTaxIncome(
   let happinessMultiplier = 0.5 + (happiness / 200); 
 
   // İFLAS VEYA KRİZ DURUMUNDA ÖLÜM SARMALINI (DEATH SPIRAL) ÖNLEME
-  // Eğer mutluluk çok düşükse, minimum vergi çarpanını 0.75'te tutarak geri dönüş şansı ver.
-  if (happiness < 50) {
-    happinessMultiplier = Math.max(0.75, happinessMultiplier);
+  // Eğer mutluluk çok düşükse, minimum vergi çarpanını daha yüksek bir değerde tut.
+  if (happiness < 40) {
+    happinessMultiplier = Math.max(0.7, happinessMultiplier);
   }
 
   const capitalistsBonus = capitalistsSupport > 70 ? 1.2 : (capitalistsSupport < 30 ? 0.8 : 1);
 
-  const baseTotal = BASE_INCOME + statBonusTotal;
+  const baseTotal = BASE_INCOME * popScale + statBonusTotal;
   let total = baseTotal * stabilityMultiplier * happinessMultiplier * capitalistsBonus;
 
   let leaderBonus = 0;
@@ -149,7 +157,7 @@ export function getDetailedTaxIncome(
 
   return {
     total: Math.round(total),
-    baseIncome: BASE_INCOME,
+    baseIncome: Math.round(BASE_INCOME * popScale),
     educationBonus: Math.round(educationBonus),
     healthBonus: Math.round(healthBonus),
     environmentBonus: Math.round(environmentBonus),
@@ -174,9 +182,10 @@ export function calculateTaxIncome(
   capitalistsSupport: number,
   eventFlags: string[] = [],
   difficulty: string = "Orta",
-  inflation: number = 5.0
+  inflation: number = 5.0,
+  population: number = 10.0
 ): number {
-  return getDetailedTaxIncome(education, health, environment, military, stability, happiness, capitalistsSupport, eventFlags, difficulty, inflation).total;
+  return getDetailedTaxIncome(education, health, environment, military, stability, happiness, capitalistsSupport, eventFlags, difficulty, inflation, population).total;
 }
 
 // ============================================
@@ -208,12 +217,12 @@ export function calculateNetBudget(
 
   let tax = calculateTaxIncome(
     state.education, state.health, state.environment, state.military, state.stability, state.happiness, 
-    factions.capitalists?.support || 50, eventFlags, difficulty, currentInflation
+    factions.capitalists?.support || 50, eventFlags, difficulty, currentInflation, state.population
   );
 
   let maintenance = calculateMaintenanceCost(
     state.military, state.health, state.education, state.environment, state.stability, 
-    eventFlags, state.budget, difficulty, unlockedTechs, currentInflation
+    eventFlags, state.budget, difficulty, unlockedTechs, currentInflation, state.population
   );
 
   let special = 0;
@@ -354,7 +363,6 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
 
   const turnReports: string[] = [];
   turnReports.push(`📅 Tur ${state.turn} sona erdi.`);
-  // 3. Vergi ve Bakım Hesaplamaları
   const taxIncome = calculateTaxIncome(
     state.education,
     state.health,
@@ -364,7 +372,9 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     state.happiness,
     factions.capitalists?.support || 50,
     eventFlags,
-    difficulty
+    difficulty,
+    state.inflation,
+    state.population
   );
   let maintenanceCost = calculateMaintenanceCost(
     state.military, 
@@ -375,9 +385,27 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     eventFlags, 
     state.budget, 
     difficulty,
-    unlockedTechs
+    unlockedTechs,
+    state.inflation,
+    state.population
   );
   let finalTradeIncome = tradeIncome;
+
+  // 3.5 Nüfus Büyümesi
+  let growthRate = (state.health - 50) * 0.005 + (state.stability - 50) * 0.002 + (state.environment - 50) * 0.001; // % cinsinden büyüme/küçülme
+  // Aşırı hızlı büyümeyi ve küçülmeyi engelle (min %-2, max %+2)
+  growthRate = Math.max(-2, Math.min(2, growthRate)); 
+  
+  if (state.health < 20) growthRate -= 0.5; // Kötü sağlık ekstra ölüm
+  
+  const popChange = state.population * (growthRate / 100);
+  state.population = Math.max(0.1, Number((state.population + popChange).toFixed(2))); // En az 0.1 milyon
+  
+  if (popChange > 0.05) {
+    turnReports.push(`📈 Nüfus Arttı: Doğum oranları ve göçlerle nüfus yaklaşık ${(popChange * 1000000).toLocaleString('tr-TR', {maximumFractionDigits:0})} kişi arttı (Toplam: ${state.population}M).`);
+  } else if (popChange < -0.05) {
+    turnReports.push(`📉 Nüfus Azaldı: Kötü yaşam şartları nedeniyle nüfus yaklaşık ${Math.abs(popChange * 1000000).toLocaleString('tr-TR', {maximumFractionDigits:0})} kişi azaldı (Toplam: ${state.population}M).`);
+  }
 
   // ==========================================
   // 🇰🇵 KUZEY KORE ÖZEL REJİM MODU (HARDCORE+)
@@ -517,8 +545,21 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     turnReports.push(`⚠️ MARJİNALLEŞME: Destek bulamayan fraksiyonların radikalleşmesi istikrarı sarsıyor (-${radicalizationPenalty}).`);
   }
 
-  // 7. İflas Kontrolü
-  if (state.budget < 0 && !state.isBankrupt) {
+  // 7. İflas Kontrolü ve IMF Müdahalesi
+  const popScale = Math.max(0.8, Math.sqrt(state.population / 10));
+  const dynamicBailoutLimit = -5000 * popScale;
+
+  if (state.budget < dynamicBailoutLimit) {
+    // IMF Kurtarma Paketi (Bailout)
+    state.budget = 0;
+    state.politicalCapital = 0;
+    state.stability = Math.max(5, clampStat(state.stability - 30));
+    state.foreignRelations = Math.max(5, clampStat(state.foreignRelations - 30));
+    state.happiness = Math.max(5, clampStat(state.happiness - 20));
+    state.isBankrupt = false;
+    state.bankruptTurns = 0;
+    turnReports.push(`🚨 IMF MÜDAHALESİ: Ekonomi tamamen çöktü! Dış güçler yönetime el koydu. Bütçe sıfırlandı ancak Siyasi Sermaye tükendi, ülkenin itibarı ve istikrarı yerle bir oldu!`);
+  } else if (state.budget < 0 && !state.isBankrupt) {
     state.isBankrupt = true;
     state.bankruptTurns = BANKRUPTCY_DURATION;
     state.happiness = clampStat(state.happiness - 15);
@@ -526,9 +567,10 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     turnReports.push(`☠️ DEVLET İFLAS ETTİ! Memur maaşları ödenemiyor, halk isyan eşiğinde (Mutluluk ve İstikrar -15).`);
   } else if (state.isBankrupt) {
     if (state.budget < 0) {
-      state.happiness = clampStat(state.happiness - 10);
-      state.stability = clampStat(state.stability - 10);
-      turnReports.push(`🚨 İFLAS SÜRÜYOR: Ülke iflas durumunda olduğu için halk çok mutsuz (Mutluluk ve İstikrar -10).`);
+      // Ölüm sarmalını yavaşlatmak için ceza düşürüldü
+      state.happiness = clampStat(state.happiness - 5);
+      state.stability = clampStat(state.stability - 5);
+      turnReports.push(`🚨 İFLAS SÜRÜYOR: Ülke iflas durumunda olduğu için halk çok mutsuz (Mutluluk ve İstikrar -5).`);
     }
     
     if (state.bankruptTurns > 0) {
@@ -560,6 +602,48 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     state.happiness = Math.max(5, clampStat(state.happiness - 1));
     state.health = Math.max(5, clampStat(state.health - 1));
   }
+
+  // 9. Kaynak Tüketimi ve Üretimi (V8 Özelliği)
+  const popScaleForResources = Math.max(0.8, Math.sqrt(state.population / 10));
+  
+  // Gıda: Çevre üretir, nüfus tüketir.
+  const foodProduction = state.environment * 0.15;
+  const foodConsumption = popScaleForResources * 1.5;
+  state.food = Math.min(100, Math.max(0, (state.food || 50) + foodProduction - foodConsumption));
+
+  // Enerji: Eğitim ve İstikrar üretir (Verimlilik), Ordu ve Nüfus tüketir.
+  const energyProduction = (state.education * 0.1) + (state.stability * 0.1);
+  const energyConsumption = (state.military * 0.05) + (popScaleForResources * 1.0);
+  state.energy = Math.min(100, Math.max(0, (state.energy || 50) + energyProduction - energyConsumption));
+
+  // Materyal: Dış ilişkiler ve Bütçe gücü üretir (İthalat), Çevre koruma ve Ordu tüketir.
+  const materialProduction = state.foreignRelations * 0.15;
+  const materialConsumption = (state.military * 0.1) + (state.environment > 50 ? 0.5 : 0);
+  state.materials = Math.min(100, Math.max(0, (state.materials || 50) + materialProduction - materialConsumption));
+
+  // Kaynak Krizleri
+  if (state.food <= 0) {
+    state.health = clampStat(state.health - 5);
+    state.happiness = clampStat(state.happiness - 5);
+    turnReports.push(`🌾 AÇLIK KRİZİ: Ülkede gıda stokları tükendi! Halk açlıktan kırılıyor (Sağlık ve Mutluluk -5).`);
+  } else if (state.food > 90) {
+    state.health = clampStat(state.health + 1);
+  }
+
+  if (state.energy <= 0) {
+    state.budget = state.budget - (1000 * popScaleForResources);
+    state.stability = clampStat(state.stability - 5);
+    turnReports.push(`⚡ ENERJİ KRİZİ: Elektrik kesintileri sanayiyi durdurdu! Ekonomi ağır hasar aldı (Bütçe ve İstikrar düştü).`);
+  }
+
+  if (state.materials <= 0) {
+    state.military = clampStat(state.military - 5);
+    state.education = clampStat(state.education - 2);
+    turnReports.push(`⚙️ MATERYAL EKSİKLİĞİ: Hammadde yetersizliğinden ordu ve altyapı bakımları yapılamıyor (Askeriye -5, Eğitim -2).`);
+  }
+
+  // 10. Tur Artışı
+  state.turn += 1;
   
   // 8.5. Fraksiyonların Merkeze Dönüşü (Mean Reversion)
   // Destek %50'nin üzerindeyse -1, altındaysa +1 çekerek zamanla normalleşmelerini sağla
@@ -839,7 +923,6 @@ export function checkGameOver(state: GameState): string | null {
   if (state.turn >= 150) return "SÜRE DOLDU! 150 Tur süreniz doldu ve nihai hedeflerinize ulaşamadınız. İktidarınız sıradan bir şekilde sona erdi.";
   if (state.popularity <= 0) return "SEÇİM HEZİMETİ! Halk desteği sıfıra indi.";
   if (state.stability <= 0) return "İÇ SAVAŞ! İstikrar sıfıra düştü.";
-  if (state.budget < BANKRUPTCY_BUDGET_LIMIT) return "DEVLET İFLASI! IMF ülkenin yönetimini devraldı.";
   if (state.health <= 0) return "SAĞLIK FELAKETİ! Salgın hastalıklar ülkeyi kasıp kavurdu.";
   if (state.military <= 0 && state.foreignRelations < 20) return "İŞGAL! Ülkeniz işgal edildi.";
 

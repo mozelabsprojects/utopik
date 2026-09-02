@@ -86,13 +86,47 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         </div>
 
         {gameData && (
-          <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${gameData.inflation && gameData.inflation > 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-cyan-400'}`}>
-            <span className="text-lg md:text-xl">💸</span>
-            <div>
-              <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">ENFLASYON</p>
-              <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">%{gameData.inflation?.toFixed(1) || "5.0"}</p>
+          <>
+            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${gameData.inflation && gameData.inflation > 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-cyan-400'}`}>
+              <span className="text-lg md:text-xl">💸</span>
+              <div>
+                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">ENFLASYON</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">%{gameData.inflation?.toFixed(1) || "5.0"}</p>
+              </div>
             </div>
-          </div>
+
+            <div className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border border-[var(--color-border)] text-purple-400">
+              <span className="text-lg md:text-xl">👥</span>
+              <div>
+                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">NÜFUS</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{gameData.population?.toFixed(1) || "10.0"}M</p>
+              </div>
+            </div>
+
+            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${(gameData.energy || 100) < 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-yellow-400'}`}>
+              <span className="text-lg md:text-xl">⚡</span>
+              <div>
+                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">ENERJİ</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{(gameData.energy || 100).toFixed(0)}</p>
+              </div>
+            </div>
+
+            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${(gameData.food || 100) < 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-green-400'}`}>
+              <span className="text-lg md:text-xl">🌾</span>
+              <div>
+                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">GIDA</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{(gameData.food || 100).toFixed(0)}</p>
+              </div>
+            </div>
+
+            <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${(gameData.materials || 100) < 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-gray-400'}`}>
+              <span className="text-lg md:text-xl">⚙️</span>
+              <div>
+                <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">MATERYAL</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">{(gameData.materials || 100).toFixed(0)}</p>
+              </div>
+            </div>
+          </>
         )}
 
         {/* MİNİ DASHBOARD: Net Gelir & RP */}

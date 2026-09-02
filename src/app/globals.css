@@ -56,6 +56,19 @@
     --color-accent-secondary: #78716c;
     --color-accent-glow: rgba(168, 162, 158, 0.1);
   }
+
+  /* Golden Age Theme */
+  .theme-golden {
+    --color-bg-main: #1a1505;
+    --color-bg-panel: #2a220a;
+    --color-border: #856514;
+    --color-text-main: #fef08a;
+    --color-text-muted: #fde047;
+    
+    --color-accent-primary: #eab308; /* Pure Gold */
+    --color-accent-secondary: #ca8a04;
+    --color-accent-glow: rgba(234, 179, 8, 0.4);
+  }
 }
 
 * {

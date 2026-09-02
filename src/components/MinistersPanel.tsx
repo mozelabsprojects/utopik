@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+
 import { MINISTERS, Minister, MinisterId, MinistryType } from "@/lib/ministers";
 import { GameState, StatEffects } from "@/lib/types";
 
@@ -49,7 +49,6 @@ export default function MinistersPanel({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [easterEggName, setEasterEggName] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -85,13 +84,6 @@ export default function MinistersPanel({
     }
   });
 
-  const handleMinisterClick = (m: Minister) => {
-    if (m.id === "def_hawk" || m.id === "edu_academic" || m.id === "for_globalist" || m.name.includes("Bard") || m.name.includes("Ege Demirci") || m.name.includes("Creed İpekci")) {
-      setEasterEggName(m.name);
-      setTimeout(() => setEasterEggName(null), 5000);
-    }
-  };
-
   const handleHire = async (ministerId: MinisterId) => {
     setLoading(true);
     setError("");
@@ -103,10 +95,6 @@ export default function MinistersPanel({
       });
       const data = await res.json();
       if (res.ok) {
-        if (data.easterEggName) {
-          setEasterEggName(data.easterEggName);
-          setTimeout(() => setEasterEggName(null), 5000); // 5 saniye sonra kapat
-        }
         onUpdate();
       } else {
         setError(data.error || "Bir hata oluştu");
@@ -155,20 +143,6 @@ export default function MinistersPanel({
 
   return (
     <>
-      {mounted && easterEggName && createPortal(
-        <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in pointer-events-none" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}>
-          <div className="text-8xl animate-bounce mb-6">❤️</div>
-          <div className="glass-strong p-8 rounded-3xl border-2 border-pink-500/50 flex flex-col items-center max-w-lg text-center animate-slide-up bg-slate-900/90 shadow-[0_0_50px_rgba(236,72,153,0.5)]">
-            <h2 className="text-3xl font-bold text-pink-400 mb-4">Teşekkürler {easterEggName}!</h2>
-            <p className="text-xl text-white font-medium">Hizmetleriniz için minnettarız. Utopik halkı sizi çok seviyor!</p>
-            <div className="mt-6 inline-flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full font-bold">
-              <span>🎉</span> Mutluluk +1
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
       <div className="tutorial-ministers bg-slate-800/80 p-6 rounded-2xl shadow-xl border border-slate-700 backdrop-blur-sm">
         <h2 className="text-2xl font-bold text-slate-100 flex items-center gap-2 mb-4">
         🏛️ Bakanlar Kurulu
@@ -208,13 +182,12 @@ export default function MinistersPanel({
                 <div className="mb-4 bg-slate-800/50 p-3 rounded-lg border border-slate-700 relative">
                   <p className="text-sm text-slate-400">Mevcut Bakan:</p>
                   <div 
-                    onClick={() => handleMinisterClick(current)}
-                    className="flex items-center gap-2 mt-1 cursor-pointer hover:bg-slate-700/40 p-1 rounded-lg transition-colors group"
-                    title="Bakan detayı / Easter Egg"
+                    className="flex items-center gap-2 mt-1 p-1 rounded-lg transition-colors group"
+                    title="Bakan detayı"
                   >
                     <span className="text-2xl group-hover:scale-110 transition-transform">{current.avatar}</span>
                     <div className="flex-1">
-                      <p className="font-bold text-slate-100 group-hover:text-pink-300 transition-colors">{current.name}</p>
+                      <p className="font-bold text-slate-100 transition-colors">{current.name}</p>
                       <p className="text-xs text-blue-400 mb-1">{current.title}</p>
                       <div className="flex flex-wrap gap-1">
                         {renderEffects(current.passiveEffects)}
@@ -267,12 +240,11 @@ export default function MinistersPanel({
                     return (
                       <div key={candidate.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-800 p-2 rounded gap-2">
                         <div 
-                          onClick={() => handleMinisterClick(candidate)}
-                          className="flex items-center gap-2 cursor-pointer group"
+                          className="flex items-center gap-2 group"
                         >
                           <span className="text-xl group-hover:scale-110 transition-transform">{candidate.avatar}</span>
                           <div>
-                            <p className="text-sm font-medium text-slate-200 group-hover:text-pink-300 transition-colors">{candidate.name}</p>
+                            <p className="text-sm font-medium text-slate-200 transition-colors">{candidate.name}</p>
                             <p className="text-[10px] text-slate-400 mb-1">{candidate.title} (📜 {candidate.hireCost})</p>
                             <div className="flex flex-wrap gap-1">
                               {renderEffects(candidate.passiveEffects)}

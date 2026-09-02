@@ -28,7 +28,7 @@ const TUTORIAL_STEPS = [
     tab: "dashboard" as SidebarTab,
     target: ".tutorial-dashboard",
     description:
-      "Ana Merkezde 7 temel göstergeyi (Askeri Güç, Mutluluk, Sağlık, Çevre, Eğitim, İstikrar, Dış İlişkiler), nüfusu ve bütçeyi takip edersiniz. Göstergelerin kritik seviyelere düşmesi halkı isyana sürükleyebilir!"
+      "Ana Merkezde 7 temel göstergeyi (Askeri Güç, Mutluluk, vb.), yeni Stratejik Kaynakları (⚡ Enerji, 🌾 Gıda, ⚙️ Materyal) ve nüfusu takip edersiniz. Kaynakların 0'a düşmesi ölümcül krizlere yol açar!"
   },
   {
     title: "⚖️ Kararlar & Yatırımlar",
@@ -60,7 +60,7 @@ const TUTORIAL_STEPS = [
     tab: "policies" as SidebarTab,
     target: ".tutorial-policies",
     description:
-      "Politik Sermayenizi kullanarak kalıcı yasalar (Örn: Sıkıyönetim, Ücretsiz Sağlık Sistemi) çıkarabilirsiniz. Yasalar hem bütçenizi tüketir hem de fraksiyon desteklerini kalıcı olarak etkiler."
+      "Politik Sermayenizi kullanarak kalıcı yasalar (Örn: Sıkıyönetim, Ücretsiz Sağlık Sistemi) çıkarabilirsiniz. Demokrasi rejimlerinde her 10 turda bir Genel Seçim yapılır, popülaritenizi yüksek tutmalısınız!"
   },
   {
     title: "🏗️ Mega Projeler",
@@ -92,7 +92,7 @@ const TUTORIAL_STEPS = [
     tab: "diplomacy" as SidebarTab,
     target: ".tutorial-diplomacy",
     description:
-      "Güçlü müttefikler edinin veya zayıf komşularınızı işgal edin. Ancak dikkatli olun; düşmanlarınız da sizin zayıf anınızı kolluyor. Başarı şansınız askeri gücünüze ve iç istikrarınıza bağlıdır."
+      "Güçlü müttefikler edinin veya zayıf komşularınızı işgal edin. Savaş İlan ettiğinizde ordunuz (Military) ile rakibin ordusu çatışır. Kazanırsanız devasa kaynak ve bütçe ganimeti elde edersiniz, kaybederseniz hezimet yaşarsınız!"
   },
   {
     title: "📈 Küresel Borsa ve Ekonomi",

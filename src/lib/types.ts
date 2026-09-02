@@ -87,6 +87,7 @@ export interface GameEvent {
 export interface CountryTemplate {
   name: string;
   flag: string;
+  population: number; // Milyon cinsinden
   budget: number;
   military: number;
   happiness: number;
@@ -95,6 +96,10 @@ export interface CountryTemplate {
   education: number;
   stability: number;
   foreignRelations: number;
+  energy?: number;
+  food?: number;
+  materials?: number;
+  regime?: "Demokrasi" | "Otokrasi";
   difficulty: Difficulty;
   description: string;
 }
@@ -103,6 +108,7 @@ export interface GameState {
   id: string;
   countryName: string;
   turn: number;
+  population: number;
   budget: number;
   military: number;
   happiness: number;
@@ -112,6 +118,11 @@ export interface GameState {
   stability: number;
   foreignRelations: number;
   
+  // Resources
+  energy: number;
+  food: number;
+  materials: number;
+
   popularity: number;
   politicalCapital: number;
   activeQuests: string;
@@ -121,6 +132,7 @@ export interface GameState {
   activeCrises: string;
   factions: string;
   activeLaws: string;
+  historicalData?: string;
   megaProjects: string;
   ministers: string;
   activePetitions: string;
@@ -138,6 +150,16 @@ export interface GameState {
   currentEventId: string | null;
   usedEventIds?: string;
   eventFlags?: string; // JSON string array of flags
+}
+
+export interface HistoryRecord {
+  turn: number;
+  budget: number;
+  population: number;
+  inflation: number;
+  stability: number;
+  happiness: number;
+  taxIncome?: number;
 }
 
 export interface TurnResult {
