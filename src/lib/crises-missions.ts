@@ -53,7 +53,7 @@ export const CRISES: Record<CrisisId, Crisis> = {
   }
 };
 
-export type QuestId = "please_workers" | "boost_military";
+export type QuestId = "please_workers" | "boost_military" | "economic_boom" | "green_country" | "global_power" | "education_reform";
 
 export interface Quest {
   id: QuestId;
@@ -99,6 +99,74 @@ export const QUESTS: Record<QuestId, Quest> = {
       newFactions: modifyFactionSupport(factions, { military: -30 }),
       newState: { ...state, popularity: Math.max(0, state.popularity - 10) },
       message: "Ordunun isteklerini reddettiniz. Generaller size güvenmiyor."
+    })
+  },
+  economic_boom: {
+    id: "economic_boom",
+    title: "Ekonomik Mucize Hedefi",
+    description: "Sermayedarlar, ülkenin hazinesini 15 tur içinde $100.000 seviyesine çıkarmanızı bekliyor.",
+    deadlineTurns: 15,
+    condition: (state) => state.budget >= 100000,
+    onSuccess: (factions, state) => ({
+      newFactions: modifyFactionSupport(factions, { capitalists: 30 }),
+      newState: { ...state, politicalCapital: state.politicalCapital + 50 },
+      message: "Ekonomik mucizeyi gerçekleştirdiniz! Hazine doldu, siyasi gücünüz zirvede."
+    }),
+    onFailure: (factions, state) => ({
+      newFactions: modifyFactionSupport(factions, { capitalists: -40 }),
+      newState: { ...state, stability: Math.max(0, state.stability - 15) },
+      message: "Ekonomik hedeflere ulaşılamadı. Yatırımcılar ülkeyi terk etmeye başladı."
+    })
+  },
+  green_country: {
+    id: "green_country",
+    title: "Yeşil Dönüşüm Kampanyası",
+    description: "Aydınlar ve çevreciler, 10 tur içinde Çevre seviyesinin 80'in üzerine çıkması için baskı yapıyor.",
+    deadlineTurns: 10,
+    condition: (state) => state.environment >= 80,
+    onSuccess: (factions, state) => ({
+      newFactions: modifyFactionSupport(factions, { intellectuals: 30 }),
+      newState: { ...state, happiness: Math.min(100, state.happiness + 10) },
+      message: "Yeşil dönüşüm tamamlandı! Doğa nefes aldı, halk mutlu."
+    }),
+    onFailure: (factions, state) => ({
+      newFactions: modifyFactionSupport(factions, { intellectuals: -40 }),
+      newState: { ...state, happiness: Math.max(0, state.happiness - 10) },
+      message: "Çevre politikalarınız yetersiz bulundu. Büyük iklim protestoları başladı."
+    })
+  },
+  global_power: {
+    id: "global_power",
+    title: "Küresel Güç Vizyonu",
+    description: "Milliyetçiler, uluslararası arenada itibarımızın artırılmasını istiyor. 8 tur içinde Dış İlişkileri 80'e çıkarın.",
+    deadlineTurns: 8,
+    condition: (state) => state.foreignRelations >= 80,
+    onSuccess: (factions, state) => ({
+      newFactions: modifyFactionSupport(factions, { nationalists: 20 }),
+      newState: { ...state, budget: state.budget + 20000, stability: Math.min(100, state.stability + 10) },
+      message: "Küresel bir diplomatik güç olduk! Yabancı yatırımlar ($20.000) ülkeye aktı."
+    }),
+    onFailure: (factions, state) => ({
+      newFactions: modifyFactionSupport(factions, { nationalists: -30 }),
+      newState: { ...state, popularity: Math.max(0, state.popularity - 10) },
+      message: "Uluslararası arenada yalnızlaştık. Milliyetçiler hükümetin dış politikasını eleştiriyor."
+    })
+  },
+  education_reform: {
+    id: "education_reform",
+    title: "Eğitim Reformu",
+    description: "Halk, okulların modernizasyonunu bekliyor. 5 tur içinde Eğitim seviyesini 70'in üzerine taşıyın.",
+    deadlineTurns: 5,
+    condition: (state) => state.education >= 70,
+    onSuccess: (factions, state) => ({
+      newFactions: modifyFactionSupport(factions, { workers: 15, intellectuals: 15 }),
+      newState: { ...state, politicalCapital: state.politicalCapital + 20 },
+      message: "Eğitim reformu başarıyla tamamlandı. Gelecek nesiller umut vaat ediyor."
+    }),
+    onFailure: (factions, state) => ({
+      newFactions: modifyFactionSupport(factions, { workers: -20, intellectuals: -20 }),
+      newState: { ...state, popularity: Math.max(0, state.popularity - 10) },
+      message: "Eğitim sistemi çökmüş durumda. Aileler ve aydınlar öfkeli."
     })
   }
 };

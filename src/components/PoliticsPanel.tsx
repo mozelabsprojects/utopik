@@ -39,9 +39,9 @@ export default function PoliticsPanel({ gameState, onQuestAction }: PoliticsPane
                 <span className="text-gray-400">Başkanlık Desteği (Popülarite)</span>
                 <span className="font-bold text-white">{Math.round(gameState.popularity)}%</span>
               </div>
-              <div className="stat-bar-track h-4">
+              <div className="stat-bar-track h-4 bg-black/50 rounded-full overflow-hidden">
                 <div 
-                  className={`stat-bar-fill ${gameState.popularity < 40 ? "bg-red-500" : "bg-cyan-500"}`} 
+                  className={`h-full transition-all duration-500 ease-out ${gameState.popularity < 40 ? "bg-red-500" : "bg-cyan-500"}`} 
                   style={{ width: `${Math.max(0, Math.min(100, gameState.popularity))}%` }}
                 />
               </div>

@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         megaProjects: "[]",
         ministers: "{}",
         activePetitions: "[]",
-        diplomacyState: "{}",
+        diplomacyState: JSON.stringify({ westernRelations: 50, easternRelations: 50, activeEmbargoes: [] }),
         marketState: JSON.stringify({
           prices: { 
             food: Math.floor(Math.random() * (150 - 30) + 30),        // min 20, max 300

@@ -248,6 +248,109 @@ export const EVENTS: GameEvent[] = [
       }
     ]
   },
+  // ============================================
+  // HİKAYE ZİNCİRİ (EVENT CHAINS) - BÖLÜM 1: GIDA KRİZİ
+  // ============================================
+  {
+    id: "chain_food_crisis_1",
+    title: "Kuraklık ve Tarım Çöküşü",
+    description: "Ülke genelinde yaşanan şiddetli kuraklık tarım rekoltesini vurdu. Uzmanlar önümüzdeki aylarda ciddi bir gıda krizi yaşanacağı konusunda uyarıyor.",
+    category: "cevre",
+    minTurn: 10,
+    forbiddenFlags: ["FOOD_CRISIS_HANDLED", "FOOD_CRISIS_IGNORED"], // Sadece 1 kez çıksın
+    choices: [
+      {
+        label: "A",
+        text: "Çiftçilere acil durum fonu sağla ve su altyapısını yenile.",
+        effects: { budget: -3000, environment: 10, stability: 5 },
+        factionEffects: { workers: 15, capitalists: -5 },
+        flagsToSet: ["FOOD_CRISIS_HANDLED"],
+        hint: "Hazine büyük yara alır ama kriz büyümeden çözülür."
+      },
+      {
+        label: "B",
+        text: "Piyasa kendi dinamiklerini bulsun (Hiçbir şey yapma).",
+        effects: { budget: 0, happiness: -10, stability: -5 },
+        factionEffects: { capitalists: 10, workers: -10 },
+        flagsToSet: ["FOOD_CRISIS_IGNORED"],
+        marketEffects: { food: 1.50 }, // Gıda fiyatları %50 artar
+        hint: "Gıda fiyatları fırlayacak, halk isyan edecek. İleride çok daha büyük sorunlar doğabilir."
+      },
+      {
+        label: "C",
+        text: "Gıda ihracatını tamamen yasakla, elde kalanı halka dağıt.",
+        effects: { budget: -1000, foreignRelations: -15, happiness: 10 },
+        factionEffects: { nationalists: 15, capitalists: -20 },
+        flagsToSet: ["FOOD_CRISIS_HANDLED"],
+        hint: "Dış pazar kaybedilir, diplomatik kriz çıkar ama halk doyurulur."
+      }
+    ]
+  },
+  {
+    id: "chain_food_crisis_2",
+    title: "Açlık İsyanları (Kelebek Etkisi)",
+    description: "Geçmişteki kuraklık uyarılarını dikkate almadığınız için gıda fiyatları astronomik seviyelere ulaştı. Halk fırınları yağmalamaya başladı!",
+    category: "kriz",
+    minTurn: 15,
+    requiredFlags: ["FOOD_CRISIS_IGNORED"], // Sadece kuraklığı görmezden gelirseniz çıkar
+    forbiddenFlags: ["FOOD_CRISIS_RIOTS_OVER"],
+    choices: [
+      {
+        label: "A",
+        text: "Polis ve askerle yağmacıları bastır.",
+        effects: { stability: 15, happiness: -25, popularity: -20, budget: -500 },
+        factionEffects: { military: 20, workers: -30 },
+        flagsToSet: ["FOOD_CRISIS_RIOTS_OVER"],
+        hint: "İstikrar zorla sağlanır ama halk sizden nefret eder."
+      },
+      {
+        label: "B",
+        text: "Dış borç alarak yurtdışından acil gıda ithal et.",
+        effects: { budget: -5000, happiness: 15, foreignRelations: 10 },
+        factionEffects: { workers: 10 },
+        flagsToSet: ["FOOD_CRISIS_RIOTS_OVER"],
+        marketEffects: { food: 0.8 }, // Piyasayı rahatlatır
+        hint: "Hazine iflasın eşiğine gelir ama kriz çözülür."
+      }
+    ]
+  },
+  // ============================================
+  // HİKAYE ZİNCİRİ (EVENT CHAINS) - BÖLÜM 2: SOĞUK SAVAŞ DİPLOMASİSİ
+  // ============================================
+  {
+    id: "chain_cold_war_1",
+    title: "Süper Güçlerin Ambargosu",
+    description: "Batı İttifakı ve Doğu Bloku arasında küresel bir ticaret savaşı patlak verdi. İki taraf da müttefik olmayan ülkelere teknoloji ve enerji ambargosu uygulamakla tehdit ediyor. Tarafını seç!",
+    category: "dis_politika",
+    minTurn: 12,
+    forbiddenFlags: ["COLD_WAR_ALIGNED"],
+    choices: [
+      {
+        label: "A",
+        text: "Batı İttifakı'na katıl (NATO vb.).",
+        effects: { westernRelations: 30, easternRelations: -40, foreignRelations: 10, tech: 15, stability: 5 },
+        factionEffects: { capitalists: 15, military: 10, nationalists: -10 },
+        flagsToSet: ["COLD_WAR_ALIGNED", "ALIGNED_WEST"],
+        hint: "Batı ile teknoloji ve askeri destek artar ancak Doğu bloğu sizi düşman beller."
+      },
+      {
+        label: "B",
+        text: "Doğu Bloku'na yanaş.",
+        effects: { easternRelations: 30, westernRelations: -40, foreignRelations: -5, energy: 20, materials: 20 },
+        factionEffects: { workers: 15, military: 10, capitalists: -20 },
+        flagsToSet: ["COLD_WAR_ALIGNED", "ALIGNED_EAST"],
+        hint: "Ucuz enerji ve sanayi materyalleri akar ama Batı'nın teknoloji ambargosunu yersiniz."
+      },
+      {
+        label: "C",
+        text: "Tamamen Tarafsız Kal (Bağlantısızlar Hareketi).",
+        effects: { westernRelations: -10, easternRelations: -10, stability: -10, popularity: 15 },
+        factionEffects: { nationalists: 25 },
+        flagsToSet: ["COLD_WAR_ALIGNED", "ALIGNED_NEUTRAL"],
+        hint: "Milliyetçiler bayılır ama her iki süper güçten de baskı yersiniz."
+      }
+    ]
+  },
   {
     id: "trend_social_media",
     title: "Sosyal Medya ve Influencer Krizi",

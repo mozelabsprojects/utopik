@@ -39,9 +39,9 @@ export default function FactionsPanel({ factionsStr }: FactionsPanelProps) {
               </div>
               <p className="text-xs text-gray-400 mb-4">{faction.description}</p>
               
-              <div className="stat-bar-track h-3 bg-black/50">
+              <div className="stat-bar-track h-3 bg-black/50 rounded-full overflow-hidden">
                 <div 
-                  className={`stat-bar-fill ${supportColor}`} 
+                  className={`h-full transition-all duration-500 ease-out ${supportColor}`} 
                   style={{ width: `${faction.support}%` }}
                 />
               </div>

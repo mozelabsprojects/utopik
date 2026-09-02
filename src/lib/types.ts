@@ -31,6 +31,12 @@ export interface MarketState {
   };
 }
 
+export interface DiplomacyState {
+  westernRelations: number; // 0-100 (NATO/Batı İttifakı)
+  easternRelations: number; // 0-100 (Doğu Bloku)
+  activeEmbargoes: string[]; // e.g., "west", "east"
+}
+
 export type EventCategory =
   | "ekonomi"
   | "kriz"
@@ -66,6 +72,8 @@ export interface StatEffects {
   materials?: number;
   tech?: number;
   inflation?: number;
+  westernRelations?: number;
+  easternRelations?: number;
 }
 
 import { FactionId } from "./factions";

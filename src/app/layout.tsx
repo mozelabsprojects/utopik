@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`h-full antialiased ${inter.variable} ${orbitron.variable}`}>
+    <html lang="tr" className={`h-full antialiased ${inter.variable} ${orbitron.variable}`} data-scroll-behavior="smooth">
       <body className="min-h-full flex flex-col bg-grid" style={{ fontFamily: "var(--font-inter), sans-serif" }}>
         {children}
         <ImhaEasterEgg />

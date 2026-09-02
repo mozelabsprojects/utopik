@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { POLICIES, PolicyId } from "@/lib/policies";
+import { POLICIES, PolicyId, Policy } from "@/lib/policies";
 import { EXECUTIVE_ACTIONS } from "@/lib/executive-actions";
 import { GameState, StatEffects } from "@/lib/types";
+import { INITIAL_FACTIONS, FactionsState, calculateParliamentSeats } from "@/lib/factions";
 
 const STAT_LABELS: Record<string, string> = {
   budget: "Bütçe",
@@ -64,6 +65,34 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
   try {
     activeLaws = JSON.parse(gameState.activeLaws);
   } catch {}
+
+  let factions: FactionsState = INITIAL_FACTIONS;
+  try {
+    factions = JSON.parse(gameState.factions);
+  } catch {}
+
+  const parliamentSeats = calculateParliamentSeats(factions);
+
+  const calculateExpectedVotes = (policy: Policy, action: "enact" | "repeal") => {
+    let yesVotes = 0;
+    let noVotes = 0;
+    
+    Object.entries(parliamentSeats).forEach(([fIdStr, seats]) => {
+      const fId = fIdStr as keyof FactionsState;
+      const impact = action === "enact" 
+          ? (policy.factionImpactOnEnact[fId] || 0) 
+          : -(policy.factionImpactOnEnact[fId] || 0); 
+          
+      if (impact > 0) yesVotes += seats;
+      else if (impact < 0) noVotes += seats;
+      else {
+        yesVotes += Math.floor(seats / 2);
+        noVotes += Math.ceil(seats / 2);
+      }
+    });
+
+    return { yes: yesVotes, no: noVotes, passNaturally: yesVotes >= 51 };
+  };
 
   const totalPassiveEffects: StatEffects = {
     budget: 0,
@@ -289,22 +318,36 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
           const isActive = activeLaws.includes(policy.id);
           const cost = isActive ? Math.max(1, Math.round(policy.politicalCost / 2)) : policy.politicalCost;
           const canAfford = gameState.politicalCapital >= cost;
+          
+          const expectedVotes = calculateExpectedVotes(policy, isActive ? "repeal" : "enact");
 
           return (
-            <div key={policy.id} className={`p-5 rounded-xl border transition-all ${isActive ? 'bg-cyan-900/30 border-cyan-500/50' : 'bg-white/5 border-white/10 hover:border-white/30'}`}>
+            <div key={policy.id} className={`p-5 rounded-xl border transition-all flex flex-col ${isActive ? 'bg-cyan-900/30 border-cyan-500/50' : 'bg-white/5 border-white/10 hover:border-white/30'}`}>
               <div className="flex justify-between items-start mb-2">
                 <h3 className={`text-lg font-bold ${isActive ? 'text-cyan-300' : 'text-gray-200'}`}>
                   {policy.name} {isActive && "✓"}
                 </h3>
                 <span className="text-xs bg-black/50 px-2 py-1 rounded text-gray-400">
-                  Maliyet: {policy.politicalCost} | İptal: {Math.max(1, Math.round(policy.politicalCost / 2))}
+                  Maliyet: {cost} PC
                 </span>
               </div>
-              <div className="text-sm text-gray-400 mb-2 h-10 flex items-center">
+              <div className="text-sm text-gray-400 mb-2 min-h-10 flex-1">
                 <p>{policy.description}</p>
               </div>
               <div className="flex flex-wrap gap-1 mb-4">
                 {renderEffects(policy.passiveEffects, true)}
+              </div>
+              
+              <div className="mb-4 bg-black/40 rounded-lg p-2 flex items-center justify-between">
+                <div className="text-xs text-gray-400">Tahmini Meclis:</div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1 text-green-400" title="Kabul Oyu Beklentisi">
+                    <span>👍</span> <span className="font-bold">{expectedVotes.yes}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-red-400" title="Ret Oyu Beklentisi">
+                    <span>👎</span> <span className="font-bold">{expectedVotes.no}</span>
+                  </div>
+                </div>
               </div>
               
               <button
@@ -312,12 +355,16 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
                 disabled={isProcessing || !canAfford || lobbyPrompt !== null}
                 className={`w-full py-2 rounded-lg font-bold text-sm transition-colors ${
                   (!canAfford || lobbyPrompt !== null) ? 'bg-gray-800 text-gray-500 cursor-not-allowed opacity-50' :
+                  !expectedVotes.passNaturally ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30 hover:bg-yellow-500/30' :
                   isActive 
                     ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
                     : 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30'
                 }`}
               >
-                {isProcessing ? "Oylanıyor..." : (isActive ? `İptali Meclise Sun (${cost} PC)` : `Meclise Sun (${cost} PC)`)}
+                {isProcessing ? "İşleniyor..." : (
+                  !expectedVotes.passNaturally ? "Meclisten Geçmeyebilir (Sun)" : 
+                  isActive ? "İptalini Oyla" : "Yasayı Oylat"
+                )}
               </button>
             </div>
           );

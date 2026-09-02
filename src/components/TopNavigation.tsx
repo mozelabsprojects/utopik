@@ -19,6 +19,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
   let rpGain = 0;
   let budgetBreakdown: BudgetBreakdown | null = null;
   const [showBudgetTooltip, setShowBudgetTooltip] = useState(false);
+  let leaderProfile = { name: "Dengeli", icon: "👤", color: "text-slate-400 border-slate-600/30" };
   
   if (gameData) {
     let factions = INITIAL_FACTIONS;
@@ -43,6 +44,11 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
     let eventFlags: string[] = [];
     try { eventFlags = JSON.parse(gameData.eventFlags || "[]"); } catch {}
 
+    if (eventFlags.includes("LEADER_TECHNOCRAT")) leaderProfile = { name: "Teknokrat", icon: "🧠", color: "text-blue-400 border-blue-500/30" };
+    else if (eventFlags.includes("LEADER_GENERAL")) leaderProfile = { name: "General", icon: "🎖️", color: "text-orange-400 border-orange-500/30" };
+    else if (eventFlags.includes("LEADER_ECONOMIST")) leaderProfile = { name: "Ekonomist", icon: "💼", color: "text-yellow-400 border-yellow-500/30" };
+    else if (eventFlags.includes("LEADER_POPULIST")) leaderProfile = { name: "Halk Adamı", icon: "🤝", color: "text-pink-400 border-pink-500/30" };
+
     budgetBreakdown = calculateNetBudget(gameData, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags);
     netIncome = budgetBreakdown.totalNet;
 
@@ -66,6 +72,15 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         
         {/* Sol: Yönetim & Siyaset */}
         <div className="flex flex-wrap items-center gap-2">
+          
+          <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${leaderProfile.color}`}>
+            <span className="text-xl">{leaderProfile.icon}</span>
+            <div>
+              <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">LİDER DOKTRİNİ</p>
+              <p className="font-[family-name:var(--font-display)] font-bold text-sm leading-none">{leaderProfile.name}</p>
+            </div>
+          </div>
+
           <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 shadow-inner">
             <span className="text-xl">📅</span>
             <div>

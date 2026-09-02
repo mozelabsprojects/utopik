@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { MarketState } from "@/lib/types";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 interface GlobalMarketPanelProps {
   gameId: string;
@@ -367,6 +367,13 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
                   labelStyle={{ display: 'none' }}
                   formatter={(value: any) => [`${typeof value === 'number' ? value.toFixed(2) : value}$`, "Fiyat"]} 
                   labelFormatter={(label) => `Tur ${label}`}
+                />
+                
+                <Legend 
+                  layout="vertical" 
+                  verticalAlign="middle" 
+                  align="right" 
+                  wrapperStyle={{ fontSize: '11px', color: '#cbd5e1' }}
                 />
                 
                 {selectedResource === 'all' ? (

@@ -5,7 +5,7 @@
 import { StatEffects, DominoEffect, TurnResult, GameState } from "./types";
 import { getRandomEvents, EVENTS } from "./events-data";
 import { FactionsState, modifyFactionSupport, INITIAL_FACTIONS, FactionId } from "./factions";
-import { CRISES, CrisisId } from "./crises-missions";
+import { CRISES, CrisisId, QUESTS, QuestId } from "./crises-missions";
 import { POLICIES, PolicyId } from "./policies";
 import { MINISTERS, MinisterId } from "./ministers";
 import { getRandomPetition } from "./petitions";
@@ -311,8 +311,12 @@ export function applyEffects(
           : Math.round(value * benefitMultiplier);
       newState.budget += adjustedValue;
     } else {
-      const statKey = key as keyof GameState;
-      if (typeof newState[statKey] === "number" && statKey !== "turn" && statKey !== "bankruptTurns") {
+      const statKey = key as keyof GameState | "westernRelations" | "easternRelations";
+      if (
+        (typeof newState[statKey as keyof GameState] === "number" && statKey !== "turn" && statKey !== "bankruptTurns") ||
+        statKey === "westernRelations" ||
+        statKey === "easternRelations"
+      ) {
         const adjustedValue =
           value < 0
             ? Math.round(value * costMultiplier)
@@ -320,6 +324,12 @@ export function applyEffects(
         
         if (statKey === "politicalCapital") {
           (newState[statKey] as number) = Math.min(999, Math.max(0, (newState[statKey] as number) + adjustedValue));
+        } else if (statKey === "westernRelations" || statKey === "easternRelations") {
+          try {
+            const dipState = JSON.parse(newState.diplomacyState || "{}");
+            dipState[statKey] = clampStat((dipState[statKey] || 50) + adjustedValue);
+            newState.diplomacyState = JSON.stringify(dipState);
+          } catch {}
         } else {
           (newState[statKey] as number) = clampStat(
             (newState[statKey] as number) + adjustedValue
@@ -333,7 +343,115 @@ export function applyEffects(
 }
 
 // ============================================
-// F. TUR ATLAMA — ANA HESAPLAMA
+// H. ERA HESAPLAMA (Dinamik UI Evrimi İçin)
+// ============================================
+export function calculateEra(state: Partial<GameState>): number {
+  let unlockedTechs: string[] = [];
+  try { unlockedTechs = JSON.parse(state.unlockedTechs || "[]"); } catch {}
+
+  let megaProjects: any[] = [];
+  try { megaProjects = JSON.parse(state.megaProjects || "[]"); } catch {}
+  
+  const completedProjectsCount = megaProjects.filter(p => p.isCompleted).length;
+  const techsCount = unlockedTechs.length;
+
+  if (techsCount >= 10 && completedProjectsCount >= 3) return 4; // Era 4: UTOPIA
+  if (techsCount >= 6 || completedProjectsCount >= 2) return 3;  // Era 3: Biomimicry & Tech
+  if (techsCount >= 3 || completedProjectsCount >= 1) return 2;  // Era 2: Chronos Matrix
+  return 1;                                                      // Era 1: Blueprint
+}
+
+export interface StatPressure {
+  source: string;
+  value: number;
+}
+export type StatPressuresBreakdown = Record<string, StatPressure[]>;
+
+export function calculateStatPressures(
+  state: GameState,
+  activeLaws: string[],
+  unlockedTechs: string[],
+  activeCrises: string[],
+  ministers: Record<string, string>,
+  eventFlags: string[]
+): StatPressuresBreakdown {
+  const breakdown: StatPressuresBreakdown = {
+    happiness: [],
+    stability: [],
+    health: [],
+    education: [],
+    environment: [],
+    military: [],
+    foreignRelations: []
+  };
+
+  const addPressure = (stat: string, source: string, value: number) => {
+    if (value !== 0 && breakdown[stat]) {
+      breakdown[stat].push({ source, value });
+    }
+  };
+
+  // 1. Yasalar
+  activeLaws.forEach(lawId => {
+    const law = POLICIES[lawId as keyof typeof POLICIES];
+    if (!law) return;
+    if (law.passiveEffects.happiness) addPressure("happiness", `Yasa: ${law.name}`, law.passiveEffects.happiness);
+    if (law.passiveEffects.stability) addPressure("stability", `Yasa: ${law.name}`, law.passiveEffects.stability);
+    if (law.passiveEffects.health) addPressure("health", `Yasa: ${law.name}`, law.passiveEffects.health);
+    if (law.passiveEffects.education) addPressure("education", `Yasa: ${law.name}`, law.passiveEffects.education);
+    if (law.passiveEffects.environment) addPressure("environment", `Yasa: ${law.name}`, law.passiveEffects.environment);
+    if (law.passiveEffects.military) addPressure("military", `Yasa: ${law.name}`, law.passiveEffects.military);
+    if (law.passiveEffects.foreignRelations) addPressure("foreignRelations", `Yasa: ${law.name}`, law.passiveEffects.foreignRelations);
+  });
+
+  // 2. Teknolojiler
+  unlockedTechs.forEach(techId => {
+    const tech = TECH_TREE[techId as keyof typeof TECH_TREE];
+    if (!tech || !tech.passiveEffects) return;
+    if (tech.passiveEffects.happiness) addPressure("happiness", `Ar-Ge: ${tech.name}`, tech.passiveEffects.happiness);
+    if (tech.passiveEffects.stability) addPressure("stability", `Ar-Ge: ${tech.name}`, tech.passiveEffects.stability);
+    if (tech.passiveEffects.health) addPressure("health", `Ar-Ge: ${tech.name}`, tech.passiveEffects.health);
+    if (tech.passiveEffects.education) addPressure("education", `Ar-Ge: ${tech.name}`, tech.passiveEffects.education);
+    if (tech.passiveEffects.environment) addPressure("environment", `Ar-Ge: ${tech.name}`, tech.passiveEffects.environment);
+    if (tech.passiveEffects.military) addPressure("military", `Ar-Ge: ${tech.name}`, tech.passiveEffects.military);
+    if (tech.passiveEffects.foreignRelations) addPressure("foreignRelations", `Ar-Ge: ${tech.name}`, tech.passiveEffects.foreignRelations);
+  });
+
+  // 3. Krizler
+  activeCrises.forEach(crisisId => {
+    const crisis = CRISES[crisisId as keyof typeof CRISES];
+    if (!crisis || !crisis.passiveEffects) return;
+    if (crisis.passiveEffects.happiness) addPressure("happiness", `Kriz: ${crisis.name}`, crisis.passiveEffects.happiness);
+    if (crisis.passiveEffects.stability) addPressure("stability", `Kriz: ${crisis.name}`, crisis.passiveEffects.stability);
+    if (crisis.passiveEffects.health) addPressure("health", `Kriz: ${crisis.name}`, crisis.passiveEffects.health);
+  });
+
+  // 4. İflas
+  if (state.isBankrupt) {
+    if (state.budget < 0) {
+      addPressure("happiness", "İflas (Bütçe Açığı)", -5);
+      addPressure("stability", "İflas (Bütçe Açığı)", -5);
+    }
+  }
+
+  // 5. Özel Durumlar (Kıtlık, Kaynak Krizleri vb. processNextTurn içindeki passif eksiler)
+  if (state.food !== undefined && state.food <= 0) {
+    addPressure("health", "Kıtlık (Gıda Yok)", -5);
+    addPressure("happiness", "Açlık (Gıda Yok)", -5);
+  }
+  if (state.energy !== undefined && state.energy <= 0) {
+    addPressure("stability", "Elektrik Kesintisi", -5);
+  }
+  if (state.materials !== undefined && state.materials <= 0) {
+    addPressure("military", "Hammadde Yokluğu", -5);
+    addPressure("education", "Hammadde Yokluğu", -2);
+  }
+
+  return breakdown;
+}
+
+// ============================================
+// B. AYLIK BÜTÇE (NET GELİR) HESAPLAMASI
 // ============================================
 export function processNextTurn(currentState: GameState, tradeIncome: number = 0, usedEventIds: string[] = [], eventFlags: string[] = []): TurnResult {
   const state = { ...currentState };
@@ -554,7 +672,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
 
   // 7. İflas Kontrolü ve IMF Müdahalesi
   const popScale = Math.max(0.8, Math.sqrt(state.population / 10));
-  const dynamicBailoutLimit = -5000 * popScale;
+  const dynamicBailoutLimit = -(taxIncome * 3); // Dinamik İflas Sınırı (Verginin 3 katı)
 
   if (state.budget < dynamicBailoutLimit) {
     // IMF Kurtarma Paketi (Bailout)
@@ -571,21 +689,32 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     state.bankruptTurns = BANKRUPTCY_DURATION;
     state.happiness = clampStat(state.happiness - 15);
     state.stability = clampStat(state.stability - 15);
-    turnReports.push(`☠️ DEVLET İFLAS ETTİ! Memur maaşları ödenemiyor, halk isyan eşiğinde (Mutluluk ve İstikrar -15).`);
+    turnReports.push(`📉 İFLAS EŞİĞİ: Bütçe açığı kritik seviyede! Ülke iflas riski taşıyor (Mutluluk ve İstikrar -15).`);
   } else if (state.isBankrupt) {
     if (state.budget < 0) {
-      // Ölüm sarmalını yavaşlatmak için ceza düşürüldü
+      // Ölüm sarmalını yavaşlatmak için ceza düşürüldü (-5)
       state.happiness = clampStat(state.happiness - 5);
       state.stability = clampStat(state.stability - 5);
-      turnReports.push(`🚨 İFLAS SÜRÜYOR: Ülke iflas durumunda olduğu için halk çok mutsuz (Mutluluk ve İstikrar -5).`);
+      turnReports.push(`🚨 İFLAS SÜRÜYOR: Hükümet felç durumda (Mutluluk ve İstikrar -5).`);
     }
     
     if (state.bankruptTurns > 0) {
       state.bankruptTurns--;
     }
+    
     if (state.bankruptTurns === 0 && state.budget >= 0) {
       state.isBankrupt = false;
       turnReports.push(`✅ İflas dönemi sona erdi. Ekonomi toparlanıyor.`);
+    }
+  }
+
+  // 7.5 Enflasyon Soğuma Mekaniği (Pasif)
+  if (state.budget > 0 && taxIncome > maintenanceCost && state.inflation > 2.0) {
+    // Bütçe artı veriyor ve vergi geliri masrafları karşılıyorsa enflasyon hafifçe düşer
+    state.inflation = Math.max(2.0, state.inflation - 0.5);
+    if (state.inflation < 50 && state.inflation > 10) {
+       // Yüksek enflasyondan dönüş hızlanır
+       state.inflation -= 1.0; 
     }
   }
 
@@ -795,52 +924,62 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   state.popularity = Math.round(totalSupport / 5);
   state.politicalCapital = Math.min(999, Math.max(0, state.politicalCapital + 5));
 
-  // 8.6 Aktif Görevlerin Süresini Düşür ve Başarısızlıkları Kontrol Et
+  // 8.6 Aktif Görevlerin Kontrolü (Başarı ve Başarısızlık)
   let activeQuests: any[] = [];
   try { activeQuests = JSON.parse(state.activeQuests || "[]"); } catch {}
   
   const remainingQuests = [];
-  for (const quest of activeQuests) {
-    quest.turnsRemaining--;
-    if (quest.turnsRemaining <= 0) {
-      turnReports.push(`❌ GÖREV BAŞARISIZ: ${quest.title} - ${quest.failureText || "Halkın taleplerini yerine getiremediniz."}`);
-      if (quest.failureEffects) {
-        Object.assign(state, applyEffects(state, quest.failureEffects, state.isBankrupt));
+  let questCompleted = false;
+
+  for (const q of activeQuests) {
+    if (q.id && q.id.startsWith("quest_")) {
+      // Geriye dönük uyumluluk (Eski rastgele görevler - sadece başarısızlık kontrolü vardı)
+      q.turnsRemaining--;
+      if (q.turnsRemaining <= 0) {
+        turnReports.push(`❌ GÖREV BAŞARISIZ: ${q.title} - ${q.failureText || "Halkın taleplerini yerine getiremediniz."}`);
+        if (q.failureEffects) {
+          Object.assign(state, applyEffects(state, q.failureEffects, state.isBankrupt));
+        }
+      } else {
+        remainingQuests.push(q);
       }
+      continue;
+    }
+
+    // Yeni Görev Sistemi
+    const questData = QUESTS[q.id as QuestId];
+    if (!questData) continue;
+
+    const isSuccess = questData.condition(state, factions);
+    if (isSuccess) {
+      const result = questData.onSuccess(factions, state);
+      factions = result.newFactions;
+      Object.assign(state, result.newState);
+      turnReports.push(`✅ GÖREV BAŞARILI: ${questData.title} - ${result.message}`);
+      questCompleted = true;
     } else {
-      remainingQuests.push(quest);
+      q.turnsRemaining--;
+      if (q.turnsRemaining <= 0) {
+        const result = questData.onFailure(factions, state);
+        factions = result.newFactions;
+        Object.assign(state, result.newState);
+        turnReports.push(`❌ GÖREV BAŞARISIZ: ${questData.title} - ${result.message}`);
+        questCompleted = true;
+      } else {
+        remainingQuests.push(q);
+      }
     }
   }
   
-  // Eğer görev yoksa %20 ihtimalle yeni bir görev ver
-  if (remainingQuests.length === 0 && Math.random() < 0.20) {
-    const sectors = ["health", "education", "environment", "military", "popularity"];
-    const randSector = sectors[Math.floor(Math.random() * sectors.length)];
-    const currentValue = state[randSector as keyof GameState] as number;
-    const targetVal = Math.min(100, Math.round(currentValue + 15));
-    const isBudgetReward = Math.random() > 0.5;
-    
-    let sectorName = "";
-    if (randSector === "health") sectorName = "Sağlık";
-    else if (randSector === "education") sectorName = "Eğitim";
-    else if (randSector === "environment") sectorName = "Çevre";
-    else if (randSector === "military") sectorName = "Askeriye";
-    else sectorName = "Başkanlık Desteği (Popülarite)";
-
-    const newQuest = {
-      id: "quest_" + Date.now().toString(),
-      title: "Halkın Yeni Talebi",
-      description: `Halk, önümüzdeki 4 tur içinde ${sectorName} seviyesinin ${targetVal} olmasını talep ediyor.`,
-      targetSector: randSector,
-      targetValue: targetVal,
-      turnsRemaining: 4,
-      rewardText: isBudgetReward ? "Hazine Geliri ($2000)" : "Siyasi Sermaye (+20)",
-      rewardEffects: isBudgetReward ? { budget: 2000 } : { politicalCapital: 20 },
-      failureText: "Talep karşılanamadı, halk desteği düşüyor.",
-      failureEffects: { popularity: -10, stability: -5 }
-    };
-    remainingQuests.push(newQuest);
-    turnReports.push(`📜 YENİ HALK TALEBİ: ${newQuest.description}`);
+  // Eğer görev yoksa %25 ihtimalle yeni bir görev ver
+  if (remainingQuests.length === 0 && !questCompleted && Math.random() < 0.25) {
+    const availableQuestIds = (Object.keys(QUESTS) as QuestId[]).filter(id => !activeQuests.find(q => q.id === id));
+    if (availableQuestIds.length > 0) {
+      const randomQuestId = availableQuestIds[Math.floor(Math.random() * availableQuestIds.length)];
+      const newQuest = QUESTS[randomQuestId];
+      remainingQuests.push({ id: randomQuestId, turnsRemaining: newQuest.deadlineTurns, title: newQuest.title, description: newQuest.description });
+      turnReports.push(`📜 YENİ GÖREV: ${newQuest.title} - ${newQuest.description}`);
+    }
   }
   
   state.activeQuests = JSON.stringify(remainingQuests);

@@ -7,6 +7,7 @@ import ImpactGraph from "./ImpactGraph";
 import { GameState } from "@/lib/types";
 import { generateAdvisorHints } from "@/lib/advisor";
 import { TECH_TREE, TechId } from "@/lib/tech-tree";
+import { calculateStatPressures, StatPressure } from "@/lib/game-engine";
 import React from "react";
 
 interface GameData extends GameState {
@@ -40,6 +41,29 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
       return [];
     }
   }, [game.unlockedTechs]);
+
+  const parsedData = React.useMemo(() => {
+    let activeLaws: string[] = [];
+    let activeCrises: string[] = [];
+    let ministers: Record<string, string> = {};
+    let eventFlags: string[] = [];
+    try { activeLaws = JSON.parse(game.activeLaws || "[]"); } catch {}
+    try { activeCrises = JSON.parse(game.activeCrises || "[]"); } catch {}
+    try { ministers = JSON.parse(game.ministers || "{}"); } catch {}
+    try { eventFlags = JSON.parse(game.eventFlags || "[]"); } catch {}
+    return { activeLaws, activeCrises, ministers, eventFlags };
+  }, [game]);
+
+  const statPressures = React.useMemo(() => {
+    return calculateStatPressures(
+      game, 
+      parsedData.activeLaws, 
+      unlockedTechsList, 
+      parsedData.activeCrises, 
+      parsedData.ministers, 
+      parsedData.eventFlags
+    );
+  }, [game, parsedData, unlockedTechsList]);
 
   return (
     <div className="tutorial-dashboard glass-strong rounded-2xl p-5 animate-slide-up">
@@ -136,6 +160,7 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
                     : undefined
                 }
                 projectedGain={projectedInvestments?.[stat.key]}
+                pressures={statPressures[stat.key]}
               />
             ))}
           </div>

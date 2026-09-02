@@ -57,17 +57,60 @@
     --color-accent-glow: rgba(168, 162, 158, 0.1);
   }
 
-  /* Golden Age Theme */
-  .theme-golden {
-    --color-bg-main: #1a1505;
-    --color-bg-panel: #2a220a;
-    --color-border: #856514;
-    --color-text-main: #fef08a;
-    --color-text-muted: #fde047;
+  /* ============================================ */
+  /* DİNAMİK ÇAĞ (ERA) TEMALARI                  */
+  /* ============================================ */
+  
+  /* Era 1: Blueprint & Architecture */
+  .theme-era-1 {
+    --color-bg-main: #0f172a; /* Slate 900 */
+    --color-bg-panel: #1e293b; /* Slate 800 */
+    --color-border: #334155; /* Slate 700 */
+    --color-text-main: #f8fafc;
+    --color-text-muted: #94a3b8;
     
-    --color-accent-primary: #eab308; /* Pure Gold */
-    --color-accent-secondary: #ca8a04;
-    --color-accent-glow: rgba(234, 179, 8, 0.4);
+    --color-accent-primary: #3b82f6; /* Blue 500 */
+    --color-accent-secondary: #0ea5e9; /* Light Blue */
+    --color-accent-glow: rgba(59, 130, 246, 0.1);
+  }
+
+  /* Era 2: Chronos Matrix (Industrial/Mechanical) */
+  .theme-era-2 {
+    --color-bg-main: #171717; /* Neutral 900 */
+    --color-bg-panel: #262626; /* Neutral 800 */
+    --color-border: #404040; /* Neutral 700 */
+    --color-text-main: #f5f5f5;
+    --color-text-muted: #a3a3a3;
+    
+    --color-accent-primary: #f59e0b; /* Amber 500 */
+    --color-accent-secondary: #d97706; /* Amber 600 */
+    --color-accent-glow: rgba(245, 158, 11, 0.15);
+  }
+
+  /* Era 3: Biomimicry & Tech (Nature meets Tech) */
+  .theme-era-3 {
+    --color-bg-main: #064e3b; /* Emerald 900 */
+    --color-bg-panel: #065f46; /* Emerald 800 */
+    --color-border: #047857; /* Emerald 700 */
+    --color-text-main: #ecfdf5;
+    --color-text-muted: #6ee7b7;
+    
+    --color-accent-primary: #10b981; /* Emerald 500 */
+    --color-accent-secondary: #34d399; /* Emerald 400 */
+    --color-accent-glow: rgba(16, 185, 129, 0.2);
+  }
+
+  /* Era 4: UTOPIA (Holographic/Futuristic) */
+  .theme-era-4 {
+    --color-bg-main: #030014; /* Deep Space Black */
+    --color-bg-panel: #11052C; /* Deep Purple */
+    --color-border: #3B185F; /* Neon Purple Border */
+    --color-text-main: #ffffff;
+    --color-text-muted: #d8b4e2;
+    
+    --color-accent-primary: #a855f7; /* Purple 500 */
+    --color-accent-secondary: #f472b6; /* Pink 400 */
+    --color-accent-glow: rgba(168, 85, 247, 0.3);
   }
 }
 

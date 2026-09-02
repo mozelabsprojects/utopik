@@ -29,6 +29,7 @@ import { GameEvent, DominoEffect, Sector, GameState, WorldCountryState } from "@
 import { playClickSound, playTurnSound, playAlertSound } from "@/lib/audio";
 import { generateAdvisorHints, AdvisorHint } from "@/lib/advisor";
 import { COUNTRIES } from "@/lib/countries-data";
+import { calculateEra } from "@/lib/game-engine";
 
 interface GameData extends GameState {
   worldCountries: WorldCountryState[];
@@ -393,7 +394,8 @@ function GameContent() {
     if (game.isBankrupt) return "theme-bankrupt";
     if (game.stability < 30) return "theme-crisis";
     if (game.happiness > 80 && game.stability > 80) return "theme-golden";
-    return "theme-default";
+    const era = calculateEra(game);
+    return `theme-era-${era}`;
   };
 
   if (!gameId) {
@@ -599,6 +601,7 @@ function GameContent() {
               worldCountries={game.worldCountries || []} 
               politicalCapital={game.politicalCapital}
               military={game.military}
+              gameState={game}
               onUpdate={fetchGameState}
             />
           </div>
