@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { TECH_TREE, TechId } from "@/lib/tech-tree";
+import { checkVictory } from "@/lib/game-engine";
 
 export async function POST(request: Request) {
   try {
@@ -45,16 +46,33 @@ export async function POST(request: Request) {
 
     unlockedTechs.push(techId);
 
+    const tempState = {
+      ...game,
+      unlockedTechs: JSON.stringify(unlockedTechs),
+    };
+
+    const victoryCheck = checkVictory(tempState);
+    let isGameOver = game.isGameOver;
+    let gameOverReason = game.gameOverReason;
+
+    if (victoryCheck) {
+      isGameOver = true;
+      gameOverReason = "ZAFER! " + victoryCheck;
+    }
+
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
       data: {
         researchPoints: game.researchPoints - tech.cost,
         unlockedTechs: JSON.stringify(unlockedTechs),
+        isGameOver,
+        gameOverReason,
       },
     });
 
     return NextResponse.json({
       success: true,
+      game: updatedGame,
       researchPoints: updatedGame.researchPoints,
       unlockedTechs: updatedGame.unlockedTechs,
     });

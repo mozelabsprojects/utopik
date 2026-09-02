@@ -944,20 +944,44 @@ export function applyInvestment(
 // I. ZAFER KONTROLÜ
 // ============================================
 export function checkVictory(state: GameState): string | null {
+  // 1. Bilimsel & Teknoloji Zaferi
+  let unlockedTechs: string[] = [];
+  try { unlockedTechs = JSON.parse(state.unlockedTechs || "[]"); } catch {}
+  
+  if (unlockedTechs.includes("space_mining") || unlockedTechs.length >= 8) {
+    return "BİLİMSEL HAKİMİYET: Tüm teknoloji ağacını tamamladınız, uzay madenciliğine başladınız ve insanlığı yeni bir bilim çağına taşıdınız!";
+  }
+
+  // 2. Ekonomik Süper Güç Zaferi
+  if (state.budget >= 300000) {
+    return "EKONOMİK SÜPER GÜÇ: Ülke hazinesini $300,000 seviyesinin üzerine çıkararak dünya ekonomisinin tek hakimi oldunuz!";
+  }
+
+  // 3. Askeri Hegemonya Zaferi
+  if (state.military >= 95 && state.stability >= 85) {
+    return "ASKERİ HEGEMONYA: Dünyanın en caydırıcı ordusunu kurdunuz ve uluslararası dengeleri mutlak askeri gücünüzle belirlediniz!";
+  }
+
+  // 4. Diplomatik / Ütopik Barış Zaferi
+  if (state.foreignRelations >= 95 && state.happiness >= 85 && state.stability >= 85) {
+    return "KÜRESEL BARIŞ İTTİFAKI: Tüm uluslar arasında sarsılmaz bir barış köprüsü kurdunuz ve Ütopya toplumunu yarattınız!";
+  }
+
+  // 5. 100 Tur Dayanma Ütopya Zaferi
   if (state.turn >= 100) {
-    if (state.education > 90 && state.health > 90 && state.stability > 90 && state.happiness > 90) {
-      return "ÜTOPYA ÇAĞI: 100 Tur boyunca devleti bir ütopya seviyesinde yönettiniz!";
+    if (state.education > 80 && state.health > 80 && state.stability > 80 && state.happiness > 80) {
+      return "ÜTOPYA ÇAĞI: 100 Tur boyunca devleti yüksek bir refah seviyesinde başarıyla yönettiniz!";
     }
   }
 
-  // Mega projelere bak
+  // 6. Mega Proje Zaferleri
   let completedProjects: string[] = [];
   try { completedProjects = JSON.parse(state.megaProjects || "[]"); } catch {}
   
   for (const projId of completedProjects) {
     const project = MEGA_PROJECTS[projId as keyof typeof MEGA_PROJECTS];
     if (project && project.isVictoryCondition) {
-      return `${project.name} projesini başarıyla tamamladınız!`;
+      return `${project.name} projesini başarıyla tamamlayarak zafer kazandınız!`;
     }
   }
 
