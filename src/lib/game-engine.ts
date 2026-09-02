@@ -571,12 +571,32 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // ==========================================
   // AR-GE PUANI (RESEARCH POINTS) ÜRETİMİ
   // ==========================================
-  let baseRP = 2; // Başlangıçta kazanmak artık çok daha zor
+  let baseRP = 3; // Taban puan
   
-  if (state.education > 60) {
-    baseRP += Math.round((state.education - 60) / 3);
-  } else if (state.education < 40) {
-    baseRP = Math.max(0, baseRP - 1);
+  // Eğitim en temel itici güç. (50'den sonra her 5 eğitim puanı için +2 RP)
+  if (state.education >= 50) {
+    baseRP += Math.floor((state.education - 50) / 5) * 2;
+  }
+
+  // Bütçe Gücü (Ar-ge yatırımları)
+  if (state.budget >= 25000) baseRP += 2;
+  if (state.budget >= 100000) baseRP += 3;
+  if (state.budget >= 500000) baseRP += 5;
+
+  // Materyal Emtiası (Hammadde)
+  if ((state.materials || 0) >= 150) baseRP += 3;
+  if ((state.materials || 0) >= 400) baseRP += 5;
+
+  // İstikrar & Sağlık (Huzurlu beyinler daha iyi çalışır)
+  if (state.stability > 80 && state.health > 80) baseRP += 3;
+
+  // Yapay Zeka Devrimi (Kartopu)
+  if (eventFlags.includes("ai_singularity")) {
+    baseRP += 15;
+  }
+
+  if (state.education < 40) {
+    baseRP = Math.max(1, baseRP - 3); // Cahillik cezası
   }
 
   if (unlockedTechs.includes("quantum_computing")) {
