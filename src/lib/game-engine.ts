@@ -571,32 +571,32 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // ==========================================
   // AR-GE PUANI (RESEARCH POINTS) ÜRETİMİ
   // ==========================================
-  let baseRP = 3; // Taban puan
+  let baseRP = 2; // Taban puan
   
-  // Eğitim en temel itici güç. (50'den sonra her 5 eğitim puanı için +2 RP)
-  if (state.education >= 50) {
-    baseRP += Math.floor((state.education - 50) / 5) * 2;
+  // Eğitim en temel itici güç. (60'tan sonra her 10 eğitim puanı için +2 RP)
+  if (state.education >= 60) {
+    baseRP += Math.floor((state.education - 60) / 10) * 2;
   }
 
-  // Bütçe Gücü (Ar-ge yatırımları)
-  if (state.budget >= 25000) baseRP += 2;
-  if (state.budget >= 100000) baseRP += 3;
-  if (state.budget >= 500000) baseRP += 5;
+  // Bütçe Gücü (Ar-ge yatırımları için çok daha yüksek meblağlar lazım)
+  if (state.budget >= 100000) baseRP += 1;
+  if (state.budget >= 500000) baseRP += 2;
+  if (state.budget >= 1500000) baseRP += 4;
 
   // Materyal Emtiası (Hammadde)
-  if ((state.materials || 0) >= 150) baseRP += 3;
-  if ((state.materials || 0) >= 400) baseRP += 5;
+  if ((state.materials || 0) >= 200) baseRP += 1;
+  if ((state.materials || 0) >= 500) baseRP += 3;
 
   // İstikrar & Sağlık (Huzurlu beyinler daha iyi çalışır)
-  if (state.stability > 80 && state.health > 80) baseRP += 3;
+  if (state.stability >= 85 && state.health >= 85) baseRP += 2;
 
   // Yapay Zeka Devrimi (Kartopu)
   if (eventFlags.includes("ai_singularity")) {
-    baseRP += 15;
+    baseRP += 8; // Eskiden 15'ti, çok güçlü olmaması için düşürüldü
   }
 
   if (state.education < 40) {
-    baseRP = Math.max(1, baseRP - 3); // Cahillik cezası
+    baseRP = Math.max(1, baseRP - 1); // Cahillik cezası
   }
 
   if (unlockedTechs.includes("quantum_computing")) {
