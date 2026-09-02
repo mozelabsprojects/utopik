@@ -25,6 +25,7 @@ import Sidebar, { SidebarTab } from "@/components/Sidebar";
 import TechTreePanel from "@/components/TechTreePanel";
 import AnalyticsPanel from "@/components/AnalyticsPanel";
 import ElectionModal from "@/components/ElectionModal";
+import VictoryScreen from "@/components/VictoryScreen";
 import { GameEvent, DominoEffect, Sector, GameState, WorldCountryState } from "@/lib/types";
 import { playClickSound, playTurnSound, playAlertSound } from "@/lib/audio";
 import { generateAdvisorHints, AdvisorHint } from "@/lib/advisor";
@@ -661,6 +662,13 @@ function GameContent() {
               foreignRelations: game.foreignRelations,
             }}
             onRestart={handleRestart}
+          />
+        )}
+        
+        {game && !game.isGameOver && calculateEra(game) >= 4 && (
+          <VictoryScreen 
+            game={game} 
+            onRestart={handleRestart} 
           />
         )}
         </div>
