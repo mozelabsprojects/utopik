@@ -1921,8 +1921,8 @@ export const EVENTS: GameEvent[] = [
       {
         label: "B",
         text: "Olayı örtbas etmeye çalış",
-        effects: { budget: -2000, stability: -15, popularity: -20 },
-        hint: "Medya her şeyi öğrendi, büyük bir fiyasko!",
+        effects: { budget: -1000, stability: -15, popularity: -20 },
+        hint: "Medya her şeyi öğrendi, büyük bir fiyasko!  (-Bütçe Gideri)",
       }
     ]
   },
@@ -1935,8 +1935,8 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Şehir meydanlarına dev ekranlar kur",
-        effects: { budget: -1500, happiness: 20, popularity: 15 },
-        hint: "Milli gurur yaşandı, Z kuşağı seni çok seviyor.",
+        effects: { budget: -800, happiness: 20, popularity: 15 },
+        hint: "Milli gurur yaşandı, Z kuşağı seni çok seviyor. (-Bütçe Gideri)",
       },
       {
         label: "B",
@@ -1959,10 +1959,10 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Tam destek ver (Bütçe ve Materyal akıt)",
-        effects: { budget: -3000, materials: -30, military: 25, education: 5, foreignRelations: -5 },
+        effects: { budget: -2000, materials: -20, military: 25, education: 5, foreignRelations: -5 },
         factionEffects: { military: 20, nationalists: 15, intellectuals: 5 },
         flagsToSet: ["DRONE_PROGRAM_MAX"],
-        hint: "Büyük materyal harcar ama ordu çağ atlar. (Uzun vadeli etkisi var)"
+        hint: "Bütçe ve materyal harcar ama ordu çağ atlar. (Uzun vadeli etkisi var) (-Bütçe Gideri)"
       },
       {
         label: "B",
@@ -2074,9 +2074,9 @@ export const EVENTS: GameEvent[] = [
       {
         label: "A",
         text: "Geniş çaplı nükleer ve yenilenebilir dönüşüm başlat",
-        effects: { budget: -4000, energy: 50, materials: -20, environment: 20, education: 5 },
+        effects: { budget: -2000, energy: 50, materials: -15, environment: 20, education: 5 },
         factionEffects: { intellectuals: 20, capitalists: 10 },
-        hint: "Çok pahalı ama geleceği kurtarır."
+        hint: "Büyük yatırım ama geleceği kurtarır. (-Bütçe Gideri)"
       },
       {
         label: "B",

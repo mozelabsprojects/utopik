@@ -24,34 +24,46 @@ export default function GameOverModal({
   stats,
   onRestart,
 }: GameOverModalProps) {
+  const isVictory = reason.includes("ZAFER") || reason.includes("ÜTOPYA");
+
   const getTitle = () => {
+    if (isVictory) return "ZAFER!";
     if (reason.includes("SAVAŞ") || reason.includes("darbe")) return "DARBE!";
     if (reason.includes("İFLAS")) return "İFLAS!";
     if (reason.includes("SAĞLIK") || reason.includes("Salgın")) return "SALGIN!";
     if (reason.includes("İŞGAL")) return "İŞGAL!";
+    if (reason.includes("SEÇİM")) return "SEÇİM YENİLGİSİ!";
+    if (reason.includes("SÜRE")) return "SÜRE DOLDU!";
     return "OYUN BİTTİ";
   };
 
   const getEmoji = () => {
+    if (isVictory) return "🏆";
     if (reason.includes("SAVAŞ") || reason.includes("darbe")) return "⚔️";
     if (reason.includes("İFLAS")) return "💸";
     if (reason.includes("SAĞLIK") || reason.includes("Salgın")) return "☠️";
     if (reason.includes("İŞGAL")) return "🏴";
-    return "💀";
+    return "📉";
   };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md animate-fade-in">
-      <div className="max-w-lg w-full mx-4 animate-shake">
+      <div className={`max-w-lg w-full mx-4 ${isVictory ? '' : 'animate-shake'}`}>
         {/* Main card */}
-        <div className="glass-strong rounded-2xl overflow-hidden border border-red-500/30">
-          {/* Red header */}
-          <div className="bg-gradient-to-r from-red-900/80 to-red-700/80 p-8 text-center">
-            <div className="text-6xl mb-3 animate-glitch">{getEmoji()}</div>
-            <h1 className="text-4xl font-[family-name:var(--font-display)] font-black text-red-400 animate-glitch mb-2">
+        <div className={`glass-strong rounded-2xl overflow-hidden border ${isVictory ? 'border-yellow-500/50' : 'border-red-500/30'}`}>
+          {/* Header */}
+          <div className={`p-8 text-center ${isVictory 
+            ? 'bg-gradient-to-r from-yellow-900/80 via-amber-700/80 to-yellow-900/80' 
+            : 'bg-gradient-to-r from-red-900/80 to-red-700/80'
+          }`}>
+            <div className={`text-6xl mb-3 ${isVictory ? 'animate-bounce' : 'animate-glitch'}`}>{getEmoji()}</div>
+            <h1 className={`text-4xl font-[family-name:var(--font-display)] font-black mb-2 ${isVictory 
+              ? 'text-yellow-300' 
+              : 'text-red-400 animate-glitch'
+            }`}>
               {getTitle()}
             </h1>
-            <p className="text-red-200/80 text-sm">{countryName}</p>
+            <p className={`text-sm ${isVictory ? 'text-yellow-200/80' : 'text-red-200/80'}`}>{countryName}</p>
           </div>
 
           {/* Content */}
@@ -75,7 +87,7 @@ export default function GameOverModal({
                     stats.budget >= 0 ? "text-[var(--color-gold)]" : "text-red-400"
                   }`}
                 >
-                  ${Math.round(stats.budget)}
+                  ${Math.round(stats.budget).toLocaleString()}
                 </div>
                 <div className="text-xs text-gray-400">Son Bütçe</div>
               </div>
@@ -115,7 +127,10 @@ export default function GameOverModal({
             {/* Restart button */}
             <button
               onClick={onRestart}
-              className="w-full btn-danger text-center text-base py-4"
+              className={`w-full text-center text-base py-4 rounded-xl font-bold transition-all ${isVictory 
+                ? 'bg-gradient-to-r from-yellow-600 to-amber-500 text-black hover:from-yellow-500 hover:to-amber-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]' 
+                : 'btn-danger'
+              }`}
             >
               🔄 Yeniden Başla
             </button>

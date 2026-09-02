@@ -121,11 +121,19 @@ export const MEGA_PROJECTS: Record<MegaProjectId, MegaProject> = {
   }
 };
 
-export function canStartMegaProject(state: GameState, projectId: MegaProjectId): boolean {
+export function canStartMegaProject(state: GameState, projectId: MegaProjectId, difficulty: string = "Dengeli"): boolean {
   const project = MEGA_PROJECTS[projectId];
   if (!project) return false;
   if (state.turn < project.requiredTurn) return false;
-  if (state.budget < project.cost) return false;
+  
+  // Zorluk bazlı maliyet çarpanı
+  let costMultiplier = 1.0;
+  if (difficulty === "Kolay") costMultiplier = 0.7;
+  else if (difficulty === "Zor") costMultiplier = 1.3;
+  else if (difficulty === "Çok Zor") costMultiplier = 1.5;
+  
+  const adjustedCost = Math.round(project.cost * costMultiplier);
+  if (state.budget < adjustedCost) return false;
 
   const reqs = project.requiredStats;
   if (reqs.education && state.education < reqs.education) return false;
@@ -139,4 +147,14 @@ export function canStartMegaProject(state: GameState, projectId: MegaProjectId):
   if (reqs.politicalCapital && state.politicalCapital < reqs.politicalCapital) return false;
 
   return true;
+}
+
+export function getMegaProjectCost(projectId: MegaProjectId, difficulty: string = "Dengeli"): number {
+  const project = MEGA_PROJECTS[projectId];
+  if (!project) return 0;
+  let costMultiplier = 1.0;
+  if (difficulty === "Kolay") costMultiplier = 0.7;
+  else if (difficulty === "Zor") costMultiplier = 1.3;
+  else if (difficulty === "Çok Zor") costMultiplier = 1.5;
+  return Math.round(project.cost * costMultiplier);
 }

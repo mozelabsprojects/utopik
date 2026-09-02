@@ -24,6 +24,28 @@ const STAT_ICONS: Record<string, string> = {
   foreignRelations: "🌍",
   popularity: "👑",
   politicalCapital: "📜",
+  energy: "⚡",
+  food: "🌾",
+  materials: "⚙️",
+  tech: "🔬",
+  inflation: "💹",
+};
+
+const STAT_LABELS: Record<string, string> = {
+  military: "Askeriye",
+  happiness: "Mutluluk",
+  health: "Sağlık",
+  environment: "Çevre",
+  education: "Eğitim",
+  stability: "İstikrar",
+  foreignRelations: "Dış İlişkiler",
+  popularity: "Popülarite",
+  politicalCapital: "Siyasi Sermaye",
+  energy: "Enerji",
+  food: "Gıda",
+  materials: "Materyal",
+  tech: "Teknoloji",
+  inflation: "Enflasyon",
 };
 
 interface EventCardProps {
@@ -112,19 +134,20 @@ export default function EventCard({ event, onChoice, disabled }: EventCardProps)
                     )}
                   </div>
                   
-                  {/* Diğer Stat Etkileri (Gizemli Gösterim) */}
+                  {/* Stat Etkileri (Sayısal Değerler) */}
                   <div className="flex flex-wrap gap-1 mt-2">
                     {Object.entries(choice.effects).map(([key, val]) => {
                       if (key === "budget" || val === 0) return null;
                       const isPos = val > 0;
                       const icon = STAT_ICONS[key] || "⚙️";
+                      const label = STAT_LABELS[key] || key;
                       return (
-                        <span key={key} title={isPos ? "Artması Bekleniyor" : "Düşmesi Bekleniyor"} className={`text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 ${
+                        <span key={key} title={`${label}: ${isPos ? '+' : ''}${val}`} className={`text-[10px] px-1.5 py-0.5 rounded font-bold flex items-center gap-1 ${
                           isPos 
                             ? 'bg-green-500/10 text-green-300 border border-green-500/20' 
                             : 'bg-red-500/10 text-red-300 border border-red-500/20'
                         }`}>
-                          {icon} ? {isPos ? '⬆️' : '⬇️'}
+                          {icon} {isPos ? '+' : ''}{val}
                         </span>
                       );
                     })}

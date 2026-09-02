@@ -465,6 +465,13 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     baseRP = Math.round(baseRP * 1.5);
   }
   
+  // Zorluk bazlı RP çarpanı
+  let rpDiffMultiplier = 1.0;
+  if (difficulty === "Kolay") rpDiffMultiplier = 1.5;
+  else if (difficulty === "Zor") rpDiffMultiplier = 0.75;
+  else if (difficulty === "Çok Zor") rpDiffMultiplier = 0.5;
+  baseRP = Math.max(1, Math.round(baseRP * rpDiffMultiplier));
+  
   state.researchPoints += baseRP;
   turnReports.push(`🔬 Araştırma Puanı (RP) kazanıldı: +${baseRP}`);
 
@@ -920,7 +927,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
 // G. OYUN SONU KONTROLÜ
 // ============================================
 export function checkGameOver(state: GameState): string | null {
-  if (state.turn >= 150) return "SÜRE DOLDU! 150 Tur süreniz doldu ve nihai hedeflerinize ulaşamadınız. İktidarınız sıradan bir şekilde sona erdi.";
+  // Tur limiti yok — oyun sadece stat başarısızlıkları veya seçim kaybıyla biter
   if (state.popularity <= 0) return "SEÇİM HEZİMETİ! Halk desteği sıfıra indi.";
   if (state.stability <= 0) return "İÇ SAVAŞ! İstikrar sıfıra düştü.";
   if (state.health <= 0) return "SAĞLIK FELAKETİ! Salgın hastalıklar ülkeyi kasıp kavurdu.";
@@ -1041,45 +1048,21 @@ export function applyInvestment(
 // I. ZAFER KONTROLÜ
 // ============================================
 export function checkVictory(state: GameState): string | null {
-  // 1. Bilimsel & Teknoloji Zaferi
+  // TEK ZAFER KOŞULU: Tüm Teknolojiler (8/8) + Tüm Mega Projeler (4/4)
   let unlockedTechs: string[] = [];
   try { unlockedTechs = JSON.parse(state.unlockedTechs || "[]"); } catch {}
-  
-  if (unlockedTechs.includes("space_mining") || unlockedTechs.length >= 8) {
-    return "BİLİMSEL HAKİMİYET: Tüm teknoloji ağacını tamamladınız, uzay madenciliğine başladınız ve insanlığı yeni bir bilim çağına taşıdınız!";
-  }
 
-  // 2. Ekonomik Süper Güç Zaferi
-  if (state.budget >= 300000) {
-    return "EKONOMİK SÜPER GÜÇ: Ülke hazinesini $300,000 seviyesinin üzerine çıkararak dünya ekonomisinin tek hakimi oldunuz!";
-  }
-
-  // 3. Askeri Hegemonya Zaferi
-  if (state.military >= 95 && state.stability >= 85) {
-    return "ASKERİ HEGEMONYA: Dünyanın en caydırıcı ordusunu kurdunuz ve uluslararası dengeleri mutlak askeri gücünüzle belirlediniz!";
-  }
-
-  // 4. Diplomatik / Ütopik Barış Zaferi
-  if (state.foreignRelations >= 95 && state.happiness >= 85 && state.stability >= 85) {
-    return "KÜRESEL BARIŞ İTTİFAKI: Tüm uluslar arasında sarsılmaz bir barış köprüsü kurdunuz ve Ütopya toplumunu yarattınız!";
-  }
-
-  // 5. 100 Tur Dayanma Ütopya Zaferi
-  if (state.turn >= 100) {
-    if (state.education > 80 && state.health > 80 && state.stability > 80 && state.happiness > 80) {
-      return "ÜTOPYA ÇAĞI: 100 Tur boyunca devleti yüksek bir refah seviyesinde başarıyla yönettiniz!";
-    }
-  }
-
-  // 6. Mega Proje Zaferleri
   let completedProjects: string[] = [];
   try { completedProjects = JSON.parse(state.megaProjects || "[]"); } catch {}
-  
-  for (const projId of completedProjects) {
-    const project = MEGA_PROJECTS[projId as keyof typeof MEGA_PROJECTS];
-    if (project && project.isVictoryCondition) {
-      return `${project.name} projesini başarıyla tamamlayarak zafer kazandınız!`;
-    }
+
+  const ALL_TECH_IDS: TechId[] = ["modern_agriculture", "ai_infrastructure", "advanced_robotics", "cyber_warfare", "gene_therapy", "quantum_computing", "fusion_power", "space_mining"];
+  const ALL_MEGA_IDS = Object.keys(MEGA_PROJECTS);
+
+  const allTechsDone = ALL_TECH_IDS.every(t => unlockedTechs.includes(t));
+  const allMegaDone = ALL_MEGA_IDS.every(m => completedProjects.includes(m));
+
+  if (allTechsDone && allMegaDone) {
+    return "ÜTOPYA ÇAĞI! Tüm teknolojileri araştırdınız, tüm mega projeleri tamamladınız ve insanlığı yeni bir çağa taşıdınız. Ülkeniz tarihin en büyük medeniyeti olarak anılacak!";
   }
 
   return null;
