@@ -53,8 +53,9 @@ export async function POST(request: Request) {
       activeBonds: game.activeBonds,
     };
 
-    if (!canStartMegaProject(state, projectId as MegaProjectId)) {
-      return NextResponse.json({ error: "Bu projeyi başlatmak için gereksinimleri karşılamıyorsunuz" }, { status: 400 });
+    const eligibility = canStartMegaProject(state, projectId as MegaProjectId);
+    if (!eligibility.canStart) {
+      return NextResponse.json({ error: eligibility.reason || "Bu projeyi başlatmak için gereksinimleri karşılamıyorsunuz" }, { status: 400 });
     }
 
     let completedProjects: string[] = [];
@@ -69,6 +70,13 @@ export async function POST(request: Request) {
     // Apply effects
     const newState = applyEffects(state, project.bonusEffects, game.isBankrupt);
     newState.budget -= project.cost;
+
+    // KAYNAK TÜKETİMİ: Mega proje kaynakları harcar
+    if (project.requiredResources) {
+      if (project.requiredResources.energy) newState.energy = Math.max(0, newState.energy - Math.round(project.requiredResources.energy * 0.3));
+      if (project.requiredResources.food) newState.food = Math.max(0, newState.food - Math.round(project.requiredResources.food * 0.3));
+      if (project.requiredResources.materials) newState.materials = Math.max(0, newState.materials - Math.round(project.requiredResources.materials * 0.3));
+    }
 
     let factions: FactionsState;
     try { factions = JSON.parse(newState.factions); } catch { factions = {} as any; }

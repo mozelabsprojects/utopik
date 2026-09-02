@@ -153,6 +153,14 @@ export const EVENTS: GameEvent[] = [
         effects: { budget: 500, health: -8, happiness: 5 },
         factionEffects: { capitalists: 10, intellectuals: -8 },
         hint: "Bütçe ve vergi geliri akar ama hastaneler kalp krizi vakalarıyla dolar."
+      },
+      {
+        label: "D",
+        text: "👩‍⚕️ [BAKAN] Sağlık Bakanı'nın özel raporu ile sadece zararlı kimyasalları yasakla.",
+        effects: { health: 10, happiness: 3, stability: 3, budget: -100 },
+        factionEffects: { intellectuals: 5, workers: 5 },
+        hint: "En iyi çözüm! Sağlık Bakanınız bilimsel verilerle çözüm sunuyor. (Sağlık Bakanı gerekli)",
+        requiredMinister: "hlt_social"
       }
     ]
   },
@@ -183,6 +191,14 @@ export const EVENTS: GameEvent[] = [
         effects: { happiness: -5, education: -3 },
         factionEffects: { nationalists: 3, intellectuals: -8 },
         hint: "Geleneksel kesim memnun olur ama gençler size öfkelenir."
+      },
+      {
+        label: "D",
+        text: "👨‍🏫 [BAKAN] Eğitim Bakanı'nın önerisiyle E-Spor'u müfredata ekle.",
+        effects: { budget: -500, happiness: 10, education: 8, foreignRelations: 5 },
+        factionEffects: { intellectuals: 10, workers: 5 },
+        hint: "En iyi çözüm! E-Spor resmi olarak eğitim programına girer. (Eğitim Bakanı gerekli)",
+        requiredMinister: "edu_academic"
       }
     ]
   },
@@ -214,6 +230,14 @@ export const EVENTS: GameEvent[] = [
         effects: { stability: 5, happiness: -8, education: -3 },
         factionEffects: { nationalists: 8, intellectuals: -10 },
         hint: "Devlet kontrolü artar ama genç nesil isyan eder."
+      },
+      {
+        label: "D",
+        text: "🤵‍♂️ [BAKAN] Ekonomi Bakanı ile kripto'yu devlet kontrolüne al.",
+        effects: { budget: 3000, stability: 5, education: 3 },
+        factionEffects: { capitalists: 8, intellectuals: 5 },
+        hint: "En iyi çözüm! Devlet kendi dijital para birimini çıkarır. (Ekonomi Bakanı gerekli)",
+        requiredMinister: "eco_capitalist"
       }
     ]
   },

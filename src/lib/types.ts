@@ -87,6 +87,7 @@ export interface Choice {
   marketEffects?: Partial<Record<keyof MarketPrices, number>>;
   flagsToSet?: string[]; // Kelebek Etkisi: Bu seçim yapılırsa hangi bayraklar eklenecek
   hint: string;
+  requiredMinister?: string; // Bu seçenek sadece bu bakan ID'si kabinenizde varsa aktif olur
 }
 
 export interface GameEvent {
