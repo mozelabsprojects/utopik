@@ -21,7 +21,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 30,
     materials: 85,
     regime: "Otokrasi",
-    difficulty: "Çok Zor",
+    difficulty: "Zor",
     description: "Dünyaya tamamen kapalı. Ambargo nedeniyle dış ticaret geliri çok kısıtlıdır, ancak yüksek istikrar ve mutlak otorite sayesinde zorlu krizleri aşabilir.",
   },
   {
@@ -41,7 +41,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 100,
     materials: 90,
     regime: "Demokrasi",
-    difficulty: "Dengeli",
+    difficulty: "Çok Zor",
     description:
       "Dünyanın en büyük ekonomisi ve askeri gücü. Aşırı kutuplaşma istikrarı tehdit ediyor, sağlık sistemi pahalı.",
   },
@@ -83,7 +83,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 75,
     materials: 60,
     regime: "Demokrasi",
-    difficulty: "Zor",
+    difficulty: "Çok Zor",
     description:
       "Bölgesel güç. Güçlü bir askeri yapıya ve genç nüfusa sahip ancak dinamik dış politika dengeleri yönetimi zorlaştırıyor.",
   },
@@ -104,7 +104,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 90,
     materials: 70,
     regime: "Demokrasi",
-    difficulty: "Zor",
+    difficulty: "Çok Zor",
     description:
       "Zengin kaynaklar, derin eşitsizlik. Amazon yangınları çevre puanını tüketirken, düşük eğitim ülkenin potansiyelini kilitliyor.",
   },
@@ -167,7 +167,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 60,
     materials: 80,
     regime: "Demokrasi",
-    difficulty: "Kolay",
+    difficulty: "Dengeli",
     description:
       "Avrupa'nın motoru. Sanayi ve diplomasi çok güçlü. Enerji geçişi ve dış politikayı dengelemek anahtar kural.",
   },
@@ -188,7 +188,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 80,
     materials: 90,
     regime: "Otokrasi",
-    difficulty: "Zor",
+    difficulty: "Çok Zor",
     description:
       "Küresel tecrit altındaki süper güç. Devasa askeri kapasite ve kaynaklar, dibe vurmuş diplomasi ve halk mutluluğu ile birleşiyor.",
   },
@@ -209,7 +209,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 90,
     materials: 100,
     regime: "Otokrasi",
-    difficulty: "Dengeli",
+    difficulty: "Çok Zor",
     description: "Sarsılmaz otorite. İstikrar, bütçe ve üretim kapasitesi devasa, ancak çevre kirliliği sınırları zorluyor.",
   },
   {
@@ -229,7 +229,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 80,
     materials: 70,
     regime: "Demokrasi",
-    difficulty: "Zor",
+    difficulty: "Çok Zor",
     description: "Nüfus bombası. Muazzam bir büyüme potansiyeli var ancak temiz su, sağlık ve altyapı krizleri baş ağrıtıcı seviyede.",
   },
   {
@@ -249,7 +249,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 50,
     materials: 60,
     regime: "Demokrasi",
-    difficulty: "Dengeli",
+    difficulty: "Zor",
     description: "Küresel nüfuzunu korumaya çalışan ada ülkesi. Sağlık sistemi zorlanıyor, ekonomi ise geçmişteki şaşalı günlerini arıyor.",
   },
   {
