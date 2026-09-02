@@ -125,7 +125,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 40,
     materials: 90,
     regime: "Demokrasi",
-    difficulty: "Orta",
+    difficulty: "Dengeli",
     description:
       "Teknoloji devi. Mükemmel eğitim ve sağlık, ancak yaşlanan nüfus ve aşırı çalışma kültürü büyümeyi sınırlandırıyor.",
   },
@@ -209,7 +209,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 90,
     materials: 100,
     regime: "Otokrasi",
-    difficulty: "Orta",
+    difficulty: "Dengeli",
     description: "Sarsılmaz otorite. İstikrar, bütçe ve üretim kapasitesi devasa, ancak çevre kirliliği sınırları zorluyor.",
   },
   {
@@ -249,7 +249,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 50,
     materials: 60,
     regime: "Demokrasi",
-    difficulty: "Orta",
+    difficulty: "Dengeli",
     description: "Küresel nüfuzunu korumaya çalışan ada ülkesi. Sağlık sistemi zorlanıyor, ekonomi ise geçmişteki şaşalı günlerini arıyor.",
   },
   {
@@ -269,7 +269,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 40,
     materials: 90,
     regime: "Demokrasi",
-    difficulty: "Orta",
+    difficulty: "Dengeli",
     description: "Aşırı rekabetçi teknoloji merkezi. Eğitim ve sağlık zirvede fakat acımasız sistem halkın mutluluğunu kemiriyor.",
   },
   {
@@ -289,7 +289,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     food: 20,
     materials: 40,
     regime: "Otokrasi",
-    difficulty: "Orta",
+    difficulty: "Dengeli",
     description: "Petrodolar imparatorluğu. Sınırsız bütçeye rağmen doğa can çekişiyor, ekonomi tamamen tek bir kaynağa bağlı.",
   },
 ];
