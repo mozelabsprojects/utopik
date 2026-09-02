@@ -15,7 +15,7 @@ const countries = [
 ];
 
 countries.forEach(c => {
-  const popScale = Math.max(0.8, Math.sqrt(c.pop / 10));
+  let popScale = Math.max(0.8, Math.sqrt(c.pop / 10)); popScale = Math.min(3.0, popScale);
   
   const eduBonus = (c.edu > 50 ? (c.edu - 50) * 25 : 0) * popScale;
   const healBonus = (c.heal > 50 ? (c.heal - 50) * 20 : 0) * popScale;

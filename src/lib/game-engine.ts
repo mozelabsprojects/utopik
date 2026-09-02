@@ -25,9 +25,10 @@ const BANKRUPTCY_DURATION = 3;
 import { COUNTRIES } from "./countries-data";
 
 export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0, population: number = 10.0) {
-  // Nüfus ölçeklendirmesi: Karesel kök (Square Root) yaklaşımı
-  // Eskiden 1400m pop -> çarpan 140'tı. Şimdi 1400 -> çarpan ~3.7, 10 -> çarpan ~1.
-  const popScale = Math.max(0.8, Math.sqrt(population / 10));
+  // Nüfus ölçeklendirmesi: Karesel kök (Square Root) yaklaşımı ve Soft-Cap
+  // Maksimum çarpan 3.0 ile sınırlandırıldı (Çin, Hindistan gibi devler iflas etmesin diye)
+  let popScale = Math.max(0.8, Math.sqrt(population / 10));
+  popScale = Math.min(3.0, popScale);
   
   let militaryCost = military * 8 * popScale;
   let healthCost = health * 6 * popScale;
@@ -113,8 +114,9 @@ export function getDetailedTaxIncome(
   inflation: number = 5.0,
   population: number = 10.0
 ) {
-  // Nüfus ölçeklendirmesi: Karesel kök (Square Root) yaklaşımı
-  const popScale = Math.max(0.8, Math.sqrt(population / 10));
+  // Nüfus ölçeklendirmesi: Karesel kök (Square Root) yaklaşımı ve Soft-Cap
+  let popScale = Math.max(0.8, Math.sqrt(population / 10));
+  popScale = Math.min(3.0, popScale);
 
   // Statların kalıcı getiri (Passive Income) sağlaması
   const educationBonus = (education > 50 ? (education - 50) * 25 : 0) * popScale; // İnovasyon
