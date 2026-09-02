@@ -14,6 +14,13 @@ const STAT_LABELS: Record<string, string> = {
   education: "Eğitim",
   stability: "İstikrar",
   foreignRelations: "Dış İlişkiler",
+  energy: "Enerji",
+  food: "Gıda",
+  materials: "Materyal",
+  tech: "Teknoloji",
+  inflation: "Enflasyon",
+  popularity: "Popülarite",
+  politicalCapital: "Siyasi Sermaye",
 };
 
 const renderEffects = (effects: StatEffects) => {
