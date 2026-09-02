@@ -129,7 +129,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
 
               {/* Bütçe Kırılımı Tooltip */}
               {showBudgetTooltip && budgetBreakdown && (
-                <div className="absolute top-full right-0 md:left-1/2 md:-translate-x-1/2 mt-2 w-64 bg-[#111827] border border-gray-700 rounded-lg p-3 shadow-2xl z-50 animate-fade-in pointer-events-none">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-[#111827] border border-gray-700 rounded-lg p-3 shadow-2xl z-50 animate-fade-in pointer-events-none">
                   <p className="text-xs text-gray-400 font-bold uppercase tracking-wider border-b border-gray-700 pb-2 mb-2">Net Bütçe Dağılımı</p>
                   <div className="space-y-1.5 text-sm font-medium">
                     <div className="flex justify-between items-center text-green-400">

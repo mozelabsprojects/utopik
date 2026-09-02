@@ -23,15 +23,20 @@ const STAT_LABELS: Record<string, string> = {
   politicalCapital: "Siyasi Sermaye",
 };
 
-const renderEffects = (effects: StatEffects) => {
+const renderEffects = (effects: StatEffects, isPassive: boolean = false) => {
   return Object.entries(effects).map(([key, val]) => {
     if (!val) return null;
     const isPositive = val > 0;
     const prefix = key === "budget" ? (isPositive ? "+$" : "-$") : (isPositive ? "+" : "");
     const valueStr = key === "budget" ? Math.abs(val) : val;
+    let label = STAT_LABELS[key] || key;
+    if (key === "budget") {
+       label = isPassive ? "Net Bütçe / Tur" : "Hazine (Anlık Nakit)";
+    }
+    
     return (
       <span key={key} className={`text-[10px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${isPositive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-        {prefix}{valueStr} {STAT_LABELS[key] || key}
+        {prefix}{valueStr} {label}
       </span>
     );
   });
@@ -173,7 +178,7 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
           Aşağıdaki etkiler her tur atladığınızda otomatik olarak statlarınıza yansır.
         </p>
         <div className="flex flex-wrap gap-2">
-          {hasAnyEffects ? renderEffects(totalPassiveEffects) : (
+          {hasAnyEffects ? renderEffects(totalPassiveEffects, true) : (
             <span className="text-gray-500 text-sm italic">Henüz pasif etkisi olan bir yasa yürürlükte değil.</span>
           )}
         </div>
@@ -253,7 +258,7 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
                 </div>
                 <p className="text-xs text-gray-400 mb-3 flex-1">{action.description}</p>
                 <div className="flex flex-wrap gap-1 mb-3">
-                  {renderEffects(action.effects)}
+                  {renderEffects(action.effects, false)}
                 </div>
                 <button
                   onClick={() => handleExecutiveAction(action.id)}
@@ -298,8 +303,8 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
               <div className="text-sm text-gray-400 mb-2 h-10 flex items-center">
                 <p>{policy.description}</p>
               </div>
-              <div className="flex flex-wrap gap-1 mb-4 h-5">
-                {renderEffects(policy.passiveEffects)}
+              <div className="flex flex-wrap gap-1 mb-4">
+                {renderEffects(policy.passiveEffects, true)}
               </div>
               
               <button

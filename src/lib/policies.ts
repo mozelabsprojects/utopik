@@ -53,7 +53,7 @@ export const POLICIES: Record<PolicyId, Policy> = {
     description: "Muhalif sesler susturulur. İstikrar korunur ama aydınlar isyan eder.",
     politicalCost: 70,
     factionImpactOnEnact: { intellectuals: -30, nationalists: 10, military: 5 },
-    passiveEffects: { stability: 2, happiness: -1, budget: 200 },
+    passiveEffects: { stability: 2, happiness: -1, budget: -100 },
     passiveFactionEffects: { intellectuals: -1 }
   },
   welfare_state: {

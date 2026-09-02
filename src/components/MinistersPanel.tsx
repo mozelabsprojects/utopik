@@ -29,9 +29,12 @@ const renderEffects = (effects: StatEffects) => {
     const isPositive = val > 0;
     const prefix = key === "budget" ? (isPositive ? "+$" : "-$") : (isPositive ? "+" : "");
     const valueStr = key === "budget" ? Math.abs(val) : val;
+    let label = STAT_LABELS[key] || key;
+    if (key === "budget") label = "Net Bütçe / Tur";
+    
     return (
       <span key={key} className={`text-[10px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap ${isPositive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-        {prefix}{valueStr} {STAT_LABELS[key] || key}
+        {prefix}{valueStr} {label}
       </span>
     );
   });
