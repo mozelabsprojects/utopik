@@ -55,18 +55,19 @@ export async function POST(request: Request) {
     }
 
     // Ticaret sürelerini güncelle (süresi 0 olanları sil, diğerlerini güncelle)
-    // 0 olanlar bu tur son kez para kazandırdı ve bitti.
+    const tradeOps = [];
     for (const active of activeAgreements) {
       if (active.turnsRemaining <= 0) {
-        await prisma.tradeAgreement.delete({
-          where: { id: active.id }
-        });
+        tradeOps.push(prisma.tradeAgreement.delete({ where: { id: active.id } }));
       } else {
-        await prisma.tradeAgreement.update({
+        tradeOps.push(prisma.tradeAgreement.update({
           where: { id: active.id },
           data: { turnsRemaining: active.turnsRemaining }
-        });
+        }));
       }
+    }
+    if (tradeOps.length > 0) {
+      await prisma.$transaction(tradeOps);
     }
 
     let totalAiAttackDamage = 0;
@@ -249,6 +250,7 @@ export async function POST(request: Request) {
     }
 
     // AI Ülkeleri ve Diplomasi simülasyonu
+    const worldCountryOps = [];
     for (const ai of game.worldCountries) {
       if (!ai.isPlayer) {
         let newMilitary = clampStat(ai.military + (Math.random() * 4 - 2));
@@ -260,37 +262,30 @@ export async function POST(request: Request) {
 
         if (dip?.type === 'war') {
           isAtWar = true;
-          // Devam eden savaş - Dinamik hasar hesabı
-          dip.turnsRemaining--; // Starts at -1, goes more negative
+          dip.turnsRemaining--;
           const warDuration = Math.abs(dip.turnsRemaining);
 
-          // Güç oranı (Ratio)
           const playerMil = Math.max(1, game.military);
           const aiMil = Math.max(1, newMilitary);
-          const ratio = aiMil / playerMil; // AI güçlü ise ratio > 1
+          const ratio = aiMil / playerMil;
 
-          // Hasar hesaplama (Düşman güçlüyse daha çok hasar verir)
           const baseDamage = 10;
           const warDamage = Math.round(baseDamage * Math.min(3, Math.max(0.3, ratio)));
           
           totalAiAttackDamage += warDamage;
-          aiFinancialAid -= 500; // Savaş maliyeti
+          aiFinancialAid -= 500;
           
-          // AI'nın kayıpları (Oyuncu güçlüyse AI daha çok kayıp verir)
           const aiLossMultiplier = 1 / Math.min(3, Math.max(0.3, ratio));
           newMilitary -= Math.round(10 * aiLossMultiplier);
           newBudget -= 300;
           newStability -= Math.round(10 * aiLossMultiplier);
 
-          // Savaş Yorgunluğu (War Exhaustion)
           if (warDuration > 3) {
             totalWarExhaustion += (warDuration - 3);
           }
 
-          // Savaşın sonucunu kontrol et
           const playerEffectiveMilitary = game.military - warDamage;
           if (playerEffectiveMilitary > newMilitary + 30) {
-            // Oyuncu savaşı kazandı
             aiMessages.push(`🏆 ZAFER! ${ai.name} orduları yenildi! Ganimet olarak $${Math.round(newBudget / 2)} ele geçirildi.`);
             aiFinancialAid += Math.round(newBudget / 2);
             newBudget = 0;
@@ -298,7 +293,6 @@ export async function POST(request: Request) {
             newStability = 0;
             delete diplomacyState[ai.name];
           } else if (newMilitary > playerEffectiveMilitary + 30) {
-            // AI savaşı kazandı
             aiMessages.push(`💀 HEZİMET! ${ai.name} orduları bizi ağır bir yenilgiye uğrattı. Devam eden savaş sona erdi, ancak savaş tazminatı ödemek zorunda kaldık!`);
             aiFinancialAid -= 2000;
             delete diplomacyState[ai.name];
@@ -306,9 +300,8 @@ export async function POST(request: Request) {
             aiMessages.push(`⚔️ CEPHE RAPORU: ${ai.name} ile savaş devam ediyor. Ağır askeri ve ekonomik kayıplarımız var.`);
           }
         } else if (dip?.type === 'alliance') {
-          // Aktif ittifak bonusları
           activeAlliesCount++;
-          aiFinancialAid += 200; // İttifaktan gelen pasif ticaret/destek geliri
+          aiFinancialAid += 200;
           aiMessages.push(`🤝 İTTİFAK: ${ai.name} ile ortaklığımız ekonomiye $200 katkı sağladı.`);
           dip.turnsRemaining--;
           if (dip.turnsRemaining <= 0) {
@@ -316,9 +309,7 @@ export async function POST(request: Request) {
             aiMessages.push(`📜 BİLGİ: ${ai.name} ile olan ittifak anlaşmamızın süresi doldu.`);
           }
         } else {
-          // Savaş veya ittifak yoksa dinamik AI hamleleri
           if (relationship < 15 && newMilitary > game.military + 20) {
-            // AI Savaş İlan Edebilir
             if (Math.random() < 0.2) {
               diplomacyState[ai.name] = { type: 'war', turnsRemaining: -1 };
               aiMessages.push(`⚠️ BEKLENMEDİK SALDIRI: ${ai.name} bize savaş ilan etti! Ordularımız çatışmaya girdi.`);
@@ -326,7 +317,7 @@ export async function POST(request: Request) {
           }
         }
 
-        await prisma.worldCountry.update({
+        worldCountryOps.push(prisma.worldCountry.update({
           where: { id: ai.id },
           data: {
             military: clampStat(newMilitary),
@@ -337,8 +328,12 @@ export async function POST(request: Request) {
             stability: clampStat(newStability),
             budget: newBudget,
           }
-        });
+        }));
       }
+    }
+
+    if (worldCountryOps.length > 0) {
+      await prisma.$transaction(worldCountryOps);
     }
 
     // currentReports has already been initialized at the top
