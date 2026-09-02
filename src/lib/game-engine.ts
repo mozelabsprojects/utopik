@@ -167,6 +167,79 @@ export function calculateTaxIncome(
 }
 
 // ============================================
+// HESAPLAMA: NET BÜTÇE BİLANÇOSU
+// ============================================
+export interface BudgetBreakdown {
+  tax: number;
+  maintenance: number;
+  laws: number;
+  techs: number;
+  ministers: number;
+  crises: number;
+  special: number;
+  totalNet: number;
+}
+
+export function calculateNetBudget(
+  state: GameState,
+  factions: FactionsState,
+  activeLaws: string[],
+  unlockedTechs: string[],
+  ministers: Record<string, string>,
+  activeCrises: string[],
+  eventFlags: string[] = []
+): BudgetBreakdown {
+  const countryTemplate = COUNTRIES.find(c => c.name === state.countryName);
+  const difficulty = countryTemplate?.difficulty || "Orta";
+
+  let tax = calculateTaxIncome(
+    state.education, state.health, state.environment, state.military, state.stability, state.happiness, 
+    factions.capitalists?.support || 50, eventFlags, difficulty
+  );
+
+  let maintenance = calculateMaintenanceCost(
+    state.military, state.health, state.education, state.environment, state.stability, 
+    eventFlags, state.budget, difficulty, unlockedTechs
+  );
+
+  let special = 0;
+  if (state.countryName === "Kuzey Kore") {
+    // Zorunlu askerlik indirimi
+    const conscriptionDiscount = Math.round(maintenance * 0.5);
+    maintenance -= conscriptionDiscount;
+    if (state.stability >= 85) special += 1500; // Juche bonus
+  }
+
+  let laws = 0;
+  activeLaws.forEach(lawId => {
+    const law = POLICIES[lawId];
+    if (law && law.passiveEffects.budget) laws += law.passiveEffects.budget;
+  });
+
+  let techs = 0;
+  unlockedTechs.forEach(techId => {
+    const tech = TECH_TREE[techId as import("./types").TechId];
+    if (tech && tech.passiveEffects?.budget) techs += tech.passiveEffects.budget;
+  });
+
+  let ministerEffects = 0;
+  Object.values(ministers).forEach(ministerId => {
+    const min = MINISTERS[ministerId as import("./types").MinisterId];
+    if (min && min.passiveEffects.budget) ministerEffects += min.passiveEffects.budget;
+  });
+
+  let crises = 0;
+  activeCrises.forEach(crisisId => {
+    const crisis = CRISES[crisisId as import("./types").CrisisId];
+    if (crisis && crisis.passiveEffects.budget) crises += crisis.passiveEffects.budget;
+  });
+
+  const totalNet = tax - maintenance + laws + techs + ministerEffects + crises + special;
+
+  return { tax, maintenance, laws, techs, ministers: ministerEffects, crises, special, totalNet };
+}
+
+// ============================================
 // C. İLİŞKİ ALGORİTMASI
 // ============================================
 export function calculateRelationship(player: Pick<GameState, "foreignRelations" | "military" | "stability">, npcCountry: { foreignRelations: number, military: number, stability: number, budget: number }): number {
