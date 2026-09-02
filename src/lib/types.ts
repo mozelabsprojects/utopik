@@ -48,7 +48,7 @@ export type Sector =
   | "stability"
   | "foreignRelations";
 
-export type Difficulty = "Kolay" | "Orta" | "Zor" | "Çok Zor";
+export type Difficulty = "Kolay" | "Dengeli" | "Zor" | "Çok Zor";
 
 export interface StatEffects {
   budget?: number;

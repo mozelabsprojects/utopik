@@ -14,7 +14,7 @@ interface CountrySelectProps {
 
 const DIFFICULTY_BADGES: Record<string, string> = {
   Kolay: "badge-easy",
-  Orta: "badge-medium",
+  Dengeli: "badge-medium",
   Zor: "badge-hard",
   "Çok Zor": "badge-extreme",
 };
