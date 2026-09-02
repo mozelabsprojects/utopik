@@ -19,6 +19,7 @@ import DiplomacyPanel from "@/components/DiplomacyPanel";
 import PetitionsModal from "@/components/PetitionsModal";
 import GameTutorial from "@/components/GameTutorial";
 import GlobalMarketPanel from "@/components/GlobalMarketPanel";
+import CentralBankPanel from "@/components/CentralBankPanel";
 import SettingsModal from "@/components/SettingsModal";
 import Sidebar, { SidebarTab } from "@/components/Sidebar";
 import TechTreePanel from "@/components/TechTreePanel";
@@ -545,6 +546,13 @@ function GameContent() {
         {activeTab === "crises" && (
           <div className="animate-fade-in space-y-6">
             <CrisesAndQuests gameState={game} />
+          </div>
+        )}
+
+        {/* BANK (Merkez Bankası) */}
+        {activeTab === "bank" && (
+          <div className="animate-fade-in space-y-6">
+            <CentralBankPanel gameState={game} onUpdate={fetchGameState} />
           </div>
         )}
 

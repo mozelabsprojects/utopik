@@ -84,6 +84,8 @@ export async function POST(request: Request) {
       eventFlags: game.eventFlags,
       researchPoints: game.researchPoints,
       unlockedTechs: game.unlockedTechs,
+      inflation: game.inflation,
+      activeBonds: game.activeBonds,
     };
 
     // Etkileri uygula

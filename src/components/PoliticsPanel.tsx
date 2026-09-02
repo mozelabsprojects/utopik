@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { GameState, Quest } from "@/lib/types";
+import { calculateParliamentSeats, INITIAL_FACTIONS } from "@/lib/factions";
 
 interface PoliticsPanelProps {
   gameState: GameState;
@@ -10,6 +11,11 @@ interface PoliticsPanelProps {
 
 export default function PoliticsPanel({ gameState, onQuestAction }: PoliticsPanelProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  let factions = INITIAL_FACTIONS;
+  try { factions = JSON.parse(gameState.factions); } catch {}
+  const parliamentSeats = calculateParliamentSeats(factions);
+
   const activeQuests: Quest[] = JSON.parse(gameState.activeQuests || "[]");
   const turnsUntilElection = gameState.nextElectionTurn - gameState.turn;
 
@@ -64,6 +70,45 @@ export default function PoliticsPanel({ gameState, onQuestAction }: PoliticsPane
               </div>
             </div>
           </div>
+        </div>
+
+        {/* PARLAMENTO GÖRÜNÜMÜ */}
+        <div className="mt-6 pt-6 border-t border-white/10">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            🏛️ Meclis Dağılımı (100 Koltuk)
+          </h3>
+          <div className="flex h-8 rounded-full overflow-hidden shadow-inner mb-4">
+            {Object.entries(parliamentSeats).map(([fId, seats]) => {
+              if (seats === 0) return null;
+              let bgColor = "bg-gray-500";
+              if (fId === "capitalists") bgColor = "bg-yellow-500";
+              if (fId === "workers") bgColor = "bg-red-500";
+              if (fId === "intellectuals") bgColor = "bg-blue-500";
+              if (fId === "nationalists") bgColor = "bg-orange-600";
+              if (fId === "military") bgColor = "bg-green-700";
+              
+              return (
+                <div 
+                  key={fId} 
+                  className={`${bgColor} h-full transition-all duration-500 flex items-center justify-center text-[10px] font-bold text-white/90 overflow-hidden group relative`}
+                  style={{ width: `${seats}%` }}
+                >
+                  {seats > 5 ? seats : ""}
+                  <div className="hidden group-hover:block absolute bottom-full mb-1 w-max p-2 bg-slate-800 text-white rounded-lg border border-slate-600 shadow-xl z-20 pointer-events-none">
+                    {fId.toUpperCase()}: {seats} Koltuk
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
+             <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span> İşçiler ({parliamentSeats.workers})</div>
+             <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span> Sermaye ({parliamentSeats.capitalists})</div>
+             <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> Aydınlar ({parliamentSeats.intellectuals})</div>
+             <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-orange-600 inline-block"></span> Milliyetçiler ({parliamentSeats.nationalists})</div>
+             <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-700 inline-block"></span> Askeriye ({parliamentSeats.military})</div>
+          </div>
+          <p className="text-[10px] text-gray-500 mt-3 text-center">Yasa geçirmek için en az 51 meclis oyu (koltuk) gereklidir.</p>
         </div>
       </div>
 

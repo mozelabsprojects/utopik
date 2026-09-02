@@ -352,11 +352,38 @@ export async function POST(request: Request) {
 
     currentReports.push(...aiMessages);
 
+    // --- TAHVİL (BORÇ) ÖDEMELERİ KONTROLÜ ---
+    let activeBonds: any[] = [];
+    try { activeBonds = JSON.parse(game.activeBonds || "[]"); } catch {}
+    
+    let totalDebtToPay = 0;
+    const remainingBonds = [];
+    
+    for (const bond of activeBonds) {
+      // Eğer tahvilin vadesi (şimdi - ihraç edildiği tur) süresine eşit veya büyükse ÖDE
+      if (game.turn - bond.turnIssued >= bond.duration) {
+        totalDebtToPay += bond.totalToRepay;
+        currentReports.push(`💸 TAHVİL ÖDEMESİ: Vadesi dolan tahvil için hazineden $${bond.totalToRepay.toLocaleString()} ödendi.`);
+      } else {
+        remainingBonds.push(bond); // Henüz vadesi gelmedi
+      }
+    }
+    
+    // Eğer borcu ödeyecek para yoksa TEMERRÜT (Çok Ağır Ceza)
+    if (totalDebtToPay > 0 && game.budget + aiFinancialAid < totalDebtToPay) {
+       currentReports.push(`🚨 DEVLET İFLASI (TEMERRÜT): Tahvil borçları ödenemedi! Küresel itibar ve istikrar yerle bir oldu.`);
+       game.stability = Math.max(0, game.stability - 30);
+       game.foreignRelations = Math.max(0, game.foreignRelations - 40);
+       game.popularity = Math.max(0, game.popularity - 30);
+       // Yine de borcu eksiye düşerek "öderler" (veya borç kalır, ama basitlik için ödenmiş ve eksiye düşülmüş sayıyoruz)
+    }
+    // ----------------------------------------
+
     const currentState: GameState = {
       id: game.id,
       countryName: game.countryName,
       turn: game.turn,
-      budget: game.budget + aiFinancialAid,
+      budget: game.budget + aiFinancialAid - totalDebtToPay,
       military: clampStat(game.military - Math.min(100, Math.max(0, totalAiAttackDamage))),
       happiness: clampStat(game.happiness - totalWarExhaustion),
       health: game.health,
@@ -384,6 +411,8 @@ export async function POST(request: Request) {
       marketState: JSON.stringify(marketState),
       researchPoints: game.researchPoints,
       unlockedTechs: game.unlockedTechs,
+      inflation: game.inflation,
+      activeBonds: JSON.stringify(remainingBonds),
     };
 
     // Tur hesaplamalarını çalıştır (usedEventIds ve eventFlags aktarılıyor)
@@ -429,6 +458,8 @@ export async function POST(request: Request) {
         marketState: newState.marketState,
         researchPoints: newState.researchPoints,
         unlockedTechs: newState.unlockedTechs,
+        inflation: newState.inflation,
+        activeBonds: newState.activeBonds,
       },
       include: {
         worldCountries: { orderBy: { name: 'asc' } },

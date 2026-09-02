@@ -1,79 +1,69 @@
 "use client";
 
-import { getDetailedTaxIncome, getDetailedMaintenanceCost } from "@/lib/game-engine";
+import React from "react";
+import { GameState } from "@/lib/types";
+import { getDetailedTaxIncome, getDetailedMaintenanceCost, calculateNetBudget, BudgetBreakdown } from "@/lib/game-engine";
 import { INITIAL_FACTIONS } from "@/lib/factions";
 import { COUNTRIES } from "@/lib/countries-data";
-import { POLICIES, PolicyId } from "@/lib/policies";
-import { MINISTERS, MinisterId } from "@/lib/ministers";
 
 interface FinanceAnalysisProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  game: any;
+  game: GameState;
 }
 
 export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
-  if (!game) return null;
-
   let factions = INITIAL_FACTIONS;
   try { factions = JSON.parse(game.factions); } catch {}
   
-  let activeLaws: PolicyId[] = [];
-  try { activeLaws = JSON.parse(game.activeLaws); } catch {}
-  
-  let ministers: Record<string, MinisterId> = {};
-  try { ministers = JSON.parse(game.ministers); } catch {}
-  
+  let activeLaws: string[] = [];
+  try { activeLaws = JSON.parse(game.activeLaws || "[]"); } catch {}
+
+  let unlockedTechs: string[] = [];
+  try { unlockedTechs = JSON.parse(game.unlockedTechs || "[]"); } catch {}
+
+  let ministers: Record<string, string> = {};
+  try { ministers = JSON.parse(game.ministers || "{}"); } catch {}
+
+  let activeCrises: string[] = [];
+  try { activeCrises = JSON.parse(game.activeCrises || "[]"); } catch {}
+
   let eventFlags: string[] = [];
-  try { eventFlags = JSON.parse(game.eventFlags); } catch {}
+  try { eventFlags = JSON.parse(game.eventFlags || "[]"); } catch {}
 
   const countryTemplate = COUNTRIES.find(c => c.name === game.countryName);
   const difficulty = countryTemplate?.difficulty || "Orta";
+  const currentInflation = game.inflation || 5.0;
 
-  const capitalistsSupport = factions.capitalists?.support || 50;
-  
+  // 1) Temel Vergi ve Bakım Detayları (Ayrıntılı Görünüm İçin)
   const taxDetails = getDetailedTaxIncome(
-    game.education,
-    game.health,
-    game.environment,
-    game.military,
-    game.stability,
-    game.happiness,
-    capitalistsSupport,
-    eventFlags,
-    difficulty
+    game.education, game.health, game.environment, game.military, 
+    game.stability, game.happiness, factions.capitalists?.support || 50, 
+    eventFlags, difficulty, currentInflation 
   );
+
   const maintDetails = getDetailedMaintenanceCost(
-    game.military,
-    game.health,
-    game.education,
-    game.environment,
-    game.stability,
-    eventFlags,
-    game.budget,
-    difficulty
+    game.military, game.health, game.education, game.environment, 
+    game.stability, eventFlags, game.budget, difficulty, unlockedTechs, currentInflation
   );
 
-  // Pasif etkileri hesapla
-  let lawsCost = 0;
-  activeLaws.forEach(lawId => {
-    const law = POLICIES[lawId];
-    if (law?.passiveEffects?.budget) {
-      lawsCost += law.passiveEffects.budget;
-    }
-  });
+  // 2) KESİN NET BÜTÇE (calculateNetBudget ile)
+  const budgetBreakdown: BudgetBreakdown = calculateNetBudget(
+    game, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags
+  );
 
-  let ministersCost = 0;
-  Object.values(ministers).forEach(minId => {
-    const min = MINISTERS[minId];
-    if (min?.passiveEffects?.budget) {
-      ministersCost += min.passiveEffects.budget;
-    }
-  });
+  const totalIncome = budgetBreakdown.tax 
+    + (budgetBreakdown.laws > 0 ? budgetBreakdown.laws : 0) 
+    + (budgetBreakdown.techs > 0 ? budgetBreakdown.techs : 0)
+    + (budgetBreakdown.ministers > 0 ? budgetBreakdown.ministers : 0)
+    + (budgetBreakdown.special > 0 ? budgetBreakdown.special : 0);
 
-  const totalIncome = taxDetails.total + (lawsCost > 0 ? lawsCost : 0) + (ministersCost > 0 ? ministersCost : 0);
-  const totalExpense = maintDetails.total + (lawsCost < 0 ? Math.abs(lawsCost) : 0) + (ministersCost < 0 ? Math.abs(ministersCost) : 0);
-  const netIncome = totalIncome - totalExpense;
+  const totalExpense = budgetBreakdown.maintenance 
+    + (budgetBreakdown.laws < 0 ? Math.abs(budgetBreakdown.laws) : 0)
+    + (budgetBreakdown.techs < 0 ? Math.abs(budgetBreakdown.techs) : 0)
+    + (budgetBreakdown.ministers < 0 ? Math.abs(budgetBreakdown.ministers) : 0)
+    + (budgetBreakdown.crises < 0 ? Math.abs(budgetBreakdown.crises) : 0)
+    + (budgetBreakdown.special < 0 ? Math.abs(budgetBreakdown.special) : 0);
 
+  const netIncome = budgetBreakdown.totalNet;
   const isPositive = netIncome >= 0;
 
   return (
@@ -154,8 +144,8 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
 
             {taxDetails.leaderBonus > 0 && <div className="flex justify-between text-yellow-300"><span>Lider Bonusu (Ekonomist):</span> <span>+${taxDetails.leaderBonus.toLocaleString()}</span></div>}
             
-            {lawsCost > 0 && <div className="flex justify-between text-cyan-300 mt-2 pt-1 border-t border-slate-800"><span>Aktif Yasalar (Pasif Gelir):</span> <span>+${lawsCost.toLocaleString()}</span></div>}
-            {ministersCost > 0 && <div className="flex justify-between text-purple-300"><span>Bakan Katkısı:</span> <span>+${ministersCost.toLocaleString()}</span></div>}
+            {budgetBreakdown.laws > 0 && <div className="flex justify-between text-cyan-300 mt-2 pt-1 border-t border-slate-800"><span>Aktif Yasalar (Pasif Gelir):</span> <span>+${budgetBreakdown.laws.toLocaleString()}</span></div>}
+            {budgetBreakdown.ministers > 0 && <div className="flex justify-between text-purple-300"><span>Bakan Katkısı:</span> <span>+${budgetBreakdown.ministers.toLocaleString()}</span></div>}
           </div>
         </div>
 
@@ -234,8 +224,8 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
 
             {maintDetails.leaderDiscount > 0 && <div className="flex justify-between text-green-300 mt-1 pt-1 border-t border-slate-800"><span>Lider İndirimi (General):</span> <span>+${maintDetails.leaderDiscount.toLocaleString()} (Tasarruf)</span></div>}
             
-            {lawsCost < 0 && <div className="flex justify-between text-red-300 mt-1 pt-1 border-t border-slate-800"><span>Aktif Yasa Maliyetleri:</span> <span>-${Math.abs(lawsCost).toLocaleString()}</span></div>}
-            {ministersCost < 0 && <div className="flex justify-between text-red-300"><span>Bakan Maaşları ve Bütçesi:</span> <span>-${Math.abs(ministersCost).toLocaleString()}</span></div>}
+            {budgetBreakdown.laws < 0 && <div className="flex justify-between text-red-300 mt-1 pt-1 border-t border-slate-800"><span>Aktif Yasa Maliyetleri:</span> <span>-${Math.abs(budgetBreakdown.laws).toLocaleString()}</span></div>}
+            {budgetBreakdown.ministers < 0 && <div className="flex justify-between text-red-300"><span>Bakan Maaşları ve Bütçesi:</span> <span>-${Math.abs(budgetBreakdown.ministers).toLocaleString()}</span></div>}
           </div>
         </div>
 

@@ -45,6 +45,8 @@ export async function POST(request: Request) {
       marketState: game.marketState,
       researchPoints: game.researchPoints,
       unlockedTechs: game.unlockedTechs,
+      inflation: game.inflation,
+      activeBonds: game.activeBonds,
     };
 
     if (!canStartMegaProject(state, projectId as MegaProjectId)) {

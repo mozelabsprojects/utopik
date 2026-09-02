@@ -55,6 +55,8 @@ export async function POST(request: Request) {
       marketState: game.marketState,
       researchPoints: game.researchPoints,
       unlockedTechs: game.unlockedTechs,
+      inflation: game.inflation,
+      activeBonds: game.activeBonds,
     };
 
     const effects = action === "accept" ? petition.acceptEffects : petition.rejectEffects;

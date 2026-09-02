@@ -85,6 +85,16 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
           </div>
         </div>
 
+        {gameData && (
+          <div className={`flex items-center gap-2 px-2 md:px-3 py-1.5 bg-[var(--color-bg-main)] rounded-lg border ${gameData.inflation && gameData.inflation > 20 ? 'border-red-500 text-red-500' : 'border-[var(--color-border)] text-cyan-400'}`}>
+            <span className="text-lg md:text-xl">💸</span>
+            <div>
+              <p className="hidden md:block text-[10px] font-bold uppercase tracking-wider">ENFLASYON</p>
+              <p className="font-[family-name:var(--font-display)] font-bold text-md md:text-lg leading-none">%{gameData.inflation?.toFixed(1) || "5.0"}</p>
+            </div>
+          </div>
+        )}
+
         {/* MİNİ DASHBOARD: Net Gelir & RP */}
         {gameData && (
           <div className="flex gap-2 ml-0 md:ml-4 border-t md:border-t-0 md:border-l border-[var(--color-border)] pt-2 md:pt-0 md:pl-4">
@@ -140,7 +150,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                     )}
                     {budgetBreakdown.special !== 0 && (
                       <div className="flex justify-between items-center text-purple-400">
-                        <span>Özel (Juche vs)</span>
+                        <span>Ülkeye Özel Bonuslar</span>
                         <span>+${budgetBreakdown.special.toLocaleString()}</span>
                       </div>
                     )}

@@ -14,7 +14,8 @@ export type SidebarTab =
   | "world" 
   | "diplomacy"
   | "market"
-  | "tech";
+  | "tech"
+  | "bank";
 
 interface SidebarProps {
   activeTab: SidebarTab;
@@ -32,6 +33,7 @@ const MENU_ITEMS: { id: SidebarTab; label: string; icon: string; className?: str
   { id: "world", label: "Dünya Haritası", icon: "🌍", className: "tutorial-world" },
   { id: "diplomacy", label: "Diplomasi", icon: "🤝", className: "tutorial-diplomacy" },
   { id: "market", label: "Borsa & Kaynaklar", icon: "📈", className: "tutorial-market" },
+  { id: "bank", label: "Merkez Bankası", icon: "🏦", className: "tutorial-bank" },
   { id: "tech", label: "Ar-Ge & Teknoloji", icon: "🔬", className: "tutorial-tech" },
 ];
 

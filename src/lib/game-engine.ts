@@ -24,7 +24,7 @@ const BANKRUPTCY_DURATION = 3;
 // A. BAKIM MALİYETLERİ
 import { COUNTRIES } from "./countries-data";
 
-export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = []) {
+export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0) {
   let militaryCost = military * 12;
   let healthCost = health * 10;
   let educationCost = education * 10;
@@ -70,6 +70,11 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   const baseTotal = total;
   total = total * difficultyMultiplier;
 
+  // Enflasyon Etkisi: %5 enflasyon nötr (veya %5 zamlı), yüksek enflasyon maliyetleri uçurur
+  const inflationMultiplier = 1 + (inflation / 100);
+  let inflationPenalty = total * (inflationMultiplier - 1);
+  total = total * inflationMultiplier;
+
   return {
     total: Math.round(total),
     militaryCost: Math.round(militaryCost),
@@ -79,12 +84,13 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
     leaderDiscount: Math.round(leaderDiscount),
     sickPenalty: Math.round(sickPenalty),
     corruptionPenalty: Math.round(corruptionPenalty),
+    inflationPenalty: Math.round(inflationPenalty),
     difficultyMultiplier: Number(difficultyMultiplier.toFixed(2))
   };
 }
 
-export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = []): number {
-  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty, unlockedTechs).total;
+export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0): number {
+  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty, unlockedTechs, inflation).total;
 }
 
 // ============================================
@@ -99,7 +105,8 @@ export function getDetailedTaxIncome(
   happiness: number,
   capitalistsSupport: number,
   eventFlags: string[] = [],
-  difficulty: string = "Orta"
+  difficulty: string = "Orta",
+  inflation: number = 5.0
 ) {
   // Statların kalıcı getiri (Passive Income) sağlaması
   const educationBonus = education > 50 ? (education - 50) * 25 : 0; // İnovasyon
@@ -136,6 +143,10 @@ export function getDetailedTaxIncome(
 
   total = total * difficultyMultiplier;
 
+  // Enflasyon Etkisi: Enflasyon yükseldikçe halkın alım gücü ve vergi geliri DÜŞER
+  const inflationPenaltyMultiplier = Math.max(0.5, 1 - (inflation / 100)); // En fazla %50 düşürebilir
+  total = total * inflationPenaltyMultiplier;
+
   return {
     total: Math.round(total),
     baseIncome: BASE_INCOME,
@@ -148,7 +159,8 @@ export function getDetailedTaxIncome(
     capitalistsBonus: Number(capitalistsBonus.toFixed(2)),
     leaderBonus: Math.round(leaderBonus),
     multipliersCombined: Number((stabilityMultiplier * happinessMultiplier * capitalistsBonus).toFixed(2)),
-    difficultyMultiplier: Number(difficultyMultiplier.toFixed(2))
+    difficultyMultiplier: Number(difficultyMultiplier.toFixed(2)),
+    inflationPenaltyMultiplier: Number(inflationPenaltyMultiplier.toFixed(2))
   };
 }
 
@@ -161,9 +173,10 @@ export function calculateTaxIncome(
   happiness: number,
   capitalistsSupport: number,
   eventFlags: string[] = [],
-  difficulty: string = "Orta"
+  difficulty: string = "Orta",
+  inflation: number = 5.0
 ): number {
-  return getDetailedTaxIncome(education, health, environment, military, stability, happiness, capitalistsSupport, eventFlags, difficulty).total;
+  return getDetailedTaxIncome(education, health, environment, military, stability, happiness, capitalistsSupport, eventFlags, difficulty, inflation).total;
 }
 
 // ============================================
@@ -181,7 +194,7 @@ export interface BudgetBreakdown {
 }
 
 export function calculateNetBudget(
-  state: GameState,
+  state: GameState & { inflation?: number },
   factions: FactionsState,
   activeLaws: string[],
   unlockedTechs: string[],
@@ -191,15 +204,16 @@ export function calculateNetBudget(
 ): BudgetBreakdown {
   const countryTemplate = COUNTRIES.find(c => c.name === state.countryName);
   const difficulty = countryTemplate?.difficulty || "Orta";
+  const currentInflation = state.inflation !== undefined ? state.inflation : 5.0;
 
   let tax = calculateTaxIncome(
     state.education, state.health, state.environment, state.military, state.stability, state.happiness, 
-    factions.capitalists?.support || 50, eventFlags, difficulty
+    factions.capitalists?.support || 50, eventFlags, difficulty, currentInflation
   );
 
   let maintenance = calculateMaintenanceCost(
     state.military, state.health, state.education, state.environment, state.stability, 
-    eventFlags, state.budget, difficulty, unlockedTechs
+    eventFlags, state.budget, difficulty, unlockedTechs, currentInflation
   );
 
   let special = 0;
@@ -212,25 +226,25 @@ export function calculateNetBudget(
 
   let laws = 0;
   activeLaws.forEach(lawId => {
-    const law = POLICIES[lawId];
+    const law = POLICIES[lawId as import("./policies").PolicyId];
     if (law && law.passiveEffects.budget) laws += law.passiveEffects.budget;
   });
 
   let techs = 0;
   unlockedTechs.forEach(techId => {
-    const tech = TECH_TREE[techId as import("./types").TechId];
+    const tech = TECH_TREE[techId as import("./tech-tree").TechId];
     if (tech && tech.passiveEffects?.budget) techs += tech.passiveEffects.budget;
   });
 
   let ministerEffects = 0;
   Object.values(ministers).forEach(ministerId => {
-    const min = MINISTERS[ministerId as import("./types").MinisterId];
+    const min = MINISTERS[ministerId as import("./ministers").MinisterId];
     if (min && min.passiveEffects.budget) ministerEffects += min.passiveEffects.budget;
   });
 
   let crises = 0;
   activeCrises.forEach(crisisId => {
-    const crisis = CRISES[crisisId as import("./types").CrisisId];
+    const crisis = CRISES[crisisId as import("./crises-missions").CrisisId];
     if (crisis && crisis.passiveEffects.budget) crises += crisis.passiveEffects.budget;
   });
 

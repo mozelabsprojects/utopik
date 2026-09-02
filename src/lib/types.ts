@@ -128,6 +128,8 @@ export interface GameState {
   marketState: string;
   researchPoints: number;
   unlockedTechs: string;
+  inflation: number;
+  activeBonds: string;
 
   isGameOver: boolean;
   gameOverReason: string | null;
@@ -171,6 +173,15 @@ export interface WorldCountryState {
   stability: number;
   foreignRelations: number;
   isPlayer: boolean;
+}
+
+export interface Bond {
+  id: string;
+  amount: number;
+  interestRate: number;
+  totalToRepay: number;
+  turnIssued: number;
+  duration: number; // in turns
 }
 
 export interface TradeDeal {

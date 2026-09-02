@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { POLICIES, PolicyId } from "@/lib/policies";
-import { FactionsState, modifyFactionSupport, INITIAL_FACTIONS } from "@/lib/factions";
+import { FactionsState, modifyFactionSupport, INITIAL_FACTIONS, calculateParliamentSeats } from "@/lib/factions";
 
 export async function POST(request: Request) {
   try {
@@ -27,27 +27,26 @@ export async function POST(request: Request) {
     try { factions = JSON.parse(game.factions); } catch { factions = INITIAL_FACTIONS; }
     
     // MECLİS (PARLAMENTO) OYLAMA SİSTEMİ
+    const parliamentSeats = calculateParliamentSeats(factions);
     let yesVotes = 0;
     let noVotes = 0;
-    const allFactions: Array<keyof FactionsState> = ["capitalists", "workers", "intellectuals", "nationalists", "military"];
     
-    const totalSupport = allFactions.reduce((acc, fId) => acc + (factions[fId]?.support || 50), 0);
-    
-    allFactions.forEach(fId => {
-      const supportWeight = (factions[fId]?.support || 50) / totalSupport * 100; 
+    Object.entries(parliamentSeats).forEach(([fIdStr, seats]) => {
+      const fId = fIdStr as keyof FactionsState;
       const impact = action === "enact" 
           ? (policy.factionImpactOnEnact[fId] || 0) 
           : -(policy.factionImpactOnEnact[fId] || 0); 
           
-      if (impact > 0) yesVotes += supportWeight;
-      else if (impact < 0) noVotes += supportWeight;
+      if (impact > 0) yesVotes += seats;
+      else if (impact < 0) noVotes += seats;
       else {
-        yesVotes += supportWeight / 2;
-        noVotes += supportWeight / 2;
+        // Kararsız/Etkilenmeyenler: Oylar yarı yarıya bölünür
+        yesVotes += Math.floor(seats / 2);
+        noVotes += Math.ceil(seats / 2);
       }
     });
 
-    const passNaturally = yesVotes >= 50;
+    const passNaturally = yesVotes >= 51; // 100 üzerinden salt çoğunluk 51'dir
 
     if (!passNaturally && !isLobbying) {
       return NextResponse.json({ 

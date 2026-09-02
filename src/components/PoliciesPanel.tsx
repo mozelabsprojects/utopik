@@ -185,12 +185,12 @@ export default function PoliciesPanel({ gameState, onUpdate }: PoliciesPanelProp
           <div className="flex items-center gap-6 mb-6 bg-black/30 p-4 rounded-xl">
             <div className="flex-1 text-center">
               <div className="text-4xl mb-1">👍</div>
-              <div className="text-green-400 font-bold text-xl">% {lobbyPrompt.votes.yes}</div>
+              <div className="text-green-400 font-bold text-xl">{lobbyPrompt.votes.yes} Koltuk</div>
               <div className="text-xs text-gray-500 uppercase">Kabul</div>
             </div>
             <div className="flex-1 text-center border-l border-white/10">
               <div className="text-4xl mb-1">👎</div>
-              <div className="text-red-400 font-bold text-xl">% {lobbyPrompt.votes.no}</div>
+              <div className="text-red-400 font-bold text-xl">{lobbyPrompt.votes.no} Koltuk</div>
               <div className="text-xs text-gray-500 uppercase">Ret</div>
             </div>
           </div>
