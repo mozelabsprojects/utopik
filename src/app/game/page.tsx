@@ -395,9 +395,19 @@ function GameContent() {
 
   const getThemeClass = () => {
     if (!game) return "theme-default";
+    
+    // Eğer oyunda bir diktatörlük/baskı eventFlag'i varsa
+    const eventFlags = game.eventFlags ? (typeof game.eventFlags === 'string' ? JSON.parse(game.eventFlags) : game.eventFlags) : [];
+    if (eventFlags.includes("dictatorship")) return "theme-dystopia";
+    if (eventFlags.includes("ai_singularity")) return "theme-cyber";
+    
     if (game.isBankrupt) return "theme-bankrupt";
-    if (game.stability < 30) return "theme-crisis";
-    if (game.happiness > 80 && game.stability > 80) return "theme-golden";
+    
+    // Duruma göre renkler
+    if (game.stability < 30 || game.happiness < 30) return "theme-crisis";
+    if (game.military > 80 && game.stability < 50) return "theme-war";
+    if (game.budget > 1000000 && game.happiness > 80 && game.stability > 80) return "theme-utopia";
+    
     const era = calculateEra(game);
     return `theme-era-${era}`;
   };
@@ -431,25 +441,34 @@ function GameContent() {
     );
   }
 
+  const themeClass = getThemeClass();
+
   return (
     <div 
-      className={`min-h-screen flex flex-col md:flex-row h-screen overflow-hidden bg-bureaucracy transition-colors duration-1000 ${getThemeClass()}`}
-      style={{ zoom: uiScale / 100, backgroundColor: 'var(--color-bg-main)' } as React.CSSProperties}
+      className={`min-h-screen text-slate-100 flex transition-colors duration-1000 ${themeClass}`}
+      style={{
+        background: 'var(--bg-gradient)',
+        zoom: `${uiScale}%`
+      }}
     >
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="flex-1 flex flex-col min-w-0 h-full pb-20 md:pb-4 p-2 md:p-4 max-w-[1600px] mx-auto overflow-hidden relative">
         
         {/* Seçim Ekranı */}
-        {game.turn >= (game.nextElectionTurn || 999) && COUNTRIES.find(c => c.name === game.countryName)?.regime === "Demokrasi" && !game.isGameOver && (
-          <ElectionModal 
-            gameId={game.id} 
-            turn={game.turn} 
-            popularity={game.popularity} 
-            politicalCapital={game.politicalCapital}
-            onComplete={fetchGameState}
-          />
-        )}
+        {(() => {
+          const eFlags = game.eventFlags ? (typeof game.eventFlags === 'string' ? JSON.parse(game.eventFlags) : game.eventFlags) : [];
+          const isDemocracy = COUNTRIES.find(c => c.name === game.countryName)?.regime === "Demokrasi" && !eFlags.includes("dictatorship");
+          return game.turn >= (game.nextElectionTurn || 999) && isDemocracy && !game.isGameOver && (
+            <ElectionModal 
+              gameId={game.id} 
+              turn={game.turn} 
+              popularity={game.popularity} 
+              politicalCapital={game.politicalCapital}
+              onComplete={fetchGameState}
+            />
+          );
+        })()}
         
         <GameTutorial 
           activeTab={activeTab} 

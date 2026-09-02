@@ -52,9 +52,61 @@
     --color-text-main: #d6d3d1;
     --color-text-muted: #a8a29e;
     
-    --color-accent-primary: #a8a29e; /* Stone */
+    --color-accent-primary: #a8a29e;
     --color-accent-secondary: #78716c;
     --color-accent-glow: rgba(168, 162, 158, 0.1);
+  }
+
+  /* Dystopia Theme (Dictatorship) */
+  .theme-dystopia {
+    --color-bg-main: #0a0a0a;
+    --color-bg-panel: #171717;
+    --color-border: #450a0a;
+    --color-text-main: #e5e5e5;
+    --color-text-muted: #a3a3a3;
+    
+    --color-accent-primary: #b91c1c; /* Dark red */
+    --color-accent-secondary: #991b1b;
+    --color-accent-glow: rgba(185, 28, 28, 0.2);
+  }
+
+  /* Cyberpunk Theme (AI Singularity) */
+  .theme-cyber {
+    --color-bg-main: #09090b;
+    --color-bg-panel: #18181b;
+    --color-border: #0284c7;
+    --color-text-main: #f0fdfa;
+    --color-text-muted: #38bdf8;
+    
+    --color-accent-primary: #0ea5e9; /* Neon blue */
+    --color-accent-secondary: #ec4899; /* Neon pink */
+    --color-accent-glow: rgba(14, 165, 233, 0.3);
+  }
+
+  /* War Theme */
+  .theme-war {
+    --color-bg-main: #141712;
+    --color-bg-panel: #1f241a;
+    --color-border: #3f4a33;
+    --color-text-main: #e2e8f0;
+    --color-text-muted: #94a3b8;
+    
+    --color-accent-primary: #65a30d; /* Olive green */
+    --color-accent-secondary: #4d7c0f;
+    --color-accent-glow: rgba(101, 163, 13, 0.2);
+  }
+
+  /* Utopia Theme */
+  .theme-utopia {
+    --color-bg-main: #0f172a;
+    --color-bg-panel: #1e293b;
+    --color-border: #fbbf24;
+    --color-text-main: #f8fafc;
+    --color-text-muted: #cbd5e1;
+    
+    --color-accent-primary: #fbbf24; /* Golden */
+    --color-accent-secondary: #fcd34d;
+    --color-accent-glow: rgba(251, 191, 36, 0.25);
   }
 
   /* ============================================ */

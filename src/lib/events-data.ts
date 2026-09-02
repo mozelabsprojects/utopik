@@ -2195,6 +2195,59 @@ export const EVENTS: GameEvent[] = [
         hint: "Para harcamadan enerji korunur ama halk karanlıkta kalır."
       }
     ]
+  },
+  // ============================================
+  // RADİKAL KARARLAR (SHARP EVENTS - FAZ 3)
+  // ============================================
+  {
+    id: "radical_dictatorship",
+    title: "Rejim Değişikliği: Diktatörlük İlânı",
+    description: "Ülkedeki kaos ve istikrarsızlık had safhada. Ordu ve aşırı milliyetçiler, parlamentoyu feshedip tüm yetkileri size veren bir Olağanüstü Hal (Diktatörlük) rejimine geçmeyi teklif ediyor.",
+    category: "kriz",
+    minTurn: 10,
+    condition: (state) => state.stability <= 30,
+    choices: [
+      {
+        label: "A",
+        text: "Kabul et! Parlamentoyu feshet ve demir yumrukla yönet.",
+        effects: { stability: 50, happiness: -30, foreignRelations: -40, popularity: -20 },
+        factionEffects: { military: 30, nationalists: 20, intellectuals: -40, capitalists: -20 },
+        flagsToSet: ["dictatorship"],
+        hint: "İstikrar anında sağlanır ama dünya size ambargo uygular, halk mutsuz olur. UI Dystopia temasına geçer."
+      },
+      {
+        label: "B",
+        text: "Demokrasiden vazgeçemeyiz. Direnmeye devam.",
+        effects: { stability: -10, popularity: 10, happiness: 5 },
+        factionEffects: { military: -15, intellectuals: 10 },
+        hint: "İstikrarsızlık sürer ama özgürlükler korunur."
+      }
+    ]
+  },
+  {
+    id: "radical_ai_singularity",
+    title: "Yapay Zeka Devrimi (Singularity)",
+    description: "Yerli araştırma laboratuvarlarımız, devletin tüm karar alma süreçlerini optimize edebilecek süper zeki bir Yapay Zeka (AI) ağı geliştirdi. Yönetimi tamamen AI'a devretmek ister misiniz?",
+    category: "ekonomi",
+    minTurn: 15,
+    condition: (state) => state.education >= 80,
+    choices: [
+      {
+        label: "A",
+        text: "Tüm devleti Yapay Zeka yönetsin (Singularity Ağı).",
+        effects: { education: 20, budget: 5000, stability: 20, happiness: -20 },
+        factionEffects: { intellectuals: 30, workers: -40 },
+        flagsToSet: ["ai_singularity"],
+        hint: "Ekonomi ve bilim şahlanır ancak insanlar işsiz kalıp anlamsızlık hissine kapılır. UI Cyberpunk temasına geçer."
+      },
+      {
+        label: "B",
+        text: "Yapay zekayı sadece danışman olarak kullan.",
+        effects: { education: 10, budget: 1000 },
+        factionEffects: { intellectuals: 10 },
+        hint: "Güvenli ve dengeli bir ilerleme."
+      }
+    ]
   }
 ];
 
