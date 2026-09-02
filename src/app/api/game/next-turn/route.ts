@@ -386,6 +386,34 @@ export async function POST(request: Request) {
        game.popularity = Math.max(0, game.popularity - 30);
        // Yine de borcu eksiye düşerek "öderler" (veya borç kalır, ama basitlik için ödenmiş ve eksiye düşülmüş sayıyoruz)
     }
+    // --- FAZ 4: YAŞAYAN DÜNYA & AMBARGOLAR ---
+    for (const country of game.worldCountries) {
+      if (country.isPlayer) continue;
+
+      // 1. Dinamik Büyüme/Küçülme (Bütçe ve Askeriye rastgele değişir)
+      // Bütçe %2 küçülme ile %4 büyüme arası, Askeriye %2 küçülme ile %3 büyüme arası
+      const budgetChange = 0.98 + (Math.random() * 0.06); 
+      const militaryChange = 0.98 + (Math.random() * 0.05);
+      
+      const newBudget = Math.round(country.budget * budgetChange);
+      const newMilitary = Math.max(10, Math.min(100, country.military * militaryChange));
+
+      await prisma.worldCountry.update({
+        where: { id: country.id },
+        data: { budget: newBudget, military: newMilitary }
+      });
+
+      // 2. Ambargo İhtimali
+      const existingTrade = game.tradeAgreements.find((t: any) => t.partnerName === country.name);
+      if (existingTrade) {
+        // İptal Şartı: Dış ilişkilerimiz düşükse ve askeri fark varsa iptal edebilir
+        if (game.foreignRelations < 35 && Math.random() < 0.15) { // %15 ihtimal
+          await prisma.tradeAgreement.delete({ where: { id: existingTrade.id } });
+          currentReports.push(`🚫 KÜRESEL AMBARGO: Dış ilişkilerimizin gerginleşmesi nedeniyle ${country.name} tüm ticari anlaşmalarımızı tek taraflı feshedip ambargo uyguladı!`);
+          game.stability = Math.max(0, game.stability - 5);
+        }
+      }
+    }
     // ----------------------------------------
 
     const currentState: GameState = {

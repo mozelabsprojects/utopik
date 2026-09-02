@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateRelationship, calculateTradeRiskProfile } from "@/lib/game-engine";
+import { COUNTRIES } from "@/lib/countries-data";
+import { DiplomacyState } from "@/lib/types";
 
 export async function POST(request: Request) {
   try {
@@ -77,11 +79,29 @@ export async function POST(request: Request) {
       game.foreignRelations = Math.min(100, game.foreignRelations + 2);
     }
 
+    // --- FAZ 4: KÜRESEL EKSEN KAYMASI ---
+    let diplomacyState: DiplomacyState = { westernRelations: 50, easternRelations: 50, activeEmbargoes: [] };
+    try { diplomacyState = JSON.parse(game.diplomacyState || "{}"); } catch {}
+    if (diplomacyState.westernRelations === undefined) diplomacyState.westernRelations = 50;
+    if (diplomacyState.easternRelations === undefined) diplomacyState.easternRelations = 50;
+
+    const countryTemplate = COUNTRIES.find(c => c.name === partner.name);
+    if (countryTemplate) {
+      if (countryTemplate.regime === "Demokrasi") {
+        diplomacyState.westernRelations = Math.min(100, diplomacyState.westernRelations + 5);
+        diplomacyState.easternRelations = Math.max(0, diplomacyState.easternRelations - 2);
+      } else if (countryTemplate.regime === "Otokrasi") {
+        diplomacyState.easternRelations = Math.min(100, diplomacyState.easternRelations + 5);
+        diplomacyState.westernRelations = Math.max(0, diplomacyState.westernRelations - 2);
+      }
+    }
+
     await prisma.game.update({
       where: { id: gameId },
       data: {
         budget: game.budget - investmentAmount,
         foreignRelations: game.foreignRelations,
+        diplomacyState: JSON.stringify(diplomacyState)
       }
     });
 
