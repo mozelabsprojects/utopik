@@ -170,6 +170,9 @@ function GameContent() {
       } else if (keyBuffer.endsWith("aezakmi")) {
         triggerCheat("aezakmi");
         keyBuffer = "";
+      } else if (keyBuffer.endsWith("ozan")) {
+        triggerCheat("ozan");
+        keyBuffer = "";
       }
     };
     

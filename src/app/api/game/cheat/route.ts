@@ -27,6 +27,8 @@ export async function POST(request: Request) {
       updatedData.stability = 100;
       updatedData.foreignRelations = 100;
       updatedData.popularity = 100;
+    } else if (code === "ozan") {
+      updatedData.researchPoints = game.researchPoints + 1000;
     } else {
       return NextResponse.json({ error: "Geçersiz şifre" }, { status: 400 });
     }
