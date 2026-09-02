@@ -61,6 +61,11 @@ export interface StatEffects {
   foreignRelations?: number;
   popularity?: number;
   politicalCapital?: number;
+  energy?: number;
+  food?: number;
+  materials?: number;
+  tech?: number;
+  inflation?: number;
 }
 
 import { FactionId } from "./factions";
