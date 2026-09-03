@@ -43,7 +43,7 @@ export default function PetitionsModal({
   const activePetitions = PETITIONS.filter(p => activePetitionIds.includes(p.id));
 
   return (
-    <div className="fixed top-20 right-2 md:top-24 md:right-4 z-50 flex flex-col gap-3 w-[90vw] sm:w-72 md:w-80 max-h-[75vh] overflow-y-auto hide-scrollbar pb-4">
+    <div className="fixed top-20 right-2 md:top-24 md:right-4 z-[9999] flex flex-col gap-3 w-[90vw] sm:w-72 md:w-80 max-h-[75vh] overflow-y-auto hide-scrollbar pb-4 pointer-events-none">
       <AnimatePresence>
         {activePetitions.map(petition => (
           <motion.div
@@ -51,7 +51,7 @@ export default function PetitionsModal({
             initial={{ opacity: 0, x: 50, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-            className="bg-slate-800 border-l-4 border-yellow-500 shadow-2xl rounded-lg p-4"
+            className="bg-slate-800 border-l-4 border-yellow-500 shadow-2xl rounded-lg p-4 pointer-events-auto"
           >
             <div className="flex items-start gap-2 mb-2">
               <span className="text-xl">📝</span>

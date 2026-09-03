@@ -546,6 +546,12 @@ function GameContent() {
           onUpdate={fetchGameState}
         />
         
+        <PetitionsModal 
+          gameId={game.id}
+          activePetitionsJson={game.activePetitions} 
+          onUpdate={fetchGameState} 
+        />
+        
         {/* AKTİF KARTOPU ETKİSİ BİLDİRİMİ */}
         {activeSnowball && (
           <div className={`mx-4 mt-4 p-4 rounded-xl shadow-lg border-2 flex items-center justify-between font-[family-name:var(--font-display)] animate-pulse ${
@@ -569,11 +575,6 @@ function GameContent() {
         )}
 
         <div className={`flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto w-full transition-all duration-300 relative z-10 ${glow}`}>
-          <PetitionsModal 
-            gameId={game.id}
-            activePetitionsJson={game.activePetitions} 
-            onUpdate={fetchGameState} 
-          />
 
         {/* DASHBOARD */}
         {activeTab === "dashboard" && (
