@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { calculateRelationship } from "@/lib/game-engine";
+import { COUNTRIES } from "@/lib/countries-data";
 
 export async function POST(request: Request) {
   try {
@@ -20,12 +21,15 @@ export async function POST(request: Request) {
 
     const relationship = calculateRelationship(game, partner);
 
-    let diplomacyState: Record<string, { type: 'war' | 'alliance', turnsRemaining: number }> = {};
+    let diplomacyState: any = { westernRelations: 50, easternRelations: 50, activeEmbargoes: [] };
     try {
-      diplomacyState = JSON.parse(game.diplomacyState);
+      if (game.diplomacyState) {
+         diplomacyState = JSON.parse(game.diplomacyState);
+      }
+      if (!diplomacyState.activeEmbargoes) diplomacyState.activeEmbargoes = [];
     } catch {}
 
-    if (action !== "peace" && diplomacyState[partnerName]) {
+    if (action !== "peace" && action !== "lift_embargo" && diplomacyState[partnerName]) {
       return NextResponse.json({ error: "Bu ülkeyle zaten aktif bir savaş/ittifak durumu var." }, { status: 400 });
     }
     
@@ -36,38 +40,30 @@ export async function POST(request: Request) {
     let updatedBudget = game.budget;
     let updatedPoliticalCapital = game.politicalCapital;
     let updatedStability = game.stability;
+    let battleResultText = "";
 
     if (action === "war") {
-      if (game.politicalCapital < 20) {
-        return NextResponse.json({ error: "Savaş/İşgal ilan etmek için en az 20 Siyasi Sermaye gerekiyor." }, { status: 400 });
+      if (game.politicalCapital < 100) {
+        return NextResponse.json({ error: "Savaş/İşgal ilan etmek için en az 100 Siyasi Sermaye gerekiyor." }, { status: 400 });
       }
-      updatedPoliticalCapital -= 20;
+      updatedPoliticalCapital -= 100;
       
-      // Sebepsiz savaş cezası
       if (relationship >= 20) {
-        updatedStability -= 40; // Çok ağır ceza
+        updatedStability -= 40;
       } else {
-        updatedStability -= 15; // Normal savaş ilanı
+        updatedStability -= 15;
       }
 
-      // Savaş Algoritması (RNG + Military)
       const playerRoll = Math.random() * game.military;
       const targetRoll = Math.random() * partner.military;
       
-      let battleResultText = "";
-      
       if (playerRoll > targetRoll) {
-        // KAZANDI
-        const loot = partner.budget * 0.5; // Rakibin bütçesinin %50'sini al
-        const foodLoot = 30;
-        const energyLoot = 30;
-        
+        const loot = partner.budget * 0.5;
         updatedBudget += loot;
-        // Resources exist in game, but we need to update them.
         const currentEnergy = game.energy || 50;
         const currentFood = game.food || 50;
         
-        battleResultText = `ZAFER! ${partnerName} başarıyla işgal edildi. $${Math.floor(loot)} ganimet, gıda ve enerji ele geçirildi!`;
+        battleResultText = `ZAFER! ${partnerName} başarıyla işgal edildi. $${Math.floor(loot)} ganimet ele geçirildi!`;
         
         await prisma.game.update({
           where: { id: gameId },
@@ -77,18 +73,17 @@ export async function POST(request: Request) {
             stability: Math.max(0, updatedStability),
             happiness: Math.min(100, game.happiness + 20),
             popularity: Math.min(100, game.popularity + 30),
-            energy: Math.min(100, currentEnergy + energyLoot),
-            food: Math.min(100, currentFood + foodLoot)
+            energy: Math.min(100, currentEnergy + 30),
+            food: Math.min(100, currentFood + 30)
           }
         });
         
         return NextResponse.json({ success: true, message: battleResultText });
       } else {
-        // KAYBETTİ
-        const loss = game.budget * 0.3; // Bütçenin %30'u gider
+        const loss = game.budget * 0.3;
         updatedBudget -= loss;
         
-        battleResultText = `HEZİMET! ${partnerName} ordumuzu darmadağın etti. Savaş tazminatı olarak $${Math.floor(loss)} kaybettik, ordu ve istikrar çöktü!`;
+        battleResultText = `HEZİMET! ${partnerName} ordumuzu darmadağın etti. Savaş tazminatı olarak $${Math.floor(loss)} kaybettik!`;
         
         await prisma.game.update({
           where: { id: gameId },
@@ -105,27 +100,79 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, message: battleResultText });
       }
     } else if (action === "alliance") {
-      if (game.politicalCapital < 10) {
-        return NextResponse.json({ error: "İttifak kurmak için en az 10 Siyasi Sermaye gerekiyor." }, { status: 400 });
-      }
-      if (game.budget < 500) {
-        return NextResponse.json({ error: "İttifak kurmak için en az $500 bütçe (Elçilik masrafı) gerekiyor." }, { status: 400 });
-      }
-      updatedPoliticalCapital -= 10;
-      updatedBudget -= 500;
-      diplomacyState[partnerName] = { type: 'alliance', turnsRemaining: 20 }; // Alliances last 20 turns
-    } else if (action === "peace") {
       if (game.politicalCapital < 30) {
-        return NextResponse.json({ error: "Barış antlaşması imzalamak için en az 30 Siyasi Sermaye gerekiyor." }, { status: 400 });
+        return NextResponse.json({ error: "İttifak kurmak için en az 30 Siyasi Sermaye gerekiyor." }, { status: 400 });
+      }
+      updatedPoliticalCapital -= 30;
+      diplomacyState[partnerName] = { type: 'alliance', turnsRemaining: 20 };
+    } else if (action === "peace") {
+      if (game.politicalCapital < 50) {
+        return NextResponse.json({ error: "Barış antlaşması imzalamak için en az 50 Siyasi Sermaye gerekiyor." }, { status: 400 });
       }
       if (game.budget < 1000) {
         return NextResponse.json({ error: "Savaş tazminatı ve antlaşma masrafları için en az $1000 bütçe gerekiyor." }, { status: 400 });
       }
-      updatedPoliticalCapital -= 30;
+      updatedPoliticalCapital -= 50;
       updatedBudget -= 1000;
-      delete diplomacyState[partnerName]; // Savaşı bitir
+      delete diplomacyState[partnerName];
+    } else if (action === "embargo") {
+      if (game.politicalCapital < 20) {
+         return NextResponse.json({ error: "Ambargo uygulamak için en az 20 Siyasi Sermaye gerekiyor." }, { status: 400 });
+      }
+      updatedPoliticalCapital -= 20;
+      // Biz ambargo atarsak ilişkiler kalıcı bozulur ama aktif bir ceza uygulanmaz. (Trade route engellenmesi ui tarafında eklenebilir)
+      // Ancak UI tarafındaki uyumluluk için eklenmiştir.
+    } else if (action === "lift_embargo") {
+      if (game.politicalCapital < 20) {
+         return NextResponse.json({ error: "Ambargoyu kaldırmak için en az 20 Siyasi Sermaye gerekiyor." }, { status: 400 });
+      }
+      if (game.budget < 1000) {
+         return NextResponse.json({ error: "Diplomatik arabuluculuk masrafları için en az $1000 gerekiyor." }, { status: 400 });
+      }
+      if (!diplomacyState.activeEmbargoes.includes(partnerName)) {
+         return NextResponse.json({ error: "Bu ülke size ambargo uygulamıyor." }, { status: 400 });
+      }
+      updatedPoliticalCapital -= 20;
+      updatedBudget -= 1000;
+      diplomacyState.activeEmbargoes = diplomacyState.activeEmbargoes.filter((name: string) => name !== partnerName);
     } else {
       return NextResponse.json({ error: "Geçersiz işlem." }, { status: 400 });
+    }
+
+    // Yüzdeleri Yeniden Hesapla
+    let totalPower = 0;
+    let westPower = 0;
+    let eastPower = 0;
+
+    for (const ai of game.worldCountries) {
+      if (!ai.isPlayer) {
+        const powerScore = ai.military + (ai.budget / 1000) + ai.stability;
+        totalPower += powerScore;
+        const cData = COUNTRIES.find(c => c.name === ai.name);
+        if (cData?.alignment === 'western') westPower += powerScore;
+        else if (cData?.alignment === 'eastern') eastPower += powerScore;
+      }
+    }
+
+    const playerPowerScore = game.military + (updatedBudget / 1000) + updatedStability;
+    totalPower += playerPowerScore;
+    
+    let playerIsWestern = false;
+    let playerIsEastern = false;
+    Object.entries(diplomacyState).forEach(([name, dip]) => {
+      if ((dip as any).type === 'alliance') {
+        const cd = COUNTRIES.find(c => c.name === name);
+        if (cd?.alignment === 'western') playerIsWestern = true;
+        if (cd?.alignment === 'eastern') playerIsEastern = true;
+      }
+    });
+
+    if (playerIsWestern && !playerIsEastern) westPower += playerPowerScore;
+    else if (playerIsEastern && !playerIsWestern) eastPower += playerPowerScore;
+
+    if (totalPower > 0) {
+      diplomacyState.westernRelations = Math.min(100, Math.max(0, (westPower / totalPower) * 100));
+      diplomacyState.easternRelations = Math.min(100, Math.max(0, (eastPower / totalPower) * 100));
     }
 
     await prisma.game.update({

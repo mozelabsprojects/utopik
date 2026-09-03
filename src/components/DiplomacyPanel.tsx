@@ -31,17 +31,20 @@ export default function DiplomacyPanel({
     }
   } catch {}
 
-  const handleAction = async (targetCountryId: string, action: "alliance" | "embargo" | "war") => {
+  const handleAction = async (targetCountryId: string, action: "alliance" | "embargo" | "war" | "lift_embargo" | "peace") => {
     if (action === "war" && !confirm("Bu ülkeye savaş açmak istediğinizden emin misiniz? Ağır kayıplar yaşayabilirsiniz!")) return;
     if (action === "embargo" && !confirm("Ambargo uygulamak ilişkileri bozar. Emin misiniz?")) return;
     
+    const targetCountry = worldCountries.find(c => c.id === targetCountryId);
+    if (!targetCountry) return;
+
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/game/diplomacy", {
+      const res = await fetch("/api/game/diplomacy-action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameId: gameId, targetCountryId, action })
+        body: JSON.stringify({ gameId: gameId, partnerName: targetCountry.name, action })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -143,11 +146,22 @@ export default function DiplomacyPanel({
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
-        {aiCountries.map((country: any) => (
-          <div key={country.id} className="bg-black/30 border border-white/5 hover:border-white/20 hover:bg-white/5 transition-all rounded-2xl p-5 flex flex-col justify-between group">
+        {aiCountries.map((country: any) => {
+          const isEmbargoed = dipState.activeEmbargoes?.includes(country.name);
+          const allianceState = dipState[country.name];
+          const isAlly = allianceState?.type === 'alliance';
+          const isWar = allianceState?.type === 'war';
+
+          return (
+          <div key={country.id} className={`bg-black/30 border ${isAlly ? 'border-blue-500/50' : isWar ? 'border-red-500/50' : isEmbargoed ? 'border-orange-500/50' : 'border-white/5'} hover:border-white/20 hover:bg-white/5 transition-all rounded-2xl p-5 flex flex-col justify-between group`}>
             <div>
               <h3 className="font-bold text-lg text-white flex justify-between items-center mb-3">
-                {country.name}
+                <span className="flex items-center gap-2">
+                  {country.name}
+                  {isEmbargoed && <span className="text-[10px] bg-orange-500/20 border border-orange-500/50 text-orange-300 px-2 py-1 rounded-full uppercase tracking-widest">Ambargo</span>}
+                  {isAlly && <span className="text-[10px] bg-blue-500/20 border border-blue-500/50 text-blue-300 px-2 py-1 rounded-full uppercase tracking-widest">Müttefik</span>}
+                  {isWar && <span className="text-[10px] bg-red-500/20 border border-red-500/50 text-red-300 px-2 py-1 rounded-full uppercase tracking-widest">Savaşta</span>}
+                </span>
                 {country.military === 0 && <span className="text-[10px] bg-red-500/20 border border-red-500/50 text-red-300 px-2 py-1 rounded-full uppercase tracking-widest">İşgal Altında</span>}
               </h3>
               
@@ -168,30 +182,64 @@ export default function DiplomacyPanel({
             </div>
 
             <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleAction(country.id, "alliance")}
-                disabled={loading || country.military === 0 || politicalCapital < 30}
-                className="col-span-2 py-2 text-xs font-bold bg-blue-500/10 hover:bg-blue-500/30 text-blue-300 rounded-xl transition border border-blue-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                🤝 Müttefik Ol (📜 30)
-              </button>
-              <button
-                onClick={() => handleAction(country.id, "embargo")}
-                disabled={loading || country.military === 0 || politicalCapital < 20}
-                className="py-2 text-xs font-bold bg-orange-500/10 hover:bg-orange-500/30 text-orange-300 rounded-xl transition border border-orange-500/20 disabled:opacity-50"
-              >
-                🚫 Ambargo (20)
-              </button>
-              <button
-                onClick={() => handleAction(country.id, "war")}
-                disabled={loading || country.military === 0 || politicalCapital < 100}
-                className="py-2 text-xs font-bold bg-red-500/10 hover:bg-red-500/30 text-red-400 rounded-xl transition border border-red-500/20 disabled:opacity-50"
-              >
-                ⚔️ Savaş Aç (100)
-              </button>
+              {!isAlly && !isWar && (
+                <button
+                  onClick={() => handleAction(country.id, "alliance")}
+                  disabled={loading || country.military === 0 || politicalCapital < 30}
+                  className="col-span-2 py-2 text-xs font-bold bg-blue-500/10 hover:bg-blue-500/30 text-blue-300 rounded-xl transition border border-blue-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  🤝 Müttefik Ol (📜 30)
+                </button>
+              )}
+              {isWar && (
+                <button
+                  onClick={() => handleAction(country.id, "peace")}
+                  disabled={loading || politicalCapital < 50}
+                  className="col-span-2 py-2 text-xs font-bold bg-green-500/10 hover:bg-green-500/30 text-green-300 rounded-xl transition border border-green-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  🕊️ Barış İlan Et (📜 50, $1k)
+                </button>
+              )}
+              {isAlly && (
+                <button
+                  onClick={() => handleAction(country.id, "peace")}
+                  disabled={loading || politicalCapital < 50}
+                  className="col-span-2 py-2 text-xs font-bold bg-slate-500/10 hover:bg-slate-500/30 text-slate-300 rounded-xl transition border border-slate-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  💔 İttifakı Boz (📜 50)
+                </button>
+              )}
+              {isEmbargoed ? (
+                <button
+                  onClick={() => handleAction(country.id, "lift_embargo")}
+                  disabled={loading || country.military === 0 || politicalCapital < 20}
+                  className="py-2 text-xs font-bold bg-green-500/10 hover:bg-green-500/30 text-green-300 rounded-xl transition border border-green-500/20 disabled:opacity-50 flex flex-col items-center justify-center"
+                >
+                  <span>🔓 Ambargoyu</span>
+                  <span>Kaldır (📜 20)</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleAction(country.id, "embargo")}
+                  disabled={loading || country.military === 0 || politicalCapital < 20}
+                  className="py-2 text-xs font-bold bg-orange-500/10 hover:bg-orange-500/30 text-orange-300 rounded-xl transition border border-orange-500/20 disabled:opacity-50"
+                >
+                  🚫 Ambargo (20)
+                </button>
+              )}
+              {!isWar && (
+                <button
+                  onClick={() => handleAction(country.id, "war")}
+                  disabled={loading || country.military === 0 || politicalCapital < 100}
+                  className="py-2 text-xs font-bold bg-red-500/10 hover:bg-red-500/30 text-red-400 rounded-xl transition border border-red-500/20 disabled:opacity-50"
+                >
+                  ⚔️ Savaş Aç (100)
+                </button>
+              )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -432,6 +432,11 @@ export async function POST(request: Request) {
           tradeCancellationOps.push(prisma.tradeAgreement.delete({ where: { id: existingTrade.id } }));
           currentReports.push(`🚫 KÜRESEL AMBARGO: Dış ilişkilerimizin gerginleşmesi nedeniyle ${country.name} tüm ticari anlaşmalarımızı tek taraflı feshedip ambargo uyguladı!`);
           game.stability = Math.max(0, game.stability - 5);
+          
+          if (!diplomacyState.activeEmbargoes) diplomacyState.activeEmbargoes = [];
+          if (!diplomacyState.activeEmbargoes.includes(country.name)) {
+             diplomacyState.activeEmbargoes.push(country.name);
+          }
         }
       }
     }
