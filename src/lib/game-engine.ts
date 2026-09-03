@@ -451,7 +451,7 @@ export function calculateEra(state: Partial<GameState>): number {
   const completedProjectsCount = megaProjects.length;
   const techsCount = unlockedTechs.length;
 
-  if (techsCount >= 10 && completedProjectsCount >= 3) return 4; // Era 4: UTOPIA
+  if (techsCount >= 8 && completedProjectsCount >= 4) return 4; // Era 4: UTOPIA
   if (techsCount >= 6 || completedProjectsCount >= 2) return 3;  // Era 3: Biomimicry & Tech
   if (techsCount >= 3 || completedProjectsCount >= 1) return 2;  // Era 2: Chronos Matrix
   return 1;                                                      // Era 1: Blueprint

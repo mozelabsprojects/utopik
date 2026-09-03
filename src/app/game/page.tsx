@@ -250,6 +250,9 @@ function GameContent() {
       // Sadece veritabanından gelen game state'i güncelliyoruz.
       if (!data.game.currentEventId) {
         setPhase("invest");
+      } else {
+        // Eğer sırada bekleyen başka bir olay (veya snowball) varsa, verileri tam senkronize et
+        await fetchGameState();
       }
     } catch (error) {
       console.error("Seçim hatası:", error);
@@ -749,7 +752,7 @@ function GameContent() {
         }}
       />
 
-        {game.isGameOver && game.gameOverReason && (
+        {game.isGameOver && game.gameOverReason && !game.gameOverReason.includes("ZAFER") && (
           <GameOverModal
             reason={game.gameOverReason}
             turn={game.turn}
@@ -768,7 +771,7 @@ function GameContent() {
           />
         )}
         
-        {game && !game.isGameOver && calculateEra(game) >= 4 && (
+        {game && ( (game.isGameOver && game.gameOverReason?.includes("ZAFER")) || calculateEra(game) >= 4 ) && (
           <VictoryScreen 
             game={game} 
             onRestart={handleRestart} 
