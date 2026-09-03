@@ -235,11 +235,20 @@ export function calculateTaxIncome(
 export interface BudgetBreakdown {
   tax: number;
   maintenance: number;
+  militaryCost: number;
+  healthCost: number;
+  educationCost: number;
+  environmentCost: number;
+  corruptionPenalty: number;
+  sickPenalty: number;
+  inflationPenalty: number;
   laws: number;
   techs: number;
   ministers: number;
   crises: number;
   special: number;
+  bureaucraticWaste: number;
+  tradeIncome: number;
   totalNet: number;
 }
 
@@ -250,7 +259,8 @@ export function calculateNetBudget(
   unlockedTechs: string[],
   ministers: Record<string, string>,
   activeCrises: string[],
-  eventFlags: string[] = []
+  eventFlags: string[] = [],
+  tradeAgreements: any[] = []
 ): BudgetBreakdown {
   const countryTemplate = COUNTRIES.find(c => c.name === state.countryName);
   const difficulty = countryTemplate?.difficulty || "Orta";
@@ -261,10 +271,11 @@ export function calculateNetBudget(
     factions.capitalists?.support || 50, eventFlags, difficulty, currentInflation, state.population
   );
 
-  let maintenance = calculateMaintenanceCost(
+  let maintDetails = getDetailedMaintenanceCost(
     state.military, state.health, state.education, state.environment, state.stability, 
     eventFlags, state.budget, difficulty, unlockedTechs, currentInflation, state.population, factions
   );
+  let maintenance = maintDetails.total;
 
   let special = 0;
   if (state.countryName === "Kuzey Kore") {
@@ -306,9 +317,45 @@ export function calculateNetBudget(
     if (crisis && crisis.passiveEffects.budget) crises += crisis.passiveEffects.budget;
   });
 
-  const totalNet = tax - maintenance + laws + techs + ministerEffects + crises + special;
+  let tradeIncome = 0;
+  tradeAgreements.forEach(deal => {
+    if (deal.status === "ACTIVE" && deal.isPlayerInitiated) {
+      tradeIncome += deal.amount;
+    }
+  });
 
-  return { tax, maintenance, laws, techs, ministers: ministerEffects, crises, special, totalNet };
+  if (state.countryName === "Kuzey Kore" && tradeIncome > 0) {
+    tradeIncome = Math.round(tradeIncome * 0.25);
+  }
+
+  let bureaucraticWaste = 0;
+  if (state.budget > 500000) {
+    const excessBudget = state.budget - 500000;
+    const wasteRate = Math.min(0.08, 0.02 + (excessBudget / 10000000));
+    bureaucraticWaste = Math.round(excessBudget * wasteRate);
+  }
+
+  let totalNet = tax - maintenance + laws + techs + ministerEffects + crises + special + tradeIncome - bureaucraticWaste;
+
+  return {
+    tax,
+    maintenance,
+    militaryCost: maintDetails.militaryCost,
+    healthCost: maintDetails.healthCost,
+    educationCost: maintDetails.educationCost,
+    environmentCost: maintDetails.environmentCost,
+    corruptionPenalty: maintDetails.corruptionPenalty,
+    sickPenalty: maintDetails.sickPenalty,
+    inflationPenalty: maintDetails.inflationPenalty,
+    laws,
+    techs,
+    ministers: ministerEffects,
+    crises,
+    special,
+    bureaucraticWaste,
+    tradeIncome,
+    totalNet
+  };
 }
 
 // ============================================

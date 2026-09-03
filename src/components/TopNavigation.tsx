@@ -85,7 +85,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
     else if (eventFlags.includes("LEADER_ECONOMIST")) leaderProfile = { name: "Ekonomist", icon: "💼", color: "text-yellow-400 border-yellow-500/30" };
     else if (eventFlags.includes("LEADER_POPULIST")) leaderProfile = { name: "Halk Adamı", icon: "🤝", color: "text-pink-400 border-pink-500/30" };
 
-    budgetBreakdown = calculateNetBudget(gameData, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags);
+    budgetBreakdown = calculateNetBudget(gameData, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags, gameData.tradeAgreements || []);
     netIncome = budgetBreakdown.totalNet;
 
     let baseRP = 1; // Artık temel üretim 1 (tamamen durmasın diye)

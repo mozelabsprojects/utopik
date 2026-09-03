@@ -69,11 +69,75 @@ export default function BudgetDetailsModal({ isOpen, onClose, budgetBreakdown, n
                   </div>
                   <div className="w-full h-px bg-white/5" />
                   
-                  <div className="flex justify-between items-center text-red-400">
-                    <span className="flex items-center gap-2">🏛️ Kamu Masrafları</span>
+                  <div className="flex justify-between items-center text-red-400 font-bold mb-2">
+                    <span className="flex items-center gap-2">🏛️ Kamu Masrafları (Toplam)</span>
                     <span>-${budgetBreakdown.maintenance.toLocaleString()}</span>
                   </div>
-                  <div className="w-full h-px bg-white/5" />
+                  <div className="pl-6 space-y-2 text-xs text-slate-300">
+                    <div className="flex justify-between">
+                      <span>Askeriye & Savunma</span>
+                      <span>-${budgetBreakdown.militaryCost.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Sağlık & Altyapı</span>
+                      <span>-${budgetBreakdown.healthCost.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Eğitim Sistemi</span>
+                      <span>-${budgetBreakdown.educationCost.toLocaleString()}</span>
+                    </div>
+                    {budgetBreakdown.environmentCost > 0 && (
+                      <div className="flex justify-between">
+                        <span>Çevre Koruması</span>
+                        <span>-${budgetBreakdown.environmentCost.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="w-full h-px bg-white/5 mt-3 mb-3" />
+                  
+                  {/* GİZLİ CEZALAR (Yeni Eklendi) */}
+                  {(budgetBreakdown.corruptionPenalty > 0 || budgetBreakdown.sickPenalty > 0 || budgetBreakdown.inflationPenalty > 0 || budgetBreakdown.bureaucraticWaste > 0) && (
+                    <>
+                      <div className="text-red-500 font-bold mb-2 uppercase tracking-widest text-[10px]">⚠️ Gizli Giderler ve Cezalar</div>
+                      <div className="space-y-2 text-xs text-red-300/80 pl-2 border-l border-red-500/30 ml-2 mb-3">
+                        {budgetBreakdown.corruptionPenalty > 0 && (
+                          <div className="flex justify-between">
+                            <span>Yolsuzluk & Kayıtdışı Ekonomi</span>
+                            <span>-${budgetBreakdown.corruptionPenalty.toLocaleString()}</span>
+                          </div>
+                        )}
+                        {budgetBreakdown.sickPenalty > 0 && (
+                          <div className="flex justify-between">
+                            <span>Salgın/Hastalık İşgücü Kaybı</span>
+                            <span>-${budgetBreakdown.sickPenalty.toLocaleString()}</span>
+                          </div>
+                        )}
+                        {budgetBreakdown.inflationPenalty > 0 && (
+                          <div className="flex justify-between">
+                            <span>Enflasyon Fiyat Farkı</span>
+                            <span>-${budgetBreakdown.inflationPenalty.toLocaleString()}</span>
+                          </div>
+                        )}
+                        {budgetBreakdown.bureaucraticWaste > 0 && (
+                          <div className="flex justify-between">
+                            <span>Bürokratik İsraf (Zenginlik Vergisi)</span>
+                            <span>-${budgetBreakdown.bureaucraticWaste.toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="w-full h-px bg-white/5 mb-3" />
+                    </>
+                  )}
+                  
+                  {budgetBreakdown.tradeIncome !== 0 && (
+                    <>
+                      <div className="flex justify-between items-center text-blue-400 font-bold mb-3">
+                        <span className="flex items-center gap-2">🚢 Ticaret ve Gümrük</span>
+                        <span>+${budgetBreakdown.tradeIncome.toLocaleString()}</span>
+                      </div>
+                      <div className="w-full h-px bg-white/5 mb-3" />
+                    </>
+                  )}
                   
                   {budgetBreakdown.laws !== 0 && (
                     <>

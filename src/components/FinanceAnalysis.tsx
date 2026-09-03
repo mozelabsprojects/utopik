@@ -47,21 +47,23 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
 
   // 2) KESİN NET BÜTÇE (calculateNetBudget ile)
   const budgetBreakdown: BudgetBreakdown = calculateNetBudget(
-    game, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags
+    game, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags, (game as any).tradeAgreements || []
   );
 
   const totalIncome = budgetBreakdown.tax 
     + (budgetBreakdown.laws > 0 ? budgetBreakdown.laws : 0) 
     + (budgetBreakdown.techs > 0 ? budgetBreakdown.techs : 0)
     + (budgetBreakdown.ministers > 0 ? budgetBreakdown.ministers : 0)
-    + (budgetBreakdown.special > 0 ? budgetBreakdown.special : 0);
+    + (budgetBreakdown.special > 0 ? budgetBreakdown.special : 0)
+    + budgetBreakdown.tradeIncome;
 
   const totalExpense = budgetBreakdown.maintenance 
     + (budgetBreakdown.laws < 0 ? Math.abs(budgetBreakdown.laws) : 0)
     + (budgetBreakdown.techs < 0 ? Math.abs(budgetBreakdown.techs) : 0)
     + (budgetBreakdown.ministers < 0 ? Math.abs(budgetBreakdown.ministers) : 0)
     + (budgetBreakdown.crises < 0 ? Math.abs(budgetBreakdown.crises) : 0)
-    + (budgetBreakdown.special < 0 ? Math.abs(budgetBreakdown.special) : 0);
+    + (budgetBreakdown.special < 0 ? Math.abs(budgetBreakdown.special) : 0)
+    + budgetBreakdown.bureaucraticWaste;
 
   const netIncome = budgetBreakdown.totalNet;
   const isPositive = netIncome >= 0;
@@ -89,6 +91,16 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
                 <p>Ülkenizin temel geliridir. Nüfusun günlük ticari faaliyetlerinden toplanır.</p>
               </div>
             </div>
+
+            {budgetBreakdown.tradeIncome > 0 && 
+            <div className="flex justify-between items-center text-blue-300 group relative cursor-help">
+              <span className="flex items-center gap-1">Dış Ticaret ve İhracat <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>+${budgetBreakdown.tradeIncome.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute left-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-blue-300">Neden Kazanıyorum?</p>
+                <p>Aktif ticaret anlaşmalarından ve ihracattan gelen düzenli gelir.</p>
+              </div>
+            </div>}
 
             {taxDetails.educationBonus > 0 && 
             <div className="flex justify-between items-center text-green-300 group relative cursor-help">
@@ -223,6 +235,16 @@ export default function FinanceAnalysis({ game }: FinanceAnalysisProps) {
             )}
 
             {maintDetails.leaderDiscount > 0 && <div className="flex justify-between text-green-300 mt-1 pt-1 border-t border-slate-800"><span>Lider İndirimi (General):</span> <span>+${maintDetails.leaderDiscount.toLocaleString()} (Tasarruf)</span></div>}
+            
+            {budgetBreakdown.bureaucraticWaste > 0 && 
+            <div className="flex justify-between items-center text-red-300 group relative cursor-help mt-1 pt-1 border-t border-slate-800">
+              <span className="flex items-center gap-1">Bürokratik İsraf (Servet Vergisi) <span className="text-[9px] opacity-50">ℹ️</span></span> 
+              <span>-${budgetBreakdown.bureaucraticWaste.toLocaleString()}</span>
+              <div className="hidden group-hover:block absolute right-0 bottom-full mb-1 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg border border-slate-600 shadow-xl z-10">
+                <p className="font-bold mb-1 text-red-300">Neden Ödüyorum?</p>
+                <p>Hazine çok dolu olduğu için (500K$ üstü) sistemde yozlaşma, hantallık ve devasa bir israf oluşuyor.</p>
+              </div>
+            </div>}
             
             {budgetBreakdown.laws < 0 && <div className="flex justify-between text-red-300 mt-1 pt-1 border-t border-slate-800"><span>Aktif Yasa Maliyetleri:</span> <span>-${Math.abs(budgetBreakdown.laws).toLocaleString()}</span></div>}
             {budgetBreakdown.ministers < 0 && <div className="flex justify-between text-red-300"><span>Bakan Maaşları ve Bütçesi:</span> <span>-${Math.abs(budgetBreakdown.ministers).toLocaleString()}</span></div>}
