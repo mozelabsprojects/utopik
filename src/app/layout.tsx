@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" className={`h-full antialiased ${inter.variable} ${orbitron.variable}`} data-scroll-behavior="smooth">
-      <body className="min-h-full flex flex-col bg-grid" style={{ fontFamily: "var(--font-inter), sans-serif" }}>
+      <body className="min-h-full flex flex-col bg-grid overflow-x-hidden" style={{ fontFamily: "var(--font-inter), sans-serif" }}>
         {children}
         <ImhaEasterEgg />
       </body>

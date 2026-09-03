@@ -291,8 +291,9 @@ export async function POST(request: Request) {
         
         // Zayıf ülkelerin aşırı güçlenmesini veya sürekli 100 olmasını engelleyen doğal yıpranma (decay)
         // Statlar ne kadar yüksekse, düşme eğilimi o kadar artar
-        const milDecay = ai.military > 50 ? (ai.military - 50) * 0.05 : 0;
-        let newMilitary = clampStat(ai.military + (Math.random() * 2 * growthBase) - milDecay - (Math.random() > 0.7 ? 1 : 0));
+        const milDecay = ai.military > 40 ? (ai.military - 40) * 0.12 : 0;
+        const budgetBonus = ai.budget > 20000 ? 2.5 : ai.budget > 10000 ? 1.5 : ai.budget > 5000 ? 0.5 : 0;
+        let newMilitary = clampStat(ai.military + (Math.random() * 2 * growthBase) + budgetBonus - milDecay - (Math.random() > 0.6 ? 1 : 0));
         
         let newBudget = Math.max(0, ai.budget + (Math.random() * 300 * growthBase) + (growthBase * 50));
         let newStability = clampStat(ai.stability + (Math.random() * 3 * growthBase - 1.5));

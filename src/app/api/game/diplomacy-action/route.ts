@@ -62,9 +62,9 @@ export async function POST(request: Request) {
         updatedStability -= 15;
       }
 
-      // Daha gerçekçi savaş ihtimali (Lanchester's Square Law varyasyonu)
-      const pMil = Math.max(1, game.military);
-      const tMil = Math.max(1, partner.military);
+      // Daha gerçekçi savaş ihtimali (Ekonomi ve İstikrar çarpanı ile)
+      const pMil = Math.max(1, game.military) * (Math.max(1, game.stability) / 100) * (1 + (game.budget / 50000));
+      const tMil = Math.max(1, partner.military) * (Math.max(1, partner.stability) / 100) * (1 + (partner.budget / 50000));
       const winChance = (Math.pow(pMil, 2) / (Math.pow(pMil, 2) + Math.pow(tMil, 2))) * 100;
       
       const roll = Math.random() * 100;
@@ -95,8 +95,8 @@ export async function POST(request: Request) {
         
         return NextResponse.json({ success: true, message: battleResultText });
       } else {
-        // Kayıp: Oyuncunun bütçesinin %30'u veya en az $15000. Zaiyatlar çok daha ağır.
-        const loss = Math.max(15000, game.budget * 0.30);
+        // Kayıp: Oyuncunun bütçesinin %40'ı veya en az $25000. Zaiyatlar çok daha ağır.
+        const loss = Math.max(25000, game.budget * 0.40);
         updatedBudget -= loss;
         
         battleResultText = `HEZİMET! ${partnerName} ordumuzu darmadağın etti. Savaş tazminatı olarak $${Math.floor(loss).toLocaleString()} kaybettik!`;
@@ -106,10 +106,10 @@ export async function POST(request: Request) {
           data: {
             budget: updatedBudget,
             politicalCapital: updatedPoliticalCapital,
-            stability: Math.max(0, updatedStability - 30),
-            happiness: Math.max(0, game.happiness - 40),
-            military: Math.max(0, game.military - 60),
-            popularity: Math.max(0, game.popularity - 40),
+            stability: Math.max(0, updatedStability - 40),
+            happiness: Math.max(0, game.happiness - 50),
+            military: Math.max(0, game.military - 75),
+            popularity: Math.max(0, game.popularity - 50),
             diplomacyState: JSON.stringify(diplomacyState)
           }
         });

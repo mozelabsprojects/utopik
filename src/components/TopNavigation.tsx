@@ -247,34 +247,34 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
             <>
               <div 
                 onClick={() => setSelectedResource("energy")}
-                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.energy || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-yellow-400 hover:bg-white/5'}`}
+                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.energy ?? 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-yellow-400 hover:bg-white/5'}`}
               >
                 <span className="text-xl">⚡</span>
                 <div>
                   <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">ENERJİ</p>
-                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.energy || 100).toFixed(0)}</p>
+                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.energy ?? 100).toFixed(0)}</p>
                 </div>
               </div>
 
               <div 
                 onClick={() => setSelectedResource("food")}
-                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.food || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-green-400 hover:bg-white/5'}`}
+                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.food ?? 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-green-400 hover:bg-white/5'}`}
               >
                 <span className="text-xl">🌾</span>
                 <div>
                   <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">GIDA</p>
-                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.food || 100).toFixed(0)}</p>
+                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.food ?? 100).toFixed(0)}</p>
                 </div>
               </div>
 
               <div 
                 onClick={() => setSelectedResource("materials")}
-                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.materials || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}
+                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.materials ?? 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-slate-300 hover:bg-white/5'}`}
               >
-                <span className="text-xl">⚙️</span>
+                <span className="text-xl">⛏️</span>
                 <div>
                   <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">MATERYAL</p>
-                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.materials || 100).toFixed(0)}</p>
+                  <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{(gameData.materials ?? 100).toFixed(0)}</p>
                 </div>
               </div>
             </>
@@ -330,9 +330,9 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         value={
           selectedResource === "politicalCapital" ? politicalCapital :
           selectedResource === "popularity" ? (gameData?.popularity || 0) :
-          selectedResource === "energy" ? (gameData?.energy || 100) :
-          selectedResource === "food" ? (gameData?.food || 100) :
-          selectedResource === "materials" ? (gameData?.materials || 100) : 0
+          selectedResource === "energy" ? (gameData?.energy ?? 100) :
+          selectedResource === "food" ? (gameData?.food ?? 100) :
+          selectedResource === "materials" ? (gameData?.materials ?? 100) : 0
         }
       />
       
