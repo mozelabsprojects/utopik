@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgres://44d2ecae8380f0547d28bdf111be347be79a298a05cd9abfe55488bdd67f7c07:sk_xmUcyu9Fm7NtJv8gml_ls@db.prisma.io:5432/postgres?sslmode=require"
 }
 
 model Game {
