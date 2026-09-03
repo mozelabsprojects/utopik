@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { WorldCountryState } from "@/lib/types";
+import WarConfirmationModal from "./WarConfirmationModal";
 
 export default function DiplomacyPanel({
   gameId,
@@ -21,6 +22,7 @@ export default function DiplomacyPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [warTarget, setWarTarget] = useState<WorldCountryState | null>(null);
 
   let dipState: any = { westernRelations: 50, easternRelations: 50, activeEmbargoes: [] };
   try {
@@ -33,7 +35,6 @@ export default function DiplomacyPanel({
   } catch {}
 
   const handleAction = async (targetCountryId: string, action: "alliance" | "embargo" | "war" | "lift_embargo" | "peace") => {
-    if (action === "war" && !confirm("Bu ülkeye savaş açmak istediğinizden emin misiniz? Ağır kayıplar yaşayabilirsiniz!")) return;
     if (action === "embargo" && !confirm("Ambargo uygulamak ilişkileri bozar. Emin misiniz?")) return;
     
     const targetCountry = worldCountries.find(c => c.id === targetCountryId);
@@ -249,7 +250,7 @@ export default function DiplomacyPanel({
               )}
               {!isWar && (
                 <button
-                  onClick={() => handleAction(country.id, "war")}
+                  onClick={() => setWarTarget(country)}
                   disabled={loading || country.military === 0 || politicalCapital < 100}
                   className="py-2 text-xs font-bold bg-red-500/10 hover:bg-red-500/30 text-red-400 rounded-xl transition border border-red-500/20 disabled:opacity-50"
                 >
@@ -261,6 +262,18 @@ export default function DiplomacyPanel({
           );
         })}
       </div>
+      
+      {/* Savaş Onay Modalı */}
+      <WarConfirmationModal
+        isOpen={warTarget !== null}
+        onClose={() => setWarTarget(null)}
+        onConfirm={() => {
+          if (warTarget) handleAction(warTarget.id, "war");
+        }}
+        targetCountry={warTarget}
+        playerMilitary={military}
+        playerBudget={gameState?.budget || 0}
+      />
     </div>
   );
 }

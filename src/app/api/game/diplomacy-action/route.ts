@@ -48,8 +48,16 @@ export async function POST(request: Request) {
       }
       updatedPoliticalCapital -= 100;
       
+      // Savaş açılan bloğun tepkisi (Diplomatik Ceza)
+      const targetAlignment = COUNTRIES.find(c => c.name === partnerName)?.alignment;
+      if (targetAlignment === 'western') {
+        diplomacyState.westernRelations = Math.max(0, (diplomacyState.westernRelations || 50) - 30);
+      } else if (targetAlignment === 'eastern') {
+        diplomacyState.easternRelations = Math.max(0, (diplomacyState.easternRelations || 50) - 30);
+      }
+      
       if (relationship >= 20) {
-        updatedStability -= 40;
+        updatedStability -= 40; // İhanet
       } else {
         updatedStability -= 15;
       }
@@ -74,7 +82,8 @@ export async function POST(request: Request) {
             happiness: Math.min(100, game.happiness + 20),
             popularity: Math.min(100, game.popularity + 30),
             energy: Math.min(100, currentEnergy + 30),
-            food: Math.min(100, currentFood + 30)
+            food: Math.min(100, currentFood + 30),
+            diplomacyState: JSON.stringify(diplomacyState)
           }
         });
         
@@ -94,6 +103,7 @@ export async function POST(request: Request) {
             happiness: Math.max(0, game.happiness - 30),
             military: Math.max(0, game.military - 40),
             popularity: Math.max(0, game.popularity - 30),
+            diplomacyState: JSON.stringify(diplomacyState)
           }
         });
         

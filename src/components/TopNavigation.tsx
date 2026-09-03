@@ -25,6 +25,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
   let budgetBreakdown: BudgetBreakdown | null = null;
   const [showBudgetTooltip, setShowBudgetTooltip] = useState(false); // Can be removed later
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [isArgeModalOpen, setIsArgeModalOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState<"energy" | "food" | "materials" | "popularity" | "politicalCapital" | null>(null);
   
   let leaderProfile = { name: "Dengeli", icon: "👤", color: "text-slate-400 border-slate-600/30" };
@@ -60,16 +61,33 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
     budgetBreakdown = calculateNetBudget(gameData, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags);
     netIncome = budgetBreakdown.totalNet;
 
-    let baseRP = 2;
-    if (gameData.education > 60) {
-      baseRP += Math.round((gameData.education - 60) / 3);
-    } else if (gameData.education < 40) {
-      baseRP = Math.max(0, baseRP - 1);
-    }
+    let baseRP = 0;
+    
+    // 1. Eğitim Katkısı (Eğitim 75'i geçerse)
+    const eduContribution = gameData.education >= 75 ? Math.floor((gameData.education - 70) / 10) : 0;
+    baseRP += eduContribution;
+    
+    // 2. Bakan Katkısı (Eğitim Bakanı varsa)
+    const hasEduMinister = Object.values(ministers).includes("min_edu");
+    if (hasEduMinister) baseRP += 1;
+    
+    // 3. Mega Proje Katkısı (Uzay Programı)
+    let megaProjects: string[] = [];
+    try { megaProjects = JSON.parse(gameData.megaProjects || "[]"); } catch {}
+    const hasSpaceProgram = megaProjects.includes("space_program");
+    if (hasSpaceProgram) baseRP += 2;
+    
+    // 4. Eksi Yaptırım (Eğitim düşükse veya bütçe eksi ise Ar-Ge durur)
+    if (gameData.education < 40) baseRP = 0;
+    if (netIncome < 0) baseRP = Math.max(0, baseRP - 1);
+    
+    // 5. Kuantum Çarpanı
     if (unlockedTechs.includes("quantum_computing")) {
       baseRP = Math.round(baseRP * 1.5);
     }
-    rpGain = baseRP;
+    
+    // Güvenlik: Asla sıfırın altına inmesin
+    rpGain = Math.max(0, baseRP);
   }
 
   return (
@@ -212,7 +230,10 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
           )}
 
           {gameData && (
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 text-blue-400 shadow-inner md:ml-4">
+            <div 
+              onClick={() => setIsArgeModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-blue-500/30 text-blue-400 shadow-inner cursor-pointer hover:bg-blue-950/40 transition-colors md:ml-4"
+            >
               <span className="text-xl">🔬</span>
               <div>
                 <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">AR-GE</p>
@@ -272,6 +293,75 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         netIncome={netIncome}
         projectedInvestments={projectedInvestments}
       />
+
+      {/* AR-GE (RP) Detay Modalı */}
+      {isArgeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-blue-500/30 rounded-2xl p-6 max-w-sm w-full shadow-[0_0_40px_rgba(59,130,246,0.2)]">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-[family-name:var(--font-display)] font-bold text-blue-400 flex items-center gap-2">
+                <span className="text-2xl">🔬</span> Ar-Ge Puanı (RP)
+              </h3>
+              <button onClick={() => setIsArgeModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+            
+            <p className="text-sm text-slate-300 mb-4 border-b border-white/10 pb-4">
+              Ar-Ge (Araştırma ve Geliştirme) puanı, Teknoloji Ağacındaki buluşları açmak için kullanılır. RP kazanmak kolay değildir; ülkenizin entelektüel ve bilimsel kapasitesine bağlıdır.
+            </p>
+
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-400">Temel Üretim</span>
+                <span className="font-bold text-white">0</span>
+              </div>
+              
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-400" title="Eğitim 75'i geçtiğinde bonus verir">Eğitim Seviyesi ({gameData?.education})</span>
+                <span className={`font-bold ${gameData && gameData.education >= 75 ? 'text-green-400' : 'text-slate-500'}`}>
+                  {gameData && gameData.education >= 75 ? `+${Math.floor((gameData.education - 70) / 10)}` : '0'}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-400" title="Eğitim Bakanı ekstra 1 puan sağlar">Bakan (Eğitim)</span>
+                <span className={`font-bold ${gameData && Object.values(JSON.parse(gameData.ministers || "{}")).includes("min_edu") ? 'text-green-400' : 'text-slate-500'}`}>
+                  {gameData && Object.values(JSON.parse(gameData.ministers || "{}")).includes("min_edu") ? '+1' : '0'}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-400" title="Uzay Programı mega projesi +2 RP sağlar">Uzay Programı (Mega Proje)</span>
+                <span className={`font-bold ${gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? 'text-green-400' : 'text-slate-500'}`}>
+                  {gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? '+2' : '0'}
+                </span>
+              </div>
+
+              {netIncome < 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-red-400" title="Bütçe açığı Ar-Ge yatırımlarını yavaşlatır">Bütçe Açığı Cezası</span>
+                  <span className="font-bold text-red-400">-1</span>
+                </div>
+              )}
+              {gameData && gameData.education < 40 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-red-400" title="Eğitim 40'ın altındayken bilim yapılamaz">Eğitim Çöküşü</span>
+                  <span className="font-bold text-red-400">Üretim Durdu</span>
+                </div>
+              )}
+
+              <div className="border-t border-white/10 my-2 pt-2 flex justify-between items-center">
+                <span className="font-bold text-blue-400">Net Tur Kazanımı</span>
+                <span className="font-bold text-xl text-blue-400">+{rpGain}</span>
+              </div>
+            </div>
+
+            <div className="text-xs text-blue-300/70 bg-blue-900/20 p-3 rounded-lg border border-blue-500/20">
+              <strong>Nasıl Arttırılır?</strong><br/>
+              Eğitim bütçesini yüksek tutun, Eğitim bakanını görevlendirin veya büyük bilimsel Mega Projeleri tamamlayın.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

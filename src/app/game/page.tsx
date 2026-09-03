@@ -137,6 +137,21 @@ function GameContent() {
     fetchGameState();
   }, [fetchGameState]);
 
+  const [prevAchievementsCount, setPrevAchievementsCount] = useState(0);
+
+  useEffect(() => {
+    if (game && game.achievements) {
+      try {
+        const arr = JSON.parse(game.achievements);
+        if (arr.length > prevAchievementsCount && prevAchievementsCount > 0) {
+          alert(`🏆 YENİ BAŞARIM KAZANILDI! Zafer Karnesini kontrol edin!`);
+          playAlertSound();
+        }
+        setPrevAchievementsCount(arr.length);
+      } catch (e) {}
+    }
+  }, [game?.achievements]);
+
   // CHEAT CODES (GOD MODE) LISTENER
   useEffect(() => {
     let keyBuffer = "";
@@ -176,9 +191,6 @@ function GameContent() {
         keyBuffer = "";
       } else if (keyBuffer.endsWith("ozan")) {
         triggerCheat("ozan");
-        keyBuffer = "";
-      } else if (keyBuffer.endsWith("kaos")) {
-        triggerCheat("kaos");
         keyBuffer = "";
       }
     };

@@ -633,44 +633,41 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // ==========================================
   // AR-GE PUANI (RESEARCH POINTS) ÜRETİMİ
   // ==========================================
-  let baseRP = 2; // Taban puan
+  let baseRP = 0; 
   
-  // Eğitim en temel itici güç. (60'tan sonra her 10 eğitim puanı için +2 RP)
-  if (state.education >= 60) {
-    baseRP += Math.floor((state.education - 60) / 10) * 2;
+  // 1. Eğitim Katkısı (Eğitim 75'i geçerse)
+  if (state.education >= 75) {
+    baseRP += Math.floor((state.education - 70) / 10);
   }
-
-  // Bütçe Gücü (Ar-ge yatırımları için çok daha yüksek meblağlar lazım)
-  if (state.budget >= 100000) baseRP += 1;
-  if (state.budget >= 500000) baseRP += 2;
-  if (state.budget >= 1500000) baseRP += 4;
-
-  // Materyal Emtiası (Hammadde)
-  if ((state.materials || 0) >= 200) baseRP += 1;
-  if ((state.materials || 0) >= 500) baseRP += 3;
-
-  // İstikrar & Sağlık (Huzurlu beyinler daha iyi çalışır)
-  if (state.stability >= 85 && state.health >= 85) baseRP += 2;
-
-  // Yapay Zeka Devrimi (Kartopu)
-  if (eventFlags.includes("ai_singularity")) {
-    baseRP += 8; // Eskiden 15'ti, çok güçlü olmaması için düşürüldü
-  }
-
-  if (state.education < 40) {
-    baseRP = Math.max(1, baseRP - 1); // Cahillik cezası
-  }
-
+  
+  // 2. Bakan Katkısı (Eğitim Bakanı varsa)
+  const hasEduMinister = Object.values(ministers).includes("min_edu" as any);
+  if (hasEduMinister) baseRP += 1;
+  
+  // 3. Mega Proje Katkısı (Uzay Programı)
+  let megaProjectsRP: string[] = [];
+  try { megaProjectsRP = JSON.parse(state.megaProjects || "[]"); } catch {}
+  const hasSpaceProgram = megaProjectsRP.includes("space_program");
+  if (hasSpaceProgram) baseRP += 2;
+  
+  // 4. Eksi Yaptırım (Eğitim düşükse veya bütçe eksi ise Ar-Ge yavaşlar)
+  if (state.education < 40) baseRP = 0;
+  
+  // 5. Kuantum Çarpanı
   if (unlockedTechs.includes("quantum_computing")) {
     baseRP = Math.round(baseRP * 1.5);
   }
+  
+  // Güvenlik
+  baseRP = Math.max(0, baseRP);
   
   // Zorluk bazlı RP çarpanı
   let rpDiffMultiplier = 1.0;
   if (difficulty === "Kolay") rpDiffMultiplier = 1.5;
   else if (difficulty === "Zor") rpDiffMultiplier = 0.75;
   else if (difficulty === "Çok Zor") rpDiffMultiplier = 0.5;
-  baseRP = Math.max(1, Math.round(baseRP * rpDiffMultiplier));
+  
+  baseRP = Math.floor(baseRP * rpDiffMultiplier);
   
   state.researchPoints += baseRP;
   turnReports.push(`🔬 Araştırma Puanı (RP) kazanıldı: +${baseRP}`);
@@ -1466,7 +1463,7 @@ export const ACHIEVEMENTS_DATA: Achievement[] = [
   { id: "mars_30", title: "Uzay Öncüsü", description: "Mars Kolonisini 30 Turda Kuran İlk Başkan", icon: "🚀" },
   { id: "utopia_peace", title: "Barışçıl Ütopya", description: "Yüksek dış ilişkilerle Ütopya Şehrini İnşa Eden Lider", icon: "🕊️" },
   { id: "pop_idol", title: "Halkın Sevgilisi", description: "Başkanlık desteğini %95'in üzerine çıkar", icon: "💖" },
-  { id: "economic_miracle", title: "Ekonomik Mucize", description: "Enflasyonu %2'nin altına düşürüp devasa bütçe yap", icon: "💹" },
+  { id: "economic_miracle", title: "Ekonomik Mucize", description: "Enflasyonu %2'ye düşürüp devasa bütçe yap", icon: "💹" },
   { id: "eco_warrior", title: "Eko Savaşçı", description: "Çevreyi %95 yapıp kıtlığı bitir", icon: "🌳" }
 ];
 
@@ -1489,7 +1486,7 @@ export function checkAchievements(state: GameState): { newAchievements: Achievem
   if (!unlockedIds.includes("pop_idol") && state.popularity >= 95) {
     newlyUnlocked.push(ACHIEVEMENTS_DATA.find(a => a.id === "pop_idol")!);
   }
-  if (!unlockedIds.includes("economic_miracle") && state.budget >= 1000000 && state.inflation < 2) {
+  if (!unlockedIds.includes("economic_miracle") && state.budget >= 1000000 && state.inflation <= 2) {
     newlyUnlocked.push(ACHIEVEMENTS_DATA.find(a => a.id === "economic_miracle")!);
   }
   if (!unlockedIds.includes("eco_warrior") && state.environment >= 95 && state.food >= 90) {
