@@ -680,26 +680,26 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // ==========================================
   // AR-GE PUANI (RESEARCH POINTS) ÜRETİMİ
   // ==========================================
-  let baseRP = 3; // Temel üretim (Pasif ekstra)
+  let baseRP = 10; // Temel üretim
   
   // Teknoloji ağacından gelen ekstra AR-GE kazanımı
-  if (unlockedTechs.includes("ai_infrastructure")) baseRP += 1;
-  if (unlockedTechs.includes("advanced_robotics")) baseRP += 1;
+  if (unlockedTechs.includes("ai_infrastructure")) baseRP += 3;
+  if (unlockedTechs.includes("advanced_robotics")) baseRP += 3;
   
   // 1. Eğitim Katkısı (Eğitim 75'i geçerse)
   if (state.education >= 75) {
-    baseRP += Math.floor((state.education - 70) / 10);
+    baseRP += Math.floor((state.education - 70) / 10) * 2;
   }
   
   // 2. Bakan Katkısı (Eğitim Bakanı varsa)
-  const hasEduMinister = Object.values(ministers).includes("min_edu" as any);
-  if (hasEduMinister) baseRP += 1;
+  const hasEduMinister = !!ministers["education"];
+  if (hasEduMinister) baseRP += 5;
   
   // 3. Mega Proje Katkısı (Uzay Programı)
   let megaProjectsRP: string[] = [];
   try { megaProjectsRP = JSON.parse(state.megaProjects || "[]"); } catch {}
   const hasSpaceProgram = megaProjectsRP.includes("space_program");
-  if (hasSpaceProgram) baseRP += 2;
+  if (hasSpaceProgram) baseRP += 10;
   
   // 4. Eksi Yaptırım (Eğitim düşükse veya bütçe eksi ise Ar-Ge yavaşlar)
   if (state.education < 40) baseRP = 0;

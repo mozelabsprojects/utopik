@@ -88,21 +88,24 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
     budgetBreakdown = calculateNetBudget(gameData, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags, gameData.tradeAgreements || []);
     netIncome = budgetBreakdown.totalNet;
 
-    let baseRP = 1; // Artık temel üretim 1 (tamamen durmasın diye)
+    let baseRP = 10; // Temel üretim
+    
+    if (unlockedTechs.includes("ai_infrastructure")) baseRP += 3;
+    if (unlockedTechs.includes("advanced_robotics")) baseRP += 3;
     
     // 1. Eğitim Katkısı (Eğitim 75'i geçerse)
-    const eduContribution = gameData.education >= 75 ? Math.floor((gameData.education - 70) / 10) : 0;
+    const eduContribution = gameData.education >= 75 ? Math.floor((gameData.education - 70) / 10) * 2 : 0;
     baseRP += eduContribution;
     
     // 2. Bakan Katkısı (Eğitim Bakanı varsa)
-    const hasEduMinister = Object.values(ministers).includes("min_edu");
-    if (hasEduMinister) baseRP += 1;
+    const hasEduMinister = !!ministers["education"];
+    if (hasEduMinister) baseRP += 5;
     
     // 3. Mega Proje Katkısı (Uzay Programı)
     let megaProjects: string[] = [];
     try { megaProjects = JSON.parse(gameData.megaProjects || "[]"); } catch {}
     const hasSpaceProgram = megaProjects.includes("space_program");
-    if (hasSpaceProgram) baseRP += 2;
+    if (hasSpaceProgram) baseRP += 10;
     
     // 4. Eksi Yaptırım (Eğitim düşükse Ar-Ge durur)
     if (gameData.education < 40) baseRP = 0;
@@ -383,41 +386,41 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                   
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-slate-400">Temel Üretim</span>
-                    <span className="font-bold text-white">3</span>
+                    <span className="font-bold text-white">10</span>
                   </div>
                   
                   {gameData && JSON.parse(gameData.unlockedTechs || "[]").includes("ai_infrastructure") && (
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-slate-400" title="Yapay Zeka Altyapısı Teknolojisi">Yapay Zeka Altyapısı (Teknoloji)</span>
-                      <span className="font-bold text-green-400">+1</span>
+                      <span className="font-bold text-green-400">+3</span>
                     </div>
                   )}
                   
                   {gameData && JSON.parse(gameData.unlockedTechs || "[]").includes("advanced_robotics") && (
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-slate-400" title="İleri Robotik Teknolojisi">İleri Robotik (Teknoloji)</span>
-                      <span className="font-bold text-green-400">+1</span>
+                      <span className="font-bold text-green-400">+3</span>
                     </div>
                   )}
                   
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-slate-400" title="Eğitim 75'i geçtiğinde bonus verir">Eğitim Seviyesi ({gameData?.education})</span>
                     <span className={`font-bold ${gameData && gameData.education >= 75 ? 'text-green-400' : 'text-slate-500'}`}>
-                      {gameData && gameData.education >= 75 ? `+${Math.floor((gameData.education - 70) / 10)}` : '0'}
+                      {gameData && gameData.education >= 75 ? `+${Math.floor((gameData.education - 70) / 10) * 2}` : '0'}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-400" title="Eğitim Bakanı ekstra 1 puan sağlar">Bakan (Eğitim)</span>
-                    <span className={`font-bold ${gameData && Object.values(JSON.parse(gameData.ministers || "{}")).includes("min_edu") ? 'text-green-400' : 'text-slate-500'}`}>
-                      {gameData && Object.values(JSON.parse(gameData.ministers || "{}")).includes("min_edu") ? '+1' : '0'}
+                    <span className="text-slate-400" title="Eğitim Bakanı ekstra 5 puan sağlar">Bakan (Eğitim)</span>
+                    <span className={`font-bold ${gameData && JSON.parse(gameData.ministers || "{}")["education"] ? 'text-green-400' : 'text-slate-500'}`}>
+                      {gameData && JSON.parse(gameData.ministers || "{}")["education"] ? '+5' : '0'}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-400" title="Uzay Programı mega projesi +2 RP sağlar">Uzay Programı (Mega Proje)</span>
+                    <span className="text-slate-400" title="Uzay Programı mega projesi +10 RP sağlar">Uzay Programı (Mega Proje)</span>
                     <span className={`font-bold ${gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? 'text-green-400' : 'text-slate-500'}`}>
-                      {gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? '+2' : '0'}
+                      {gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? '+10' : '0'}
                     </span>
                   </div>
 
