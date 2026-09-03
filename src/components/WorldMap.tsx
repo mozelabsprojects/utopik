@@ -183,8 +183,21 @@ export default function WorldMap({ countries, gameState, onTrade, onUpdate }: Wo
             </div>
 
             {tradeMessage && (
-              <div className={`p-4 rounded-lg mb-6 text-sm ${tradeMessage.type === 'success' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
-                {tradeMessage.text}
+              <div className={`p-6 rounded-2xl mb-6 text-base font-bold shadow-2xl relative overflow-hidden transition-all duration-300 ${
+                tradeMessage.type === 'success' 
+                ? 'bg-green-950/80 text-green-300 border border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.3)]' 
+                : 'bg-red-950/90 text-white border-2 border-red-500 shadow-[0_0_40px_rgba(239,68,68,0.6)] animate-pulse'
+              }`}>
+                {tradeMessage.type === 'error' && (
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 via-red-400 to-red-600"></div>
+                )}
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl mt-0.5">{tradeMessage.type === 'success' ? '✅' : '🚨'}</span>
+                  <div>
+                    {tradeMessage.type === 'error' && <h4 className="text-red-400 font-black uppercase tracking-widest text-[10px] mb-1">TİCARET BAŞARISIZ! CİDDİ ZARAR</h4>}
+                    <p className="leading-snug">{tradeMessage.text}</p>
+                  </div>
+                </div>
               </div>
             )}
 

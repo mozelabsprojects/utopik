@@ -13,7 +13,7 @@ export const EVENTS: GameEvent[] = [
     title: "Dijital Göçebeler Ülkeye Akın Ediyor",
     description: "Dünyanın dört bir yanından yazılımcılar ve freelancer'lar, güzel iklimimiz ve ucuz hayatımız için ülkemize yerleşmeye başladı. Ancak yerel halk kiraların artmasından şikayetçi.",
     category: "ekonomi",
-    minTurn: 5,
+    minTurn: 10,
     choices: [
       {
         label: "A",
@@ -116,7 +116,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Sanal arsalardan 'Dijital Emlak Vergisi' al.",
         effects: { budget: 1500, happiness: -5, stability: 3 },
-        
+
         hint: "Havadan iyi para kazanırsınız ama yatırımcılar küser. (+Bütçe Geliri)",
       },
       {
@@ -222,7 +222,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Devlet güvenceli Ulusal Kripto Borsa'sı kur ve vergilendir.",
         effects: { budget: 1500, stability: 3, happiness: -3 },
-        factionEffects: { nationalists: 5},
+        factionEffects: { nationalists: 5 },
         hint: "Güzel bir bütçe geliri elde edersiniz, ancak özgürlükçüler kızar."
       },
       {
@@ -261,7 +261,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "İşsiz kalanlara 'Evrensel Temel Gelir' (UBI) bağla.",
         effects: { budget: -1500, happiness: 10, stability: 5 },
-        factionEffects: { workers: 13},
+        factionEffects: { workers: 13 },
         hint: "Halk sizi kahraman ilan eder ancak Hazine büyük yara alır. (-Bütçe Gideri)",
       },
       {
@@ -394,7 +394,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Sadece içerik üreticilerine ağır vergiler ve denetim getir.",
         effects: { budget: 800, stability: 3, happiness: -3 },
-        factionEffects: { workers: 5},
+        factionEffects: { workers: 5 },
         hint: "Devlete harika bir ek gelir kaynağı yaratır."
       },
       {
@@ -492,7 +492,7 @@ export const EVENTS: GameEvent[] = [
         label: "C",
         text: "Madeni çevreye zarar vermemek için kapalı tut.",
         effects: { budget: 0, environment: 8, happiness: -3 },
-        factionEffects: { intellectuals: 10},
+        factionEffects: { intellectuals: 10 },
         hint: "Para kazanamazsınız ama doğayı korumak aydınları sevindirir."
       }
     ]
@@ -514,7 +514,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Geliri yerel esnafa ve halka kredi olarak dağıt.",
         effects: { budget: 500, happiness: 8, stability: 3 },
-        factionEffects: { workers: 10},
+        factionEffects: { workers: 10 },
         hint: "Daha az bütçe ama devasa mutluluk artışı."
       }
     ]
@@ -609,7 +609,7 @@ export const EVENTS: GameEvent[] = [
         label: "C",
         text: "Rezervi çıkarma, ormanları milli park ilan et.",
         effects: { budget: 0, environment: 8, happiness: 5 },
-        factionEffects: { intellectuals: 10},
+        factionEffects: { intellectuals: 10 },
         hint: "Para kazandırmaz ama doğayı korumak halkı ve aydınları çok mutlu eder."
       }
     ]
@@ -660,7 +660,7 @@ export const EVENTS: GameEvent[] = [
         label: "B",
         text: "Ürünleri iç piyasaya çok ucuza sat, enflasyonu düşür.",
         effects: { budget: 300, happiness: 8, health: 5 },
-        factionEffects: { workers: 10},
+        factionEffects: { workers: 10 },
         hint: "Halk sağlıklı ve mutlu olur, cüzdanları rahatlar. (+Bütçe Geliri)",
       }
     ]
@@ -2886,7 +2886,7 @@ export const EVENTS: GameEvent[] = [
     title: "Sıkıyönetim Kararnamesi",
     description: "Ülke genelindeki protestolar kontrolden çıkıyor. Meclis, orduya sınırsız yetki veren ve ülkeyi 5 tur boyunca Sıkıyönetim ile yönetecek olan kararnameyi oylamanızı bekliyor.",
     category: "kriz",
-    minTurn: 15,
+    minTurn: 10,
     isSnowball: true,
     choices: [
       {
@@ -2918,7 +2918,7 @@ export const EVENTS: GameEvent[] = [
     title: "Yapay Zeka Devrimi (Singularity Öncesi)",
     description: "Ulusal teknoloji enstitümüz, otonom yapay zeka devrimini başlatacak altyapıyı tamamladı. Bu, 4 tur boyunca ülkeyi bir hiper-üretim merkezine çevirecek ancak enerji ve materyal kaynaklarını tüketecek.",
     category: "cevre",
-    minTurn: 20,
+    minTurn: 10,
     isSnowball: true,
     choices: [
       {
@@ -3023,12 +3023,12 @@ export function getRandomEvent(usedEventIds: string[], eventFlags: string[] = []
     // Tekrarlamayı önlemek için en azından son 3 olayı filtrele
     const recentEvents = usedEventIds.slice(-3);
     let fallbackEvents = EVENTS.filter(e => (!e.requiredFlags || e.requiredFlags.length === 0) && !recentEvents.includes(e.id));
-    
+
     // Eğer tüm fallback'ler de tükenmişse mecburen genel fallback yap
     if (fallbackEvents.length === 0) {
-       fallbackEvents = EVENTS.filter(e => !e.requiredFlags || e.requiredFlags.length === 0);
+      fallbackEvents = EVENTS.filter(e => !e.requiredFlags || e.requiredFlags.length === 0);
     }
-    
+
     const randomIndex = Math.floor(Math.random() * fallbackEvents.length);
     return fallbackEvents[randomIndex];
   }
@@ -3065,15 +3065,15 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
     // 5. Zorluk Eğrisi (Progressive Difficulty)
     if (state) {
       let requiredTurn = e.minTurn || 0;
-      
+
       // Krizler asla ilk 15 turda çıkmasın (Oyun başında afet olmasın)
       if (e.category === "kriz") requiredTurn = Math.max(requiredTurn, 16);
-      
+
       // Küresel ambargolar veya devasa cezalı/savaşlı olaylar en az 25. tur
       if (e.id === "global_embargo" || e.id === "kriz_1" || e.id.includes("ambargo")) {
         requiredTurn = Math.max(requiredTurn, 25);
       }
-      
+
       // Pozitif olayların bazıları da erken çıkabilir, ama çok büyük olanları biraz geciktirebiliriz.
       // (Şimdilik ağırlığı negatif/zor olayları ileriye atmak için kullandık)
 
@@ -3092,26 +3092,26 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
     const template = COUNTRIES.find(c => c.name === state.countryName);
     if (template) difficulty = template.difficulty;
   }
-  
+
   for (let i = 0; i < count; i++) {
     if (pool.length === 0) {
       const recentEvents = usedEventIds.slice(-5);
-      let fallbackPool = EVENTS.filter(e => 
-        (!e.requiredFlags || e.requiredFlags.length === 0) && 
-        !e.id.includes("chain") && 
-        e.category !== "kriz" && 
-        !recentEvents.includes(e.id) && 
+      let fallbackPool = EVENTS.filter(e =>
+        (!e.requiredFlags || e.requiredFlags.length === 0) &&
+        !e.id.includes("chain") &&
+        e.category !== "kriz" &&
+        !recentEvents.includes(e.id) &&
         !selectedEvents.find(se => se.id === e.id)
       );
-      
+
       if (fallbackPool.length === 0) {
-        fallbackPool = EVENTS.filter(e => 
-          (!e.requiredFlags || e.requiredFlags.length === 0) && 
-          !e.id.includes("chain") && 
+        fallbackPool = EVENTS.filter(e =>
+          (!e.requiredFlags || e.requiredFlags.length === 0) &&
+          !e.id.includes("chain") &&
           !selectedEvents.find(se => se.id === e.id)
         );
       }
-      
+
       if (fallbackPool.length > 0) {
         const randomIndex = Math.floor(Math.random() * fallbackPool.length);
         selectedEvents.push(fallbackPool[randomIndex]);
@@ -3121,7 +3121,7 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
       // Çeşitlilik: Aynı kategoriden çok fazla olay üst üste gelmesin
       const selectedCategories = selectedEvents.map(e => e.category);
       let filteredPool = pool;
-      
+
       for (const cat of selectedCategories) {
         const tempPool = filteredPool.filter(e => e.category !== cat);
         if (tempPool.length > 0) {
@@ -3139,6 +3139,12 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
           if (e.category === "kriz" || e.category === "askeri" || e.category === "ic_politika") weight *= 2.5;
           if (e.category === "sosyal" || e.category === "cevre") weight *= 0.6;
         }
+
+        // Kartopu etkilerinin karşımıza çıkma şansını DEHŞET derecede artır (50 kat!)
+        if (e.isSnowball) {
+          weight *= 50.0;
+        }
+
         return weight;
       });
 
@@ -3159,7 +3165,7 @@ export function getRandomEvents(count: number, usedEventIds: string[] = [], even
       pool = pool.filter(e => e.id !== chosenEvent.id);
     }
   }
-  
+
   return selectedEvents;
 }
 
