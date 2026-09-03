@@ -21,11 +21,12 @@ export default function WarConfirmationModal({
   if (!isOpen || !targetCountry) return null;
 
   // Hesaplamalar (diplomacy-action ile uyumlu)
-  const isTargetWeaker = playerMilitary > targetCountry.military;
-  const winChance = Math.min(95, Math.max(5, (playerMilitary / (targetCountry.military || 1)) * 50));
+  const pMil = Math.max(1, playerMilitary);
+  const tMil = Math.max(1, targetCountry.military || 1);
+  const winChance = (Math.pow(pMil, 2) / (Math.pow(pMil, 2) + Math.pow(tMil, 2))) * 100;
   
   const estimatedLoot = Math.max(5000, targetCountry.budget + (targetCountry.military * 150) + (targetCountry.stability * 100));
-  const estimatedLoss = Math.max(5000, playerBudget * 0.15);
+  const estimatedLoss = Math.max(15000, playerBudget * 0.30);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">

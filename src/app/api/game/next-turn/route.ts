@@ -286,15 +286,20 @@ export async function POST(request: Request) {
     
     for (const ai of game.worldCountries) {
       if (!ai.isPlayer) {
-        // AI büyümesi: Zorluk çarpanıyla ölçeklenen pozitif büyüme trendi
+        // AI büyümesi: Zorluk çarpanıyla ölçeklenen dengeli büyüme trendi
         const growthBase = aiGrowthMultiplier;
-        let newMilitary = clampStat(ai.military + (Math.random() * 3 * growthBase) + (growthBase * 0.5 - 0.5));
+        
+        // Zayıf ülkelerin aşırı güçlenmesini veya sürekli 100 olmasını engelleyen doğal yıpranma (decay)
+        // Statlar ne kadar yüksekse, düşme eğilimi o kadar artar
+        const milDecay = ai.military > 50 ? (ai.military - 50) * 0.05 : 0;
+        let newMilitary = clampStat(ai.military + (Math.random() * 2 * growthBase) - milDecay - (Math.random() > 0.7 ? 1 : 0));
+        
         let newBudget = Math.max(0, ai.budget + (Math.random() * 300 * growthBase) + (growthBase * 50));
-        let newStability = clampStat(ai.stability + (Math.random() * 3 * growthBase - 1));
-        let newHappiness = clampStat(ai.happiness + (Math.random() * 3 * growthBase - 1));
-        let newHealth = clampStat(ai.health + (Math.random() * 2 * growthBase - 0.5));
+        let newStability = clampStat(ai.stability + (Math.random() * 3 * growthBase - 1.5));
+        let newHappiness = clampStat(ai.happiness + (Math.random() * 3 * growthBase - 1.5));
+        let newHealth = clampStat(ai.health + (Math.random() * 2 * growthBase - 1));
         let newEnvironment = clampStat(ai.environment + (Math.random() * 2 - 1));
-        let newEducation = clampStat(ai.education + (Math.random() * 2 * growthBase - 0.5));
+        let newEducation = clampStat(ai.education + (Math.random() * 2 * growthBase - 1));
 
         const relationship = calculateRelationship(game, ai);
         const dip = diplomacyState[ai.name];

@@ -62,10 +62,14 @@ export async function POST(request: Request) {
         updatedStability -= 15;
       }
 
-      const playerRoll = Math.random() * game.military;
-      const targetRoll = Math.random() * partner.military;
+      // Daha gerçekçi savaş ihtimali (Lanchester's Square Law varyasyonu)
+      const pMil = Math.max(1, game.military);
+      const tMil = Math.max(1, partner.military);
+      const winChance = (Math.pow(pMil, 2) / (Math.pow(pMil, 2) + Math.pow(tMil, 2))) * 100;
       
-      if (playerRoll > targetRoll) {
+      const roll = Math.random() * 100;
+      
+      if (roll <= winChance) {
         // Dinamik Ganimet: Hedefin Bütçesi + (Askeri gücü * 150) + (İstikrarı * 100)
         // Minimum $5,000 ganimet garantisi.
         const loot = Math.max(5000, partner.budget + (partner.military * 150) + (partner.stability * 100));
@@ -91,8 +95,8 @@ export async function POST(request: Request) {
         
         return NextResponse.json({ success: true, message: battleResultText });
       } else {
-        // Kayıp: Oyuncunun bütçesinin %15'i (Eskiden %30'du) veya en az $5000.
-        const loss = Math.max(5000, game.budget * 0.15);
+        // Kayıp: Oyuncunun bütçesinin %30'u veya en az $15000. Zaiyatlar çok daha ağır.
+        const loss = Math.max(15000, game.budget * 0.30);
         updatedBudget -= loss;
         
         battleResultText = `HEZİMET! ${partnerName} ordumuzu darmadağın etti. Savaş tazminatı olarak $${Math.floor(loss).toLocaleString()} kaybettik!`;
@@ -102,10 +106,10 @@ export async function POST(request: Request) {
           data: {
             budget: updatedBudget,
             politicalCapital: updatedPoliticalCapital,
-            stability: Math.max(0, updatedStability - 20),
-            happiness: Math.max(0, game.happiness - 30),
-            military: Math.max(0, game.military - 40),
-            popularity: Math.max(0, game.popularity - 30),
+            stability: Math.max(0, updatedStability - 30),
+            happiness: Math.max(0, game.happiness - 40),
+            military: Math.max(0, game.military - 60),
+            popularity: Math.max(0, game.popularity - 40),
             diplomacyState: JSON.stringify(diplomacyState)
           }
         });
