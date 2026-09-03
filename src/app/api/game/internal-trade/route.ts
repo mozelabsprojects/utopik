@@ -48,21 +48,28 @@ export async function POST(request: Request) {
     const successChance = game.stability / 100;
     const isSuccess = Math.random() < successChance;
     
-    let totalExpectedReturn = 0;
-    let actualReturnPerc = 0;
-    if (isSuccess) {
-      // Başarılı yatırım: +%20 ile +%50 arası kar
-      const baseReturn = 0.20;
-      const variableReturn = Math.random() * 0.30;
-      actualReturnPerc = baseReturn + variableReturn;
-      totalExpectedReturn = investmentAmount * (1 + actualReturnPerc);
-    } else {
-      // Başarısız yatırım (Zarar): %10 ile %50 arası zarar
-      const lossSeverity = 0.1 + (Math.random() * 0.4); // 0.1 - 0.5
-      actualReturnPerc = -lossSeverity;
-      totalExpectedReturn = investmentAmount * (1 + actualReturnPerc);
+    if (!isSuccess) {
+      let lossSeverity = 0.60;
+      if (successChance >= 0.70) lossSeverity = 0.10; // Düşük Risk
+      else if (successChance >= 0.40) lossSeverity = 0.30; // Orta Risk
+
+      const lostAmount = Math.round(investmentAmount * lossSeverity);
+
+      const updatedGame = await prisma.game.update({
+        where: { id: gameId },
+        data: {
+          budget: game.budget - lostAmount,
+          stability: Math.max(0, game.stability - stabilityCost),
+        }
+      });
+      return NextResponse.json({ success: false, message: `Yerel yatırım başarısız oldu. Yolsuzluk ve bürokrasi nedeniyle $${lostAmount} zarar ettiniz.`, newBudget: updatedGame.budget });
     }
-    
+
+    // Başarılı yatırım: +%20 ile +%50 arası kar
+    const baseReturn = 0.20;
+    const variableReturn = Math.random() * 0.30;
+    const actualReturnPerc = baseReturn + variableReturn;
+    const totalExpectedReturn = investmentAmount * (1 + actualReturnPerc);
     const incomePerTurn = Math.round(totalExpectedReturn / 5);
 
     marketState.tradesThisTurn.counts["Yerel Endüstri"] = currentTradesCount + 1;

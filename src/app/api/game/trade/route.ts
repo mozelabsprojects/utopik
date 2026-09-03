@@ -66,17 +66,20 @@ export async function POST(request: Request) {
     
     if (!isSuccess) {
       // Başarısız anlaşma - Anlaşma kurulamadı, paranızın bir kısmı heba oldu
-      const lossSeverity = riskProfile.minLoss + (Math.random() * (riskProfile.maxLoss - riskProfile.minLoss));
+      let lossSeverity = 0.60;
+      if (riskProfile.level === "Düşük") lossSeverity = 0.10;
+      else if (riskProfile.level === "Orta") lossSeverity = 0.30;
+
       const lostAmount = Math.round(investmentAmount * lossSeverity);
       
-      await prisma.game.update({
+      const updatedGame = await prisma.game.update({
         where: { id: gameId },
         data: {
           budget: game.budget - lostAmount,
           foreignRelations: Math.max(0, game.foreignRelations - riskProfile.diplomaticCost),
         }
       });
-      return NextResponse.json({ error: `Ticaret görüşmeleri başarısız oldu. Gümrük ve bürokrasi masrafları nedeniyle $${lostAmount} zarar ettiniz.` }, { status: 400 });
+      return NextResponse.json({ success: false, message: `Ticaret görüşmeleri başarısız oldu. Gümrük ve bürokrasi masrafları nedeniyle $${lostAmount} zarar ettiniz.`, newBudget: updatedGame.budget });
     }
 
     // Başarılı anlaşma

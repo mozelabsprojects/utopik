@@ -32,6 +32,11 @@ export default function WorldMap({ countries, gameState, onTrade, onUpdate }: Wo
     try {
       const data = await onTrade(selectedCountry.name, tradeAmount, selectedCountry.isPlayer);
       
+      if (data && data.success === false) {
+        setTradeMessage({ text: data.message || "Ticaret başarısız oldu.", type: "error" });
+        return;
+      }
+
       const profitStr = data && data.returnPercentage ? `%${data.returnPercentage} kar oranı ile` : "";
       
       setTradeMessage({ text: selectedCountry.isPlayer ? `Yerel şirketlere yatırım yapıldı. Ekonomiye can suyu! (${profitStr})` : `Ticaret anlaşması imzalandı! Önümüzdeki 5 tur boyunca ${profitStr} getiri sağlayacak.`, type: "success" });

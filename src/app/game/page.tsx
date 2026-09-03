@@ -362,7 +362,7 @@ function GameContent() {
       throw new Error(data.error);
     }
     // Update budget locally for instant feedback
-    setGame(prev => prev ? { ...prev, budget: prev.budget - amount } : null);
+    setGame(prev => prev ? { ...prev, budget: data.newBudget !== undefined ? data.newBudget : prev.budget - amount } : null);
     return data;
   };
 
