@@ -69,6 +69,19 @@ export default function MegaProjectsPanel({
             );
           };
 
+          const resReqs = project.requiredResources || {};
+          const getResourceStatus = (key: keyof typeof resReqs, label: string) => {
+            const reqVal = resReqs[key];
+            if (reqVal === undefined) return null;
+            const currentVal = (game as any)[key] || 0;
+            const isMet = currentVal >= reqVal;
+            return (
+              <p key={key} className={isMet ? "text-green-400" : "text-red-400"}>
+                {isMet ? "✔" : "✘"} {label}: {Math.round(currentVal)}/{reqVal}
+              </p>
+            );
+          };
+
           return (
             <div key={project.id} className={`border rounded-xl p-4 transition-all duration-300 ${isCompleted ? 'bg-yellow-500/10 border-yellow-500/50' : 'bg-slate-900/50 border-slate-600'}`}>
               <div className="flex justify-between items-start mb-2">
@@ -99,6 +112,9 @@ export default function MegaProjectsPanel({
                   {getStatStatus("foreignRelations", "Dış İlişkiler")}
                   {getStatStatus("popularity", "Halk Desteği")}
                   {getStatStatus("politicalCapital", "Siyasi Sermaye")}
+                  {getResourceStatus("energy", "Enerji")}
+                  {getResourceStatus("food", "Gıda")}
+                  {getResourceStatus("materials", "Materyal")}
                 </div>
               )}
 

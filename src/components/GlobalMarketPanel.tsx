@@ -397,7 +397,7 @@ export default function GlobalMarketPanel({ gameId, budget, marketStateStr, onUp
         {renderResourceCard("tech", "Teknoloji", "💻", market.prices.tech, market.inventory.tech)}
         {renderResourceCard("medical", "Medikal", "🏥", market.prices.medical, market.inventory.medical)}
         {renderResourceCard("arms", "Silah", "🛡️", market.prices.arms, market.inventory.arms)}
-        {renderResourceCard("minerals", "Maden", "🪨", market.prices.minerals, market.inventory.minerals)}
+        {renderResourceCard("minerals", "Materyal", "🪨", market.prices.minerals, market.inventory.minerals)}
       </div>
     </div>
   );
