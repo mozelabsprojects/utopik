@@ -86,7 +86,7 @@ export async function POST(request: Request) {
           turn: 1,
           budget: country.budget,
           population: country.population,
-          inflation: 5.0,
+          inflation: country.startingInflation ?? 5.0,
           stability: country.stability,
           happiness: country.happiness,
           taxIncome: 0 // İlk turda vergi yok, sonraki turlarda eklenecek

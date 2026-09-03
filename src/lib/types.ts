@@ -128,6 +128,7 @@ export interface CountryTemplate {
   energy?: number;
   food?: number;
   materials?: number;
+  startingInflation?: number;
   regime?: "Demokrasi" | "Otokrasi";
   difficulty: Difficulty;
   description: string;
