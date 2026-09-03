@@ -113,17 +113,17 @@
   /* DİNAMİK ÇAĞ (ERA) TEMALARI                  */
   /* ============================================ */
   
-  /* Era 1: Blueprint & Architecture */
+  /* Era 1: Blueprint & Architecture (Modern UI) */
   .theme-era-1 {
-    --color-bg-main: #0f172a; /* Slate 900 */
+    --color-bg-main: #0b1120; /* Deep blue-gray */
     --color-bg-panel: #1e293b; /* Slate 800 */
     --color-border: #334155; /* Slate 700 */
     --color-text-main: #f8fafc;
     --color-text-muted: #94a3b8;
     
-    --color-accent-primary: #3b82f6; /* Blue 500 */
-    --color-accent-secondary: #0ea5e9; /* Light Blue */
-    --color-accent-glow: rgba(59, 130, 246, 0.1);
+    --color-accent-primary: #3b82f6; /* Solid Blue */
+    --color-accent-secondary: #60a5fa; /* Light Blue */
+    --color-accent-glow: rgba(59, 130, 246, 0.2);
   }
 
   /* Era 2: Chronos Matrix (Industrial/Mechanical) */
@@ -135,34 +135,34 @@
     --color-text-muted: #a3a3a3;
     
     --color-accent-primary: #f59e0b; /* Amber 500 */
-    --color-accent-secondary: #d97706; /* Amber 600 */
-    --color-accent-glow: rgba(245, 158, 11, 0.15);
+    --color-accent-secondary: #fbbf24; /* Amber 400 */
+    --color-accent-glow: rgba(245, 158, 11, 0.2);
   }
 
   /* Era 3: Biomimicry & Tech (Nature meets Tech) */
   .theme-era-3 {
-    --color-bg-main: #064e3b; /* Emerald 900 */
-    --color-bg-panel: #065f46; /* Emerald 800 */
-    --color-border: #047857; /* Emerald 700 */
+    --color-bg-main: #022c22; /* Emerald 950 */
+    --color-bg-panel: #064e3b; /* Emerald 900 */
+    --color-border: #059669; /* Emerald 600 */
     --color-text-main: #ecfdf5;
     --color-text-muted: #6ee7b7;
     
     --color-accent-primary: #10b981; /* Emerald 500 */
     --color-accent-secondary: #34d399; /* Emerald 400 */
-    --color-accent-glow: rgba(16, 185, 129, 0.2);
+    --color-accent-glow: rgba(16, 185, 129, 0.25);
   }
 
   /* Era 4: UTOPIA (Holographic/Futuristic) */
   .theme-era-4 {
-    --color-bg-main: #030014; /* Deep Space Black */
-    --color-bg-panel: #11052C; /* Deep Purple */
-    --color-border: #3B185F; /* Neon Purple Border */
+    --color-bg-main: #09090b; /* Zinc 950 */
+    --color-bg-panel: #18181b; /* Zinc 900 */
+    --color-border: #3f3f46; /* Zinc 700 */
     --color-text-main: #ffffff;
-    --color-text-muted: #d8b4e2;
+    --color-text-muted: #d4d4d8;
     
-    --color-accent-primary: #a855f7; /* Purple 500 */
-    --color-accent-secondary: #f472b6; /* Pink 400 */
-    --color-accent-glow: rgba(168, 85, 247, 0.3);
+    --color-accent-primary: #eab308; /* Yellow 500 (Gold) */
+    --color-accent-secondary: #fef08a; /* Yellow 200 */
+    --color-accent-glow: rgba(234, 179, 8, 0.3);
   }
 }
 
@@ -184,13 +184,58 @@ body {
 }
 
 /* ============================================ */
-/* BACKGROUND TEXTURES                          */
+/* BACKGROUND TEXTURES & ANIMATIONS              */
 /* ============================================ */
 .bg-bureaucracy {
   background-image: 
     radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%),
     repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255, 255, 255, 0.02) 1px, rgba(255, 255, 255, 0.02) 2px);
   background-size: 100% 100%, 4px 4px;
+}
+
+/* Era 1: Blueprint Grid Background */
+.bg-blueprint {
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  animation: bg-pan 30s linear infinite;
+}
+
+/* Era 2: Industrial Background (Smoke/Gears) */
+.bg-industrial {
+  background-image: 
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.1), transparent 40%),
+    radial-gradient(circle at bottom left, rgba(64, 64, 64, 0.4), transparent 50%);
+}
+
+/* Era 3: Cyber/Matrix Scanlines */
+.bg-cyber-scan {
+  background: 
+    linear-gradient(rgba(16, 185, 129, 0.05) 50%, rgba(0, 0, 0, 0.1) 50%),
+    radial-gradient(circle at 50% 50%, transparent 20%, rgba(2, 44, 34, 0.8) 100%);
+  background-size: 100% 4px, 100% 100%;
+}
+
+/* Era 4: Stars */
+.bg-stars {
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 100px 100px;
+  animation: stars-drift 60s linear infinite;
+}
+
+@keyframes bg-pan {
+  from { background-position: 0 0; }
+  to { background-position: -60px -60px; }
+}
+
+@keyframes stars-drift {
+  from { background-position: 0 0; }
+  to { background-position: 200px 200px; }
 }
 
 .theme-crisis .bg-bureaucracy {
@@ -200,7 +245,7 @@ body {
 }
 
 /* ============================================ */
-/* PANELS / GLASS                                */
+/* PANELS / GLASS / HUD                            */
 /* ============================================ */
 .glass {
   background: var(--color-bg-panel);
@@ -213,8 +258,100 @@ body {
   background: var(--color-bg-panel);
   border: 1px solid var(--color-border);
   border-top: 3px solid var(--color-accent-primary);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.5s ease;
+}
+
+.hud-panel {
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border);
+  position: relative;
+  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+  padding: 16px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.hud-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 15px; width: 40px; height: 3px;
+  background: var(--color-accent-primary);
+}
+
+.hud-panel-strong {
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-accent-primary);
+  position: relative;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px));
+  box-shadow: 0 0 15px var(--color-accent-glow), inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================ */
+/* DYNAMIC ACHIEVEMENT OVERLAYS                 */
+/* ============================================ */
+.space-overlay::after {
+  content: '';
+  position: fixed;
+  top: 5%;
+  right: 5%;
+  width: 150px;
+  height: 150px;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: spin-slow 60s linear infinite;
+  z-index: 1;
+}
+
+.space-overlay::before {
+  content: 'ORBITAL STATION ONLINE';
+  position: fixed;
+  top: calc(5% + 75px);
+  right: calc(5% + 75px);
+  transform: translate(50%, -50%);
+  color: rgba(255, 255, 255, 0.2);
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes spin-slow {
+  100% { transform: rotate(360deg); }
+}
+
+.glitch-effect {
+  animation: glitch-skew 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+}
+
+@keyframes glitch-skew {
+  0% { transform: skew(0deg); }
+  20% { transform: skew(-20deg); }
+  21% { transform: skew(20deg); }
+  22% { transform: skew(0deg); }
+  100% { transform: skew(0deg); }
+}
+
+.dictatorship-border {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border: 4px solid rgba(239, 68, 68, 0.3);
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: inset 0 0 50px rgba(239, 68, 68, 0.2);
+}
+
+.dictatorship-border::before {
+  content: 'RESTRICTED SECTOR - CLASSIFIED';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(239, 68, 68, 0.5);
+  font-family: monospace;
+  font-weight: bold;
+  letter-spacing: 5px;
 }
 
 /* ============================================ */
@@ -309,10 +446,16 @@ body {
   50% { box-shadow: inset 0 0 30px 0 var(--color-accent-glow); }
 }
 
+@keyframes ticker {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
 .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .animate-slide-in { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
 .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-ticker { animation: ticker 30s linear infinite; }
 
 .theme-crisis {
   animation: alertPulse 3s infinite;

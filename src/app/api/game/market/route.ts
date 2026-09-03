@@ -46,12 +46,17 @@ export async function POST(request: Request) {
       if (!marketState.lastBoughtTurn) marketState.lastBoughtTurn = {};
       marketState.lastBoughtTurn[resource as keyof typeof marketState.prices] = game.turn;
       
+      let updateData: any = {
+        budget: game.budget - totalCost,
+        marketState: JSON.stringify(marketState)
+      };
+      if (resource === "energy") updateData.energy = Math.min(999, game.energy + amount);
+      if (resource === "food") updateData.food = Math.min(999, game.food + amount);
+      if (resource === "minerals") updateData.materials = Math.min(999, game.materials + amount);
+
       await prisma.game.update({
         where: { id: gameId },
-        data: {
-          budget: game.budget - totalCost,
-          marketState: JSON.stringify(marketState)
-        }
+        data: updateData
       });
     } else if (action === "sell") {
       if (marketState.lastBoughtTurn && marketState.lastBoughtTurn[resource as keyof typeof marketState.prices] === game.turn) {
@@ -63,12 +68,17 @@ export async function POST(request: Request) {
       }
       marketState.inventory[resource as keyof typeof marketState.inventory] -= amount;
 
+      let updateData: any = {
+        budget: game.budget + totalCost,
+        marketState: JSON.stringify(marketState)
+      };
+      if (resource === "energy") updateData.energy = Math.max(0, game.energy - amount);
+      if (resource === "food") updateData.food = Math.max(0, game.food - amount);
+      if (resource === "minerals") updateData.materials = Math.max(0, game.materials - amount);
+
       await prisma.game.update({
         where: { id: gameId },
-        data: {
-          budget: game.budget + totalCost,
-          marketState: JSON.stringify(marketState)
-        }
+        data: updateData
       });
     } else {
       return NextResponse.json({ error: "Geçersiz işlem" }, { status: 400 });

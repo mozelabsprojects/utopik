@@ -120,6 +120,7 @@ export interface CountryTemplate {
   regime?: "Demokrasi" | "Otokrasi";
   difficulty: Difficulty;
   description: string;
+  alignment?: "western" | "eastern" | "neutral";
 }
 
 export interface GameState {
@@ -168,6 +169,15 @@ export interface GameState {
   currentEventId: string | null;
   usedEventIds?: string;
   eventFlags?: string; // JSON string array of flags
+  achievements?: string; // JSON string array of unlocked achievements
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlockedAtTurn?: number;
 }
 
 export interface HistoryRecord {
@@ -212,6 +222,7 @@ export interface WorldCountryState {
   education: number;
   stability: number;
   foreignRelations: number;
+  alignment: "western" | "eastern" | "neutral";
   isPlayer: boolean;
 }
 

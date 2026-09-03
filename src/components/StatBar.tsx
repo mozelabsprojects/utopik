@@ -17,6 +17,7 @@ interface StatBarProps {
 export default function StatBar({ label, value, icon, color, previousValue, projectedGain, pressures, onClick }: StatBarProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isCritical = value < 30;
+  const isExcellent = value >= 90;
   const diff = previousValue !== undefined ? value - previousValue : 0;
 
   const getBarColor = () => {
@@ -26,6 +27,7 @@ export default function StatBar({ label, value, icon, color, previousValue, proj
   };
 
   const getGradient = () => {
+    if (value >= 90) return `linear-gradient(90deg, ${color}, #fbbf24, #fcd34d)`;
     if (value >= 70) return `linear-gradient(90deg, ${color}, #34d399)`;
     if (value >= 40) return `linear-gradient(90deg, ${color}, #fbbf24)`;
     return `linear-gradient(90deg, #ff2d55, #ff6b6b)`;
@@ -36,7 +38,11 @@ export default function StatBar({ label, value, icon, color, previousValue, proj
 
   return (
     <div 
-      className={`relative animate-slide-in ${isCritical ? "animate-pulse-danger rounded-lg" : ""} ${onClick ? 'cursor-pointer hover:bg-white/5 p-2 -m-2 rounded-xl transition-colors' : ''}`}
+      className={`relative animate-slide-in ${
+        isCritical ? "animate-pulse border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] bg-red-950/20" : 
+        isExcellent ? "shadow-[0_0_20px_rgba(251,191,36,0.15)] border border-yellow-500/30" : 
+        "border border-transparent"
+      } rounded-xl ${onClick ? 'cursor-pointer hover:bg-white/5 p-2 transition-all' : 'p-2'}`}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
       onClick={onClick}

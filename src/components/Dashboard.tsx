@@ -70,7 +70,7 @@ export default function Dashboard({ game, previousGame, projectedInvestments }: 
   }, [game, parsedData, unlockedTechsList]);
 
   return (
-    <div className="tutorial-dashboard glass-strong rounded-2xl p-5 animate-slide-up">
+    <div className="tutorial-dashboard hud-panel rounded-none animate-slide-up">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">

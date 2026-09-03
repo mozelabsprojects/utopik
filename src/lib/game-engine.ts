@@ -24,7 +24,20 @@ const BANKRUPTCY_DURATION = 3;
 // A. BAKIM MALİYETLERİ
 import { COUNTRIES } from "./countries-data";
 
-export function getDetailedMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0, population: number = 10.0) {
+export function getDetailedMaintenanceCost(
+  military: number, 
+  health: number, 
+  education: number, 
+  environment: number, 
+  stability: number, 
+  eventFlags: string[] = [], 
+  budget: number = 0, 
+  difficulty: string = "Orta", 
+  unlockedTechs: string[] = [], 
+  inflation: number = 5.0, 
+  population: number = 10.0,
+  factions?: FactionsState
+) {
   // Nüfus ölçeklendirmesi: Karesel kök (Square Root) yaklaşımı ve Soft-Cap
   // Maksimum çarpan 3.0 ile sınırlandırıldı (Çin, Hindistan gibi devler iflas etmesin diye)
   let popScale = Math.max(0.8, Math.sqrt(population / 10));
@@ -39,6 +52,13 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   if (health > 50) healthCost += Math.pow(health - 50, 1.5) * 1.5 * popScale;
   if (education > 50) educationCost += Math.pow(education - 50, 1.5) * 1.5 * popScale;
   if (environment > 50) environmentCost += Math.pow(environment - 50, 1.5) * 1 * popScale;
+
+  // Askeriye Fraksiyon Bonusu (>75 Destek) -> Askeri bakımda %15 indirim
+  let militaryFactionDiscount = 0;
+  if (factions && factions.military && factions.military.support >= 75) {
+    militaryFactionDiscount = militaryCost * 0.15;
+    militaryCost -= militaryFactionDiscount;
+  }
 
   let total = militaryCost + healthCost + educationCost + environmentCost;
   
@@ -64,6 +84,12 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
     const instabilityFactor = (60 - stability); // 1 ile 60 arası
     // Max ceza stabilitesi 0 iken -> 60 * 5 = 300 * popScale. (Eskiden 15 çarpanı vardı, çok agresifti)
     corruptionPenalty = instabilityFactor * 5 * popScale; 
+    
+    // Milliyetçiler Fraksiyon Bonusu (>75 Destek) -> Yolsuzluk cezasını %50 azaltır
+    if (factions && factions.nationalists && factions.nationalists.support >= 75) {
+      corruptionPenalty = corruptionPenalty * 0.5;
+    }
+    
     total += corruptionPenalty;
   }
 
@@ -94,8 +120,21 @@ export function getDetailedMaintenanceCost(military: number, health: number, edu
   };
 }
 
-export function calculateMaintenanceCost(military: number, health: number, education: number, environment: number, stability: number, eventFlags: string[] = [], budget: number = 0, difficulty: string = "Orta", unlockedTechs: string[] = [], inflation: number = 5.0, population: number = 10.0): number {
-  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty, unlockedTechs, inflation, population).total;
+export function calculateMaintenanceCost(
+  military: number, 
+  health: number, 
+  education: number, 
+  environment: number, 
+  stability: number, 
+  eventFlags: string[] = [], 
+  budget: number = 0, 
+  difficulty: string = "Orta", 
+  unlockedTechs: string[] = [], 
+  inflation: number = 5.0, 
+  population: number = 10.0,
+  factions?: FactionsState
+): number {
+  return getDetailedMaintenanceCost(military, health, education, environment, stability, eventFlags, budget, difficulty, unlockedTechs, inflation, population, factions).total;
 }
 
 // ============================================
@@ -224,7 +263,7 @@ export function calculateNetBudget(
 
   let maintenance = calculateMaintenanceCost(
     state.military, state.health, state.education, state.environment, state.stability, 
-    eventFlags, state.budget, difficulty, unlockedTechs, currentInflation, state.population
+    eventFlags, state.budget, difficulty, unlockedTechs, currentInflation, state.population, factions
   );
 
   let special = 0;
@@ -233,6 +272,14 @@ export function calculateNetBudget(
     const conscriptionDiscount = Math.round(maintenance * 0.5);
     maintenance -= conscriptionDiscount;
     if (state.stability >= 85) special += 1500; // Juche bonus
+  }
+
+  // Mega Proje Bonusları
+  let completedProjects: string[] = [];
+  try { completedProjects = JSON.parse(state.megaProjects || "[]"); } catch {}
+  
+  if (completedProjects.includes("nuclear_fusion")) {
+    special += 20000; // Sınırsız Enerji (Nükleer Füzyon)
   }
 
   let laws = 0;
@@ -351,10 +398,10 @@ export function calculateEra(state: Partial<GameState>): number {
   let unlockedTechs: string[] = [];
   try { unlockedTechs = JSON.parse(state.unlockedTechs || "[]"); } catch {}
 
-  let megaProjects: any[] = [];
+  let megaProjects: string[] = [];
   try { megaProjects = JSON.parse(state.megaProjects || "[]"); } catch {}
   
-  const completedProjectsCount = megaProjects.filter(p => p.isCompleted).length;
+  const completedProjectsCount = megaProjects.length;
   const techsCount = unlockedTechs.length;
 
   if (techsCount >= 10 && completedProjectsCount >= 3) return 4; // Era 4: UTOPIA
@@ -507,7 +554,8 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     difficulty,
     unlockedTechs,
     state.inflation,
-    state.population
+    state.population,
+    factions
   );
   let finalTradeIncome = tradeIncome;
 
@@ -704,6 +752,23 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     turnReports.push(`⚠️ MARJİNALLEŞME: Destek bulamayan fraksiyonların radikalleşmesi istikrarı sarsıyor (-${radicalizationPenalty}).`);
   }
 
+  // 6.5 Fraksiyon Pozitif Bonusları (>75 Destek)
+  for (const fId in factions) {
+    if (factions[fId as keyof typeof factions].support >= 75) {
+      if (fId === "workers") {
+        state.health = clampStat(state.health + 1);
+        state.happiness = clampStat(state.happiness + 1);
+        turnReports.push(`👷 İŞÇİ DESTEĞİ: Mutlu işçi sınıfı sayesinde üretim ve yaşam standartları artıyor (+1 Sağlık, +1 Mutluluk).`);
+      } else if (fId === "intellectuals") {
+        state.researchPoints += 2;
+        turnReports.push(`🎓 AYDINLARIN DESTEĞİ: Entelijansiya hükümeti destekliyor, bilimsel atılımlar hızlandı (+2 RP).`);
+      } else if (fId === "nationalists") {
+        state.stability = clampStat(state.stability + 1);
+        turnReports.push(`🦅 MİLLİYETÇİ DESTEĞİ: Muhafazakar kesimin tam desteği sayesinde ülkede asayiş berkemal (+1 İstikrar).`);
+      }
+    }
+  }
+
   // 7. İflas Kontrolü ve IMF Müdahalesi
   const popScale = Math.max(0.8, Math.sqrt(state.population / 10));
   const dynamicBailoutLimit = -(taxIncome * 3); // Dinamik İflas Sınırı (Verginin 3 katı)
@@ -752,6 +817,25 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     }
   }
 
+  // 7.8 Mega Projeler Pasif Bonusları
+  let completedProjects: string[] = [];
+  try { completedProjects = JSON.parse(state.megaProjects || "[]"); } catch {}
+  
+  if (completedProjects.includes("utopia_city")) {
+    state.happiness = clampStat(state.happiness + 2);
+    state.health = clampStat(state.health + 2);
+    state.stability = clampStat(state.stability + 1);
+    turnReports.push(`🏙️ ÜTOPYA ŞEHRİ: Kusursuz yapay zeka yönetimi halkın refahını sürekli artırıyor (+2 Mutluluk/Sağlık, +1 İstikrar).`);
+  }
+  if (completedProjects.includes("world_peace")) {
+    state.foreignRelations = clampStat(state.foreignRelations + 3);
+    turnReports.push(`🕊️ KÜRESEL BARIŞ İTTİFAKI: Tüm dünya ülkeleri size saygı duyuyor (+3 Dış İlişkiler).`);
+  }
+  if (completedProjects.includes("space_program")) {
+    state.researchPoints += 3;
+    turnReports.push(`🚀 MARS KOLONİSİ: Uzay madenciliği ve dünya dışı araştırmalar bilimi uçuruyor (+3 RP).`);
+  }
+
   // 8. Doğal Yıpranma ve Pasif Bonuslar
   // Doğal azalma hiçbir zaman oyuncuyu 0'a düşürüp doğrudan Game Over yapamaz, en fazla 5'te durur.
   state.military = Math.max(5, clampStat(state.military - 1));
@@ -791,25 +875,32 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   const materialConsumption = (state.military * 0.1) + (state.environment > 50 ? 0.5 : 0);
   state.materials = Math.min(100, Math.max(0, (state.materials || 50) + materialProduction - materialConsumption));
 
-  // Kaynak Krizleri
+  // Kaynak Krizleri ve Bolluk
   if (state.food <= 0) {
     state.health = clampStat(state.health - 5);
     state.happiness = clampStat(state.happiness - 5);
     turnReports.push(`🌾 AÇLIK KRİZİ: Ülkede gıda stokları tükendi! Halk açlıktan kırılıyor (Sağlık ve Mutluluk -5).`);
   } else if (state.food > 90) {
     state.health = clampStat(state.health + 1);
+    state.happiness = clampStat(state.happiness + 1);
   }
 
   if (state.energy <= 0) {
     state.budget = state.budget - (1000 * popScaleForResources);
     state.stability = clampStat(state.stability - 5);
     turnReports.push(`⚡ ENERJİ KRİZİ: Elektrik kesintileri sanayiyi durdurdu! Ekonomi ağır hasar aldı (Bütçe ve İstikrar düştü).`);
+  } else if (state.energy > 90) {
+    state.budget += (500 * popScaleForResources);
+    state.education = clampStat(state.education + 1);
   }
 
   if (state.materials <= 0) {
     state.military = clampStat(state.military - 5);
     state.education = clampStat(state.education - 2);
     turnReports.push(`⚙️ MATERYAL EKSİKLİĞİ: Hammadde yetersizliğinden ordu ve altyapı bakımları yapılamıyor (Askeriye -5, Eğitim -2).`);
+  } else if (state.materials > 90) {
+    state.military = clampStat(state.military + 1);
+    state.stability = clampStat(state.stability + 1);
   }
 
   // 10. Tur Artışı
@@ -956,8 +1047,19 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     (factions.nationalists?.support ?? 50);
   
   state.popularity = Math.round(totalSupport / 5);
-  state.politicalCapital = Math.min(999, Math.max(0, state.politicalCapital + 5));
+  
+  // Popülarite Etkileri (Kral Tacı Mekaniği)
+  let pcGain = 5;
+  if (state.popularity >= 80) {
+    pcGain += 10;
+    turnReports.push(`👑 HALKIN SEVGİLİSİ: Yüksek popülariteniz size ekstra Siyasi Sermaye sağlıyor (+10 PC).`);
+  } else if (state.popularity < 30) {
+    pcGain = 0;
+    state.stability = clampStat(state.stability - 5);
+    turnReports.push(`👑 HALK DESTEĞİ ÇÖKTÜ: Düşük popülarite nedeniyle meşruiyetiniz sorgulanıyor (İstikrar -5, Siyasi Sermaye artışı yok).`);
+  }
 
+  state.politicalCapital = Math.min(999, Math.max(0, state.politicalCapital + pcGain));
   // 8.6 Aktif Görevlerin Kontrolü (Başarı ve Başarısızlık)
   let activeQuests: any[] = [];
   try { activeQuests = JSON.parse(state.activeQuests || "[]"); } catch {}
@@ -1314,4 +1416,51 @@ export function calculateTradeRiskProfile(
       diplomaticCost: 5
     };
   }
+}
+
+// ============================================
+// J. BAŞARIM (ACHIEVEMENT) KONTROLÜ
+// ============================================
+import { Achievement } from "./types";
+
+export const ACHIEVEMENTS_DATA: Achievement[] = [
+  { id: "mars_30", title: "Uzay Öncüsü", description: "Mars Kolonisini 30 Turda Kuran İlk Başkan", icon: "🚀" },
+  { id: "utopia_peace", title: "Barışçıl Ütopya", description: "Yüksek dış ilişkilerle Ütopya Şehrini İnşa Eden Lider", icon: "🕊️" },
+  { id: "pop_idol", title: "Halkın Sevgilisi", description: "Başkanlık desteğini %95'in üzerine çıkar", icon: "💖" },
+  { id: "economic_miracle", title: "Ekonomik Mucize", description: "Enflasyonu %2'nin altına düşürüp devasa bütçe yap", icon: "💹" },
+  { id: "eco_warrior", title: "Eko Savaşçı", description: "Çevreyi %95 yapıp kıtlığı bitir", icon: "🌳" }
+];
+
+export function checkAchievements(state: GameState): { newAchievements: Achievement[], updatedAchievementsStr: string } {
+  let unlockedIds: string[] = [];
+  try { unlockedIds = JSON.parse(state.achievements || "[]"); } catch {}
+
+  let completedProjects: string[] = [];
+  try { completedProjects = JSON.parse(state.megaProjects || "[]"); } catch {}
+
+  const newlyUnlocked: Achievement[] = [];
+
+  // Check conditions
+  if (!unlockedIds.includes("mars_30") && state.turn <= 30 && completedProjects.includes("mars_colony")) {
+    newlyUnlocked.push(ACHIEVEMENTS_DATA.find(a => a.id === "mars_30")!);
+  }
+  if (!unlockedIds.includes("utopia_peace") && state.foreignRelations >= 70 && completedProjects.includes("utopia_city")) {
+    newlyUnlocked.push(ACHIEVEMENTS_DATA.find(a => a.id === "utopia_peace")!);
+  }
+  if (!unlockedIds.includes("pop_idol") && state.popularity >= 95) {
+    newlyUnlocked.push(ACHIEVEMENTS_DATA.find(a => a.id === "pop_idol")!);
+  }
+  if (!unlockedIds.includes("economic_miracle") && state.budget >= 1000000 && state.inflation < 2) {
+    newlyUnlocked.push(ACHIEVEMENTS_DATA.find(a => a.id === "economic_miracle")!);
+  }
+  if (!unlockedIds.includes("eco_warrior") && state.environment >= 95 && state.food >= 90) {
+    newlyUnlocked.push(ACHIEVEMENTS_DATA.find(a => a.id === "eco_warrior")!);
+  }
+
+  const allUnlockedIds = [...unlockedIds, ...newlyUnlocked.map(a => a.id)];
+  
+  return {
+    newAchievements: newlyUnlocked,
+    updatedAchievementsStr: JSON.stringify(allUnlockedIds)
+  };
 }

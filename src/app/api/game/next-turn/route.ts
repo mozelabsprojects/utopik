@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { processNextTurn, clampStat, calculateRelationship } from "@/lib/game-engine";
+import { processNextTurn, clampStat, calculateRelationship, checkAchievements } from "@/lib/game-engine";
 import { GameState, MarketState, HistoryRecord } from "@/lib/types";
 import { INITIAL_FACTIONS, modifyFactionSupport, FactionsState } from "@/lib/factions";
+import { COUNTRIES } from "@/lib/countries-data";
 
 export async function POST(request: Request) {
   try {
@@ -251,6 +252,10 @@ export async function POST(request: Request) {
 
     // AI Ülkeleri ve Diplomasi simülasyonu
     const worldCountryOps = [];
+    let totalPower = 0;
+    let westPower = 0;
+    let eastPower = 0;
+    
     for (const ai of game.worldCountries) {
       if (!ai.isPlayer) {
         let newMilitary = clampStat(ai.military + (Math.random() * 4 - 2));
@@ -329,7 +334,40 @@ export async function POST(request: Request) {
             budget: newBudget,
           }
         }));
+
+        const powerScore = clampStat(newMilitary) + (newBudget / 1000) + clampStat(newStability);
+        totalPower += powerScore;
+        const cData = COUNTRIES.find(c => c.name === ai.name);
+        if (cData?.alignment === 'western') westPower += powerScore;
+        else if (cData?.alignment === 'eastern') eastPower += powerScore;
       }
+    }
+
+    // Oyuncu Güç Katkısı (İttifaklara Göre)
+    const playerPowerScore = game.military + (game.budget / 1000) + game.stability;
+    totalPower += playerPowerScore;
+    
+    let playerIsWestern = false;
+    let playerIsEastern = false;
+    Object.entries(diplomacyState).forEach(([name, dip]) => {
+      if (dip.type === 'alliance') {
+        const cd = COUNTRIES.find(c => c.name === name);
+        if (cd?.alignment === 'western') playerIsWestern = true;
+        if (cd?.alignment === 'eastern') playerIsEastern = true;
+      }
+    });
+
+    if (playerIsWestern && !playerIsEastern) westPower += playerPowerScore;
+    else if (playerIsEastern && !playerIsWestern) eastPower += playerPowerScore;
+
+    if (totalPower > 0) {
+      // Ignore activeEmbargoes type error by spreading existing or creating fresh
+      const existingState = diplomacyState as any;
+      diplomacyState = {
+        ...existingState,
+        westernRelations: Math.min(100, Math.max(0, (westPower / totalPower) * 100)),
+        easternRelations: Math.min(100, Math.max(0, (eastPower / totalPower) * 100))
+      } as any;
     }
 
     if (worldCountryOps.length > 0) {
@@ -449,12 +487,24 @@ export async function POST(request: Request) {
       unlockedTechs: game.unlockedTechs,
       inflation: game.inflation,
       activeBonds: JSON.stringify(remainingBonds),
+      achievements: game.achievements,
     };
 
     // Tur hesaplamalarını çalıştır (usedEventIds ve eventFlags aktarılıyor)
     const usedIds: string[] = JSON.parse(game.usedEventIds || '[]');
     const turnResult = processNextTurn(currentState, tradeIncome, usedIds, eventFlags);
     const newState = turnResult.gameState;
+
+    // Başarım Kontrolü
+    const achievementResult = checkAchievements(newState);
+    newState.achievements = achievementResult.updatedAchievementsStr;
+    if (achievementResult.newAchievements.length > 0) {
+      const reports = JSON.parse(newState.turnReports || "[]");
+      achievementResult.newAchievements.forEach(a => {
+        reports.push(`🏆 BAŞARIM KAZANILDI: ${a.icon} ${a.title} - ${a.description}`);
+      });
+      newState.turnReports = JSON.stringify(reports);
+    }
 
     // Kullanılmış olay ID'lerini güncelle
     if (turnResult.newEvents && turnResult.newEvents.length > 0) {
@@ -490,6 +540,9 @@ export async function POST(request: Request) {
         foreignRelations: newState.foreignRelations,
         popularity: newState.popularity,
         politicalCapital: newState.politicalCapital,
+        energy: newState.energy,
+        food: newState.food,
+        materials: newState.materials,
         nextElectionTurn: newState.nextElectionTurn,
         isGameOver: newState.isGameOver,
         gameOverReason: newState.gameOverReason,
@@ -510,6 +563,7 @@ export async function POST(request: Request) {
         unlockedTechs: newState.unlockedTechs,
         inflation: newState.inflation,
         activeBonds: newState.activeBonds,
+        achievements: newState.achievements,
       },
       include: {
         worldCountries: { orderBy: { name: 'asc' } },

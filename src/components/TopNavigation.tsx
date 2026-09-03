@@ -2,8 +2,11 @@
 
 import React, { useState } from "react";
 
+import { GameState } from "@/lib/types";
 import { calculateNetBudget, BudgetBreakdown } from "@/lib/game-engine";
 import { INITIAL_FACTIONS } from "@/lib/factions";
+import ResourceDetailsModal from "./ResourceDetailsModal";
+import BudgetDetailsModal from "./BudgetDetailsModal";
 
 interface TopNavigationProps {
   turn: number;
@@ -12,13 +15,18 @@ interface TopNavigationProps {
   gameData?: import("@/lib/types").GameState;
   onOpenTutorial?: () => void;
   onOpenSettings?: () => void;
+  onOpenAchievements?: () => void;
+  projectedInvestments?: Record<string, number>;
 }
 
-export default function TopNavigation({ turn, budget, politicalCapital, gameData, onOpenTutorial, onOpenSettings }: TopNavigationProps) {
+export default function TopNavigation({ turn, budget, politicalCapital, gameData, onOpenTutorial, onOpenSettings, onOpenAchievements, projectedInvestments }: TopNavigationProps) {
   let netIncome = 0;
   let rpGain = 0;
   let budgetBreakdown: BudgetBreakdown | null = null;
-  const [showBudgetTooltip, setShowBudgetTooltip] = useState(false);
+  const [showBudgetTooltip, setShowBudgetTooltip] = useState(false); // Can be removed later
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<"energy" | "food" | "materials" | "popularity" | "politicalCapital" | null>(null);
+  
   let leaderProfile = { name: "Dengeli", icon: "👤", color: "text-slate-400 border-slate-600/30" };
   
   if (gameData) {
@@ -65,7 +73,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
   }
 
   return (
-    <div className="glass-strong rounded-xl p-3 mb-4 flex flex-col gap-3 animate-slide-in shadow-[0_4px_20px_rgba(0,0,0,0.2)] border border-white/5 relative z-30">
+    <div className="hud-panel-strong rounded-none mb-4 flex flex-col gap-3 animate-slide-in relative z-30">
       
       {/* Üst Sıra: Yönetim & Ekonomi */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-white/5 pb-3">
@@ -89,13 +97,29 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
             </div>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 text-[var(--color-accent-secondary)] shadow-inner">
+          <div 
+            onClick={() => setSelectedResource("politicalCapital")}
+            className="group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 text-[var(--color-accent-secondary)] shadow-inner cursor-pointer transition-colors hover:bg-white/5"
+          >
             <span className="text-xl">📜</span>
             <div>
               <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">POLİTİK SERMAYE</p>
               <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{politicalCapital}</p>
             </div>
           </div>
+
+          {gameData && (
+            <div 
+              onClick={() => setSelectedResource("popularity")}
+              className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner cursor-pointer hover:bg-white/5 transition-colors ${gameData.popularity >= 80 ? 'border-yellow-500/50 text-yellow-400' : (gameData.popularity < 30 ? 'border-red-500/50 text-red-500' : 'border-white/10 text-white')}`}
+            >
+              <span className="text-xl">👑</span>
+              <div>
+                <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">POPÜLARİTE</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">%{gameData.popularity}</p>
+              </div>
+            </div>
+          )}
 
           {gameData && (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 text-purple-400 shadow-inner">
@@ -130,9 +154,8 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
 
           {gameData && (
             <div 
-              className={`relative flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-black/40 cursor-help transition-all shadow-inner ${netIncome >= 0 ? 'border-green-500/30 text-green-400 hover:bg-green-500/10' : 'border-red-500/30 text-red-400 hover:bg-red-500/10'}`}
-              onMouseEnter={() => setShowBudgetTooltip(true)}
-              onMouseLeave={() => setShowBudgetTooltip(false)}
+              className={`relative flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-black/40 cursor-pointer transition-all shadow-inner ${netIncome >= 0 ? 'border-green-500/30 text-green-400 hover:bg-green-500/10' : 'border-red-500/30 text-red-400 hover:bg-red-500/10'}`}
+              onClick={() => setIsBudgetModalOpen(true)}
             >
               <span className="text-xl">{netIncome >= 0 ? "📈" : "📉"}</span>
               <div>
@@ -141,59 +164,6 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                   {netIncome > 0 ? "+" : ""}${netIncome.toLocaleString()}
                 </p>
               </div>
-
-              {/* Bütçe Kırılımı Tooltip */}
-              {showBudgetTooltip && budgetBreakdown && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-[#111827] border border-gray-700 rounded-lg p-3 shadow-2xl z-50 animate-fade-in pointer-events-none">
-                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider border-b border-gray-700 pb-2 mb-2">Net Bütçe Dağılımı</p>
-                  <div className="space-y-1.5 text-sm font-medium">
-                    <div className="flex justify-between items-center text-green-400">
-                      <span>Vergiler</span>
-                      <span>+${budgetBreakdown.tax.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-red-400">
-                      <span>Kamu Masrafları</span>
-                      <span>-${budgetBreakdown.maintenance.toLocaleString()}</span>
-                    </div>
-                    {budgetBreakdown.laws !== 0 && (
-                      <div className={`flex justify-between items-center ${budgetBreakdown.laws > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        <span>Yasalar</span>
-                        <span>{budgetBreakdown.laws > 0 ? '+' : '-'}${Math.abs(budgetBreakdown.laws).toLocaleString()}</span>
-                      </div>
-                    )}
-                    {budgetBreakdown.techs !== 0 && (
-                      <div className={`flex justify-between items-center ${budgetBreakdown.techs > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        <span>Teknolojiler</span>
-                        <span>{budgetBreakdown.techs > 0 ? '+' : '-'}${Math.abs(budgetBreakdown.techs).toLocaleString()}</span>
-                      </div>
-                    )}
-                    {budgetBreakdown.ministers !== 0 && (
-                      <div className={`flex justify-between items-center ${budgetBreakdown.ministers > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        <span>Bakanlar</span>
-                        <span>{budgetBreakdown.ministers > 0 ? '+' : '-'}${Math.abs(budgetBreakdown.ministers).toLocaleString()}</span>
-                      </div>
-                    )}
-                    {budgetBreakdown.crises !== 0 && (
-                      <div className="flex justify-between items-center text-red-400">
-                        <span>Aktif Krizler</span>
-                        <span>-${Math.abs(budgetBreakdown.crises).toLocaleString()}</span>
-                      </div>
-                    )}
-                    {budgetBreakdown.special !== 0 && (
-                      <div className="flex justify-between items-center text-purple-400">
-                        <span>Ülkeye Özel Bonuslar</span>
-                        <span>+${budgetBreakdown.special.toLocaleString()}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-gray-700 flex justify-between items-center font-bold text-white">
-                    <span>Toplam Net</span>
-                    <span className={netIncome >= 0 ? "text-green-400" : "text-red-400"}>
-                      {netIncome > 0 ? "+" : ""}${netIncome.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -206,7 +176,10 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         <div className="flex flex-wrap items-center gap-2">
           {gameData && (
             <>
-              <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${(gameData.energy || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-yellow-400'}`}>
+              <div 
+                onClick={() => setSelectedResource("energy")}
+                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.energy || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-yellow-400 hover:bg-white/5'}`}
+              >
                 <span className="text-xl">⚡</span>
                 <div>
                   <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">ENERJİ</p>
@@ -214,7 +187,10 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                 </div>
               </div>
 
-              <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${(gameData.food || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-green-400'}`}>
+              <div 
+                onClick={() => setSelectedResource("food")}
+                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.food || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-green-400 hover:bg-white/5'}`}
+              >
                 <span className="text-xl">🌾</span>
                 <div>
                   <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">GIDA</p>
@@ -222,7 +198,10 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                 </div>
               </div>
 
-              <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${(gameData.materials || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-gray-400'}`}>
+              <div 
+                onClick={() => setSelectedResource("materials")}
+                className={`group relative flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border cursor-pointer shadow-inner transition-colors ${(gameData.materials || 100) < 20 ? 'border-red-500/50 text-red-500 bg-red-950/30' : 'border-white/10 text-gray-400 hover:bg-white/5'}`}
+              >
                 <span className="text-xl">⚙️</span>
                 <div>
                   <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">MATERYAL</p>
@@ -248,6 +227,13 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         {/* Sağ: Butonlar */}
         <div className="flex gap-2 w-full md:w-auto justify-end">
           <button
+            onClick={onOpenAchievements}
+            className="px-3 py-2 rounded-lg font-bold text-yellow-400 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 transition-all flex items-center justify-center text-sm shadow-sm"
+            title="Zafer Karnesi (Başarımlar)"
+          >
+            <span className="text-lg">🏆</span>
+          </button>
+          <button
             onClick={onOpenSettings}
             className="px-3 py-2 rounded-lg font-bold text-slate-300 bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center justify-center text-sm shadow-sm"
             title="Ayarlar"
@@ -263,6 +249,29 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
           </button>
         </div>
       </div>
+      
+      {/* Detay Modalı */}
+      <ResourceDetailsModal
+        isOpen={selectedResource !== null}
+        onClose={() => setSelectedResource(null)}
+        resourceId={selectedResource}
+        value={
+          selectedResource === "politicalCapital" ? politicalCapital :
+          selectedResource === "popularity" ? (gameData?.popularity || 0) :
+          selectedResource === "energy" ? (gameData?.energy || 100) :
+          selectedResource === "food" ? (gameData?.food || 100) :
+          selectedResource === "materials" ? (gameData?.materials || 100) : 0
+        }
+      />
+      
+      {/* Bütçe Detay Modalı */}
+      <BudgetDetailsModal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+        budgetBreakdown={budgetBreakdown}
+        netIncome={netIncome}
+        projectedInvestments={projectedInvestments}
+      />
     </div>
   );
 }

@@ -93,6 +93,9 @@ export async function POST(request: Request) {
         stability: newState.stability,
         foreignRelations: newState.foreignRelations,
         popularity: newState.popularity,
+        energy: newState.energy,
+        food: newState.food,
+        materials: newState.materials,
         factions: JSON.stringify(factions),
         activePetitions: JSON.stringify(activePetitions),
         turnReports: JSON.stringify(turnReports)

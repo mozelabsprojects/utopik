@@ -26,6 +26,8 @@ import TechTreePanel from "@/components/TechTreePanel";
 import AnalyticsPanel from "@/components/AnalyticsPanel";
 import ElectionModal from "@/components/ElectionModal";
 import VictoryScreen from "@/components/VictoryScreen";
+import AchievementsModal from "@/components/AchievementsModal";
+import NewsTicker from "@/components/NewsTicker";
 import { GameEvent, DominoEffect, Sector, GameState, WorldCountryState } from "@/lib/types";
 import { playClickSound, playTurnSound, playAlertSound } from "@/lib/audio";
 import { generateAdvisorHints, AdvisorHint } from "@/lib/advisor";
@@ -83,6 +85,8 @@ function GameContent() {
 
   // Settings modal state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // Achievements modal state
+  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
   const [uiScale, setUiScale] = useState(100);
 
   useEffect(() => {
@@ -394,22 +398,27 @@ function GameContent() {
   };
 
   const getThemeClass = () => {
-    if (!game) return "theme-default";
+    if (!game) return { theme: "theme-default", bg: "bg-bureaucracy" };
     
     // Eğer oyunda bir diktatörlük/baskı eventFlag'i varsa
     const eventFlags = game.eventFlags ? (typeof game.eventFlags === 'string' ? JSON.parse(game.eventFlags) : game.eventFlags) : [];
-    if (eventFlags.includes("dictatorship")) return "theme-dystopia";
-    if (eventFlags.includes("ai_singularity")) return "theme-cyber";
+    if (eventFlags.includes("dictatorship")) return { theme: "theme-dystopia", bg: "bg-bureaucracy" };
+    if (eventFlags.includes("ai_singularity")) return { theme: "theme-cyber", bg: "bg-cyber-scan" };
     
-    if (game.isBankrupt) return "theme-bankrupt";
+    if (game.isBankrupt) return { theme: "theme-bankrupt", bg: "bg-bureaucracy" };
     
     // Duruma göre renkler
-    if (game.stability < 30 || game.happiness < 30) return "theme-crisis";
-    if (game.military > 80 && game.stability < 50) return "theme-war";
-    if (game.budget > 1000000 && game.happiness > 80 && game.stability > 80) return "theme-utopia";
+    if (game.stability < 30 || game.happiness < 30) return { theme: "theme-crisis", bg: "bg-bureaucracy" };
+    if (game.military > 80 && game.stability < 50) return { theme: "theme-war", bg: "bg-industrial" };
+    if (game.budget > 1000000 && game.happiness > 80 && game.stability > 80) return { theme: "theme-utopia", bg: "bg-stars" };
     
     const era = calculateEra(game);
-    return `theme-era-${era}`;
+    let bg = "bg-blueprint";
+    if (era === 2) bg = "bg-industrial";
+    if (era === 3) bg = "bg-cyber-scan";
+    if (era === 4) bg = "bg-stars";
+
+    return { theme: `theme-era-${era}`, bg };
   };
 
   if (!gameId) {
@@ -441,13 +450,22 @@ function GameContent() {
     );
   }
 
-  const themeClass = getThemeClass();
+  const { theme, bg } = getThemeClass();
+  
+  // Achievement/State overlays
+  let overlays = "";
+  const eventFlags = game.eventFlags ? (typeof game.eventFlags === 'string' ? JSON.parse(game.eventFlags) : game.eventFlags) : [];
+  const megaProjects = game.megaProjects ? (typeof game.megaProjects === 'string' ? JSON.parse(game.megaProjects) : game.megaProjects) : [];
+  const unlockedTechs = game.unlockedTechs ? (typeof game.unlockedTechs === 'string' ? JSON.parse(game.unlockedTechs) : game.unlockedTechs) : [];
+
+  if (eventFlags.includes("dictatorship")) overlays += " dictatorship-border";
+  if (megaProjects.includes("space_program")) overlays += " space-overlay";
+  if (unlockedTechs.includes("quantum_computing")) overlays += " glitch-effect";
 
   return (
     <div 
-      className={`min-h-screen text-slate-100 flex transition-colors duration-1000 ${themeClass}`}
+      className={`min-h-screen text-slate-100 flex transition-colors duration-1000 ${theme} ${bg} ${overlays}`}
       style={{
-        background: 'var(--bg-gradient)',
         zoom: `${uiScale}%`
       }}
     >
@@ -485,9 +503,11 @@ function GameContent() {
           gameData={game}
           onOpenTutorial={() => setIsTutorialOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenAchievements={() => setIsAchievementsOpen(true)}
+          projectedInvestments={projectedInvestments}
         />
         
-        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-12 custom-scrollbar">
           <PetitionsModal 
             gameId={game.id}
             activePetitionsJson={game.activePetitions} 
@@ -700,6 +720,11 @@ function GameContent() {
         uiScale={uiScale} 
         setUiScale={setUiScale} 
       />
+      <AchievementsModal
+        isOpen={isAchievementsOpen}
+        onClose={() => setIsAchievementsOpen(false)}
+        unlockedIdsStr={game.achievements}
+      />
       {/* TOAST BİLDİRİMLERİ (Sağ Alt Köşe) */}
       <div className="fixed bottom-4 right-4 z-[999] flex flex-col gap-2 pointer-events-none">
         <AnimatePresence>
@@ -716,6 +741,8 @@ function GameContent() {
           ))}
         </AnimatePresence>
       </div>
+
+      <NewsTicker gameState={game} />
     </div>
   );
 }

@@ -22,6 +22,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 85,
     regime: "Otokrasi",
     difficulty: "Zor",
+    alignment: "eastern",
     description: "Dünyaya tamamen kapalı. Ambargo nedeniyle dış ticaret geliri çok kısıtlıdır, ancak yüksek istikrar ve mutlak otorite sayesinde zorlu krizleri aşabilir.",
   },
   {
@@ -42,6 +43,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 90,
     regime: "Demokrasi",
     difficulty: "Çok Zor",
+    alignment: "western",
     description:
       "Dünyanın en büyük ekonomisi ve askeri gücü. Aşırı kutuplaşma istikrarı tehdit ediyor, sağlık sistemi pahalı.",
   },
@@ -63,6 +65,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 55,
     regime: "Demokrasi",
     difficulty: "Kolay",
+    alignment: "western",
     description:
       "Kuzeyin refah devleti. Mutluluk ve çevre mükemmel seviyede ancak düşük nüfus ve askeri güç, büyük krizlerde sorun yaratabilir.",
   },
@@ -84,6 +87,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 60,
     regime: "Demokrasi",
     difficulty: "Çok Zor",
+    alignment: "neutral",
     description:
       "Bölgesel güç. Güçlü bir askeri yapıya ve genç nüfusa sahip ancak dinamik dış politika dengeleri yönetimi zorlaştırıyor.",
   },
@@ -105,6 +109,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 70,
     regime: "Demokrasi",
     difficulty: "Çok Zor",
+    alignment: "neutral",
     description:
       "Zengin kaynaklar, derin eşitsizlik. Amazon yangınları çevre puanını tüketirken, düşük eğitim ülkenin potansiyelini kilitliyor.",
   },
@@ -126,6 +131,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 90,
     regime: "Demokrasi",
     difficulty: "Dengeli",
+    alignment: "western",
     description:
       "Teknoloji devi. Mükemmel eğitim ve sağlık, ancak yaşlanan nüfus ve aşırı çalışma kültürü büyümeyi sınırlandırıyor.",
   },
@@ -147,6 +153,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 50,
     regime: "Demokrasi",
     difficulty: "Çok Zor",
+    alignment: "neutral",
     description:
       "Afrika'nın kalabalık devi. Dev potansiyel ama diplerde gezen sağlık, eğitim ve istikrar. Sadece uzman oyuncular için hayatta kalma mücadelesi.",
   },
@@ -168,6 +175,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 80,
     regime: "Demokrasi",
     difficulty: "Dengeli",
+    alignment: "western",
     description:
       "Avrupa'nın motoru. Sanayi ve diplomasi çok güçlü. Enerji geçişi ve dış politikayı dengelemek anahtar kural.",
   },
@@ -189,6 +197,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 90,
     regime: "Otokrasi",
     difficulty: "Çok Zor",
+    alignment: "eastern",
     description:
       "Küresel tecrit altındaki süper güç. Devasa askeri kapasite ve kaynaklar, dibe vurmuş diplomasi ve halk mutluluğu ile birleşiyor.",
   },
@@ -210,6 +219,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 100,
     regime: "Otokrasi",
     difficulty: "Çok Zor",
+    alignment: "eastern",
     description: "Sarsılmaz otorite. İstikrar, bütçe ve üretim kapasitesi devasa, ancak çevre kirliliği sınırları zorluyor.",
   },
   {
@@ -230,6 +240,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 70,
     regime: "Demokrasi",
     difficulty: "Çok Zor",
+    alignment: "neutral",
     description: "Nüfus bombası. Muazzam bir büyüme potansiyeli var ancak temiz su, sağlık ve altyapı krizleri baş ağrıtıcı seviyede.",
   },
   {
@@ -250,6 +261,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 60,
     regime: "Demokrasi",
     difficulty: "Zor",
+    alignment: "western",
     description: "Küresel nüfuzunu korumaya çalışan ada ülkesi. Sağlık sistemi zorlanıyor, ekonomi ise geçmişteki şaşalı günlerini arıyor.",
   },
   {
@@ -270,6 +282,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 90,
     regime: "Demokrasi",
     difficulty: "Dengeli",
+    alignment: "western",
     description: "Aşırı rekabetçi teknoloji merkezi. Eğitim ve sağlık zirvede fakat acımasız sistem halkın mutluluğunu kemiriyor.",
   },
   {
@@ -290,6 +303,7 @@ export const COUNTRIES: (CountryTemplate & { code: string })[] = [
     materials: 40,
     regime: "Otokrasi",
     difficulty: "Dengeli",
+    alignment: "neutral",
     description: "Petrodolar imparatorluğu. Sınırsız bütçeye rağmen doğa can çekişiyor, ekonomi tamamen tek bir kaynağa bağlı.",
   },
 ];
