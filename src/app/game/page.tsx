@@ -541,6 +541,7 @@ function GameContent() {
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenAchievements={() => setIsAchievementsOpen(true)}
           projectedInvestments={projectedInvestments}
+          onUpdate={fetchGameState}
         />
         
         {/* AKTİF KARTOPU ETKİSİ BİLDİRİMİ */}

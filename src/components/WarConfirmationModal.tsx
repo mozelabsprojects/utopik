@@ -24,8 +24,8 @@ export default function WarConfirmationModal({
   const isTargetWeaker = playerMilitary > targetCountry.military;
   const winChance = Math.min(95, Math.max(5, (playerMilitary / (targetCountry.military || 1)) * 50));
   
-  const estimatedLoot = targetCountry.budget * 0.5; // diplomacy-action içindeki aynı oran
-  const estimatedLoss = playerBudget * 0.3; // diplomacy-action içindeki aynı oran
+  const estimatedLoot = Math.max(5000, targetCountry.budget + (targetCountry.military * 150) + (targetCountry.stability * 100));
+  const estimatedLoss = Math.max(5000, playerBudget * 0.15);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">

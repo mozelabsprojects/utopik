@@ -12,21 +12,42 @@ interface TopNavigationProps {
   turn: number;
   budget: number;
   politicalCapital: number;
-  gameData?: import("@/lib/types").GameState;
+  gameData?: any;
   onOpenTutorial?: () => void;
   onOpenSettings?: () => void;
   onOpenAchievements?: () => void;
   projectedInvestments?: Record<string, number>;
+  onUpdate?: () => void;
 }
 
-export default function TopNavigation({ turn, budget, politicalCapital, gameData, onOpenTutorial, onOpenSettings, onOpenAchievements, projectedInvestments }: TopNavigationProps) {
+export default function TopNavigation({ turn, budget, politicalCapital, gameData, onOpenTutorial, onOpenSettings, onOpenAchievements, projectedInvestments, onUpdate }: TopNavigationProps) {
   let netIncome = 0;
   let rpGain = 0;
   let budgetBreakdown: BudgetBreakdown | null = null;
   const [showBudgetTooltip, setShowBudgetTooltip] = useState(false); // Can be removed later
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [isArgeModalOpen, setIsArgeModalOpen] = useState(false);
+  const [isInvestingScience, setIsInvestingScience] = useState(false);
   const [selectedResource, setSelectedResource] = useState<"energy" | "food" | "materials" | "popularity" | "politicalCapital" | null>(null);
+
+  const handleInvestScience = async () => {
+    if (!gameData || gameData.budget < 5000) return;
+    setIsInvestingScience(true);
+    try {
+      const res = await fetch("/api/game/invest-science", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gameId: gameData.id }),
+      });
+      if (res.ok && onUpdate) {
+        onUpdate();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsInvestingScience(false);
+    }
+  };
   
   let leaderProfile = { name: "Dengeli", icon: "👤", color: "text-slate-400 border-slate-600/30" };
   
@@ -61,7 +82,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
     budgetBreakdown = calculateNetBudget(gameData, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags);
     netIncome = budgetBreakdown.totalNet;
 
-    let baseRP = 0;
+    let baseRP = 1; // Artık temel üretim 1 (tamamen durmasın diye)
     
     // 1. Eğitim Katkısı (Eğitim 75'i geçerse)
     const eduContribution = gameData.education >= 75 ? Math.floor((gameData.education - 70) / 10) : 0;
@@ -312,7 +333,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
             <div className="space-y-3 mb-6">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-400">Temel Üretim</span>
-                <span className="font-bold text-white">0</span>
+                <span className="font-bold text-white">1</span>
               </div>
               
               <div className="flex justify-between items-center text-sm">
@@ -355,10 +376,18 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
               </div>
             </div>
 
-            <div className="text-xs text-blue-300/70 bg-blue-900/20 p-3 rounded-lg border border-blue-500/20">
+            <div className="text-xs text-blue-300/70 bg-blue-900/20 p-3 rounded-lg border border-blue-500/20 mb-4">
               <strong>Nasıl Arttırılır?</strong><br/>
               Eğitim bütçesini yüksek tutun, Eğitim bakanını görevlendirin veya büyük bilimsel Mega Projeleri tamamlayın.
             </div>
+
+            <button
+              onClick={handleInvestScience}
+              disabled={isInvestingScience || (gameData?.budget || 0) < 5000}
+              className="w-full py-3 px-4 rounded-xl font-bold bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+            >
+              {isInvestingScience ? "Fonlanıyor..." : "🧪 Bilimi Fonla (-$5000) [+5 RP]"}
+            </button>
           </div>
         </div>
       )}

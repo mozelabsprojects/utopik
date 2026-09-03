@@ -66,12 +66,14 @@ export async function POST(request: Request) {
       const targetRoll = Math.random() * partner.military;
       
       if (playerRoll > targetRoll) {
-        const loot = partner.budget * 0.5;
+        // Dinamik Ganimet: Hedefin Bütçesi + (Askeri gücü * 150) + (İstikrarı * 100)
+        // Minimum $5,000 ganimet garantisi.
+        const loot = Math.max(5000, partner.budget + (partner.military * 150) + (partner.stability * 100));
         updatedBudget += loot;
         const currentEnergy = game.energy || 50;
         const currentFood = game.food || 50;
         
-        battleResultText = `ZAFER! ${partnerName} başarıyla işgal edildi. $${Math.floor(loot)} ganimet ele geçirildi!`;
+        battleResultText = `ZAFER! ${partnerName} başarıyla işgal edildi. $${Math.floor(loot).toLocaleString()} ganimet ele geçirildi!`;
         
         await prisma.game.update({
           where: { id: gameId },
@@ -89,10 +91,11 @@ export async function POST(request: Request) {
         
         return NextResponse.json({ success: true, message: battleResultText });
       } else {
-        const loss = game.budget * 0.3;
+        // Kayıp: Oyuncunun bütçesinin %15'i (Eskiden %30'du) veya en az $5000.
+        const loss = Math.max(5000, game.budget * 0.15);
         updatedBudget -= loss;
         
-        battleResultText = `HEZİMET! ${partnerName} ordumuzu darmadağın etti. Savaş tazminatı olarak $${Math.floor(loss)} kaybettik!`;
+        battleResultText = `HEZİMET! ${partnerName} ordumuzu darmadağın etti. Savaş tazminatı olarak $${Math.floor(loss).toLocaleString()} kaybettik!`;
         
         await prisma.game.update({
           where: { id: gameId },
