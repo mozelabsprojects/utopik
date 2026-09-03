@@ -257,11 +257,44 @@ export async function POST(request: Request) {
     let westPower = 0;
     let eastPower = 0;
     
+    // Zorluk belirleme (ülke datasından)
+    const playerCountryData = COUNTRIES.find(c => c.name === game.countryName);
+    const gameDifficulty = playerCountryData?.difficulty || "Orta";
+    
+    // Zorluk çarpanları: AI'ların ne kadar agresif ve hızlı gelişeceği
+    let aiGrowthMultiplier = 1.0;   // AI büyüme hızı
+    let aiAttackChance = 0.10;       // AI saldırı ihtimali (ilişki kötüyse)
+    let aiEmbargoChance = 0.05;      // AI ambargo ihtimali
+    let aiAllianceOfferChance = 0.0; // AI ittifak teklif etme ihtimali
+    
+    if (gameDifficulty === "Kolay") {
+      aiGrowthMultiplier = 0.5;
+      aiAttackChance = 0.05;
+      aiEmbargoChance = 0.02;
+      aiAllianceOfferChance = 0.15;
+    } else if (gameDifficulty === "Zor") {
+      aiGrowthMultiplier = 1.8;
+      aiAttackChance = 0.20;
+      aiEmbargoChance = 0.10;
+      aiAllianceOfferChance = 0.05;
+    } else if (gameDifficulty === "Çok Zor") {
+      aiGrowthMultiplier = 2.5;
+      aiAttackChance = 0.30;
+      aiEmbargoChance = 0.15;
+      aiAllianceOfferChance = 0.02;
+    }
+    
     for (const ai of game.worldCountries) {
       if (!ai.isPlayer) {
-        let newMilitary = clampStat(ai.military + (Math.random() * 4 - 2));
-        let newBudget = Math.max(0, ai.budget + (Math.random() * 400 - 200));
-        let newStability = clampStat(ai.stability + (Math.random() * 4 - 2));
+        // AI büyümesi: Zorluk çarpanıyla ölçeklenen pozitif büyüme trendi
+        const growthBase = aiGrowthMultiplier;
+        let newMilitary = clampStat(ai.military + (Math.random() * 3 * growthBase) + (growthBase * 0.5 - 0.5));
+        let newBudget = Math.max(0, ai.budget + (Math.random() * 300 * growthBase) + (growthBase * 50));
+        let newStability = clampStat(ai.stability + (Math.random() * 3 * growthBase - 1));
+        let newHappiness = clampStat(ai.happiness + (Math.random() * 3 * growthBase - 1));
+        let newHealth = clampStat(ai.health + (Math.random() * 2 * growthBase - 0.5));
+        let newEnvironment = clampStat(ai.environment + (Math.random() * 2 - 1));
+        let newEducation = clampStat(ai.education + (Math.random() * 2 * growthBase - 0.5));
 
         const relationship = calculateRelationship(game, ai);
         const dip = diplomacyState[ai.name];
@@ -315,11 +348,31 @@ export async function POST(request: Request) {
             aiMessages.push(`📜 BİLGİ: ${ai.name} ile olan ittifak anlaşmamızın süresi doldu.`);
           }
         } else {
-          if (relationship < 15 && newMilitary > game.military + 20) {
-            if (Math.random() < 0.2) {
+          // === DİNAMİK AI SALDIRI MEKANİĞİ ===
+          // 1. Düşük ilişki + güçlü AI = savaş ihtimali (zorluk bazlı)
+          if (relationship < 20 && newMilitary > game.military) {
+            const attackRoll = Math.random();
+            if (attackRoll < aiAttackChance) {
               diplomacyState[ai.name] = { type: 'war', turnsRemaining: -1 };
               aiMessages.push(`⚠️ BEKLENMEDİK SALDIRI: ${ai.name} bize savaş ilan etti! Ordularımız çatışmaya girdi.`);
+            } else if (attackRoll < aiAttackChance + aiEmbargoChance && !diplomacyState.activeEmbargoes?.includes(ai.name)) {
+              // AI ambargo uygulayabilir
+              if (!diplomacyState.activeEmbargoes) diplomacyState.activeEmbargoes = [];
+              diplomacyState.activeEmbargoes.push(ai.name);
+              aiMessages.push(`🚫 DİPLOMATİK GERGİNLİK: ${ai.name} ülkemize ekonomik ambargo uyguladı! Ticari ilişkiler kesildi.`);
+              game.stability = Math.max(0, game.stability - 3);
             }
+          }
+          
+          // 2. Yüksek ilişki + AI zayıfsa ittifak teklifi (Kolay modda daha sık)
+          if (relationship > 60 && !dip && Math.random() < aiAllianceOfferChance) {
+            diplomacyState[ai.name] = { type: 'alliance', turnsRemaining: 5 };
+            aiMessages.push(`🤝 İTTİFAK TEKLİFİ: ${ai.name} güçlü ilişkilerimizi değerlendirerek bize ittifak teklif etti ve kabul edildi!`);
+          }
+          
+          // 3. Güçlü AI bize küçümser mesajlar atabilir (rekabet hissi)
+          if (newBudget > game.budget * 1.5 && newMilitary > game.military && Math.random() < 0.08) {
+            aiMessages.push(`📢 KÜRESEL BASIN: ${ai.name} lideri açıklama yaptı: "Ekonomik ve askeri üstünlüğümüz tartışılmaz. Bazı ülkeler hâlâ bizimle yarışabileceğini sanıyor."`);
           }
         }
 
@@ -327,10 +380,10 @@ export async function POST(request: Request) {
           where: { id: ai.id },
           data: {
             military: clampStat(newMilitary),
-            happiness: clampStat(ai.happiness + (Math.random() * 4 - 2)),
-            health: clampStat(ai.health + (Math.random() * 4 - 2)),
-            environment: clampStat(ai.environment + (Math.random() * 4 - 2)),
-            education: clampStat(ai.education + (Math.random() * 4 - 2)),
+            happiness: clampStat(newHappiness),
+            health: clampStat(newHealth),
+            environment: clampStat(newEnvironment),
+            education: clampStat(newEducation),
             stability: clampStat(newStability),
             budget: newBudget,
           }

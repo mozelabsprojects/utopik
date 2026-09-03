@@ -633,7 +633,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // ==========================================
   // AR-GE PUANI (RESEARCH POINTS) ÜRETİMİ
   // ==========================================
-  let baseRP = 0; 
+  let baseRP = 1; // Temel üretim (TopNavigation ile senkron)
   
   // 1. Eğitim Katkısı (Eğitim 75'i geçerse)
   if (state.education >= 75) {

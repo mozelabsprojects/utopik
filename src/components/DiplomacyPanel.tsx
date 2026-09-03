@@ -162,6 +162,52 @@ export default function DiplomacyPanel({
         </div>
       </div>
 
+      {/* DÜNYA GÜÇ SIRALAMASI */}
+      <div className="bg-black/30 rounded-2xl p-6 border border-white/5 mb-8 relative z-10">
+        <h3 className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center justify-center gap-2">
+          <span className="text-lg">🏆</span> Dünya Güç Sıralaması
+        </h3>
+        
+        {(() => {
+          // Güç puanı: Askeri + Bütçe/1000 + İstikrar + Mutluluk + Eğitim + Sağlık
+          const allCountries = worldCountries.map((c: any) => {
+            const power = Math.round(c.military + (c.budget / 1000) + c.stability + c.happiness + c.education + c.health);
+            return { ...c, power };
+          }).sort((a: any, b: any) => b.power - a.power);
+          
+          return (
+            <div className="space-y-2">
+              {allCountries.map((c: any, i: number) => {
+                const maxPower = allCountries[0]?.power || 1;
+                const barWidth = Math.max(5, (c.power / maxPower) * 100);
+                const isPlayer = c.isPlayer;
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+                
+                return (
+                  <div key={c.id} className={`flex items-center gap-3 p-2 rounded-xl transition-all ${isPlayer ? 'bg-cyan-500/10 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]' : 'bg-white/[0.02] hover:bg-white/5'}`}>
+                    <span className="w-8 text-center font-black text-lg shrink-0">{medal}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-sm font-bold truncate ${isPlayer ? 'text-cyan-400' : 'text-white'}`}>
+                          {c.name} {isPlayer && <span className="text-[10px] bg-cyan-500/20 px-1.5 py-0.5 rounded-full ml-1">SEN</span>}
+                        </span>
+                        <span className={`text-xs font-bold ml-2 shrink-0 ${isPlayer ? 'text-cyan-400' : 'text-slate-400'}`}>{c.power}</span>
+                      </div>
+                      <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-700 ${isPlayer ? 'bg-gradient-to-r from-cyan-500 to-blue-400' : i === 0 ? 'bg-gradient-to-r from-yellow-500 to-amber-400' : 'bg-gradient-to-r from-slate-500 to-slate-400'}`}
+                          style={{ width: `${barWidth}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </div>
+
       <h3 className="text-xl font-bold text-white mb-4 relative z-10 flex items-center gap-2">
         <span className="text-2xl">🗺️</span> Bölgesel Ülkeler
       </h3>
@@ -186,20 +232,45 @@ export default function DiplomacyPanel({
                 {country.military === 0 && <span className="text-[10px] bg-red-500/20 border border-red-500/50 text-red-300 px-2 py-1 rounded-full uppercase tracking-widest">İşgal Altında</span>}
               </h3>
               
-              <div className="grid grid-cols-2 gap-2 text-xs font-medium text-slate-400">
-                <div className="bg-white/5 rounded-lg p-2 flex justify-between">
-                  <span>💰 Bütçe</span>
-                  <span className="text-white">${Math.round(country.budget)}</span>
+              <div className="grid grid-cols-3 gap-1.5 text-xs font-medium text-slate-400">
+                <div className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
+                  <span className="text-[10px] opacity-60">💰 Bütçe</span>
+                  <span className="text-white font-bold">${Math.round(country.budget).toLocaleString()}</span>
                 </div>
-                <div className="bg-white/5 rounded-lg p-2 flex justify-between">
-                  <span>⚔️ Askeri</span>
-                  <span className={military >= country.military ? "text-green-400" : "text-red-400"}>{Math.round(country.military)}</span>
+                <div className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
+                  <span className="text-[10px] opacity-60">⚔️ Askeri</span>
+                  <span className={`font-bold ${military >= country.military ? "text-green-400" : "text-red-400"}`}>{Math.round(country.military)}</span>
                 </div>
-                <div className="bg-white/5 rounded-lg p-2 flex justify-between col-span-2">
-                  <span>🏛️ İstikrar</span>
-                  <span className="text-white">%{Math.round(country.stability)}</span>
+                <div className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
+                  <span className="text-[10px] opacity-60">🏛️ İstikrar</span>
+                  <span className="text-white font-bold">%{Math.round(country.stability)}</span>
+                </div>
+                <div className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
+                  <span className="text-[10px] opacity-60">😊 Mutluluk</span>
+                  <span className="text-white font-bold">%{Math.round(country.happiness)}</span>
+                </div>
+                <div className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
+                  <span className="text-[10px] opacity-60">🏥 Sağlık</span>
+                  <span className="text-white font-bold">%{Math.round(country.health)}</span>
+                </div>
+                <div className="bg-white/5 rounded-lg p-2 flex flex-col items-center">
+                  <span className="text-[10px] opacity-60">🎓 Eğitim</span>
+                  <span className="text-white font-bold">%{Math.round(country.education)}</span>
                 </div>
               </div>
+              
+              {/* Güç Skoru Karşılaştırması */}
+              {(() => {
+                const aiPower = Math.round(country.military + (country.budget / 1000) + country.stability + country.happiness + country.education + country.health);
+                const playerPower = Math.round(military + ((gameState?.budget || 0) / 1000) + (gameState?.stability || 0) + (gameState?.happiness || 0) + (gameState?.education || 0) + (gameState?.health || 0));
+                const diff = playerPower - aiPower;
+                return (
+                  <div className={`mt-2 p-2 rounded-lg border text-xs font-bold text-center ${diff > 0 ? 'bg-green-950/30 border-green-500/20 text-green-400' : diff < -20 ? 'bg-red-950/30 border-red-500/20 text-red-400' : 'bg-yellow-950/30 border-yellow-500/20 text-yellow-400'}`}>
+                    {diff > 20 ? '🟢 Bizden Zayıf' : diff > 0 ? '🟡 Denk Rakip' : diff > -20 ? '🟠 Güçlü Rakip' : '🔴 Çok Üstün'}
+                    <span className="ml-2 opacity-70">Güç: {aiPower}</span>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-2 gap-2">
