@@ -350,8 +350,9 @@ export async function POST(request: Request) {
     
     let playerIsWestern = false;
     let playerIsEastern = false;
-    Object.entries(diplomacyState).forEach(([name, dip]) => {
-      if (dip.type === 'alliance') {
+    Object.entries(diplomacyState).forEach(([name, _dip]) => {
+      const dip = _dip as any;
+      if (dip && dip.type === 'alliance') {
         const cd = COUNTRIES.find(c => c.name === name);
         if (cd?.alignment === 'western') playerIsWestern = true;
         if (cd?.alignment === 'eastern') playerIsEastern = true;
