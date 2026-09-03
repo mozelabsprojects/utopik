@@ -680,20 +680,37 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   // ==========================================
   // AR-GE PUANI (RESEARCH POINTS) ÜRETİMİ
   // ==========================================
-  let baseRP = 10; // Temel üretim
+  let baseRP = 8; // Temel üretim
   
-  // Teknoloji ağacından gelen ekstra AR-GE kazanımı
-  if (unlockedTechs.includes("ai_infrastructure")) baseRP += 3;
-  if (unlockedTechs.includes("advanced_robotics")) baseRP += 3;
+  // Teknoloji bonusları
+  if (unlockedTechs.includes("modern_agriculture")) baseRP += 1;
+  if (unlockedTechs.includes("ai_infrastructure")) baseRP += 1;
+  if (unlockedTechs.includes("advanced_robotics")) baseRP += 2;
+  if (unlockedTechs.includes("cyber_warfare")) baseRP += 2;
   
-  // 1. Eğitim Katkısı (Eğitim 75'i geçerse)
-  if (state.education >= 75) {
-    baseRP += Math.floor((state.education - 70) / 10) * 2;
+  if (unlockedTechs.includes("gene_therapy")) {
+    baseRP += 2;
+    if (state.health >= 90) baseRP += 3; // Sağlık statından ek bonus
+  }
+  
+  if (unlockedTechs.includes("quantum_computing")) {
+    baseRP += 5;
+    if (state.inflation <= 2.0) baseRP += 5; // Düşük enflasyon ek bonusu
+  }
+  
+  if (unlockedTechs.includes("fusion_power")) {
+    baseRP += 5;
+    if (state.environment >= 90) baseRP += 5; // Yüksek çevre ek bonusu
+  }
+  
+  // 1. Eğitim Katkısı (Eğitim 90 ve üzeri ise +3)
+  if (state.education >= 90) {
+    baseRP += 3;
   }
   
   // 2. Bakan Katkısı (Eğitim Bakanı varsa)
   const hasEduMinister = !!ministers["education"];
-  if (hasEduMinister) baseRP += 5;
+  if (hasEduMinister) baseRP += 3;
   
   // 3. Mega Proje Katkısı (Uzay Programı)
   let megaProjectsRP: string[] = [];
@@ -701,13 +718,8 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   const hasSpaceProgram = megaProjectsRP.includes("space_program");
   if (hasSpaceProgram) baseRP += 10;
   
-  // 4. Eksi Yaptırım (Eğitim düşükse veya bütçe eksi ise Ar-Ge yavaşlar)
+  // 4. Eksi Yaptırım (Eğitim düşükse Ar-Ge durur)
   if (state.education < 40) baseRP = 0;
-  
-  // 5. Kuantum Çarpanı
-  if (unlockedTechs.includes("quantum_computing")) {
-    baseRP = Math.round(baseRP * 1.5);
-  }
   
   // Güvenlik
   baseRP = Math.max(0, baseRP);
