@@ -20,7 +20,7 @@ export default function NewsTicker({ gameState }: NewsTickerProps) {
   if (newsList.length === 0) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-8 bg-black/80 backdrop-blur-md border-t border-white/10 z-[40] flex items-center overflow-hidden">
+    <div className="fixed top-0 left-0 right-0 h-8 bg-black/80 backdrop-blur-md border-b border-white/10 z-[60] flex items-center overflow-hidden shadow-lg">
       <div className="bg-cyan-500/20 text-cyan-400 font-bold px-4 h-full flex items-center border-r border-cyan-500/30 whitespace-nowrap z-10 shrink-0 uppercase tracking-widest text-xs">
         <span className="mr-2 animate-pulse text-red-500">●</span> CANLI
       </div>

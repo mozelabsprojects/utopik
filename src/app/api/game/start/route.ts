@@ -6,7 +6,7 @@ import { INITIAL_FACTIONS } from "@/lib/factions";
 
 export async function POST(request: Request) {
   try {
-    const { countryName, leaderProfile } = await request.json();
+    const { countryName, leaderProfile, customData } = await request.json();
 
     const country = COUNTRIES.find((c) => c.name === countryName);
     if (!country) {
@@ -48,6 +48,11 @@ export async function POST(request: Request) {
     const game = await prisma.game.create({
       data: {
         countryName: country.name,
+        presidentName: customData?.presidentName || "Lider",
+        presidentAvatar: customData?.presidentAvatar || "👤",
+        partyName: customData?.partyName || "Bağımsız",
+        partyLogo: customData?.partyLogo || "🕊️",
+        partyColor: customData?.partyColor || "#3b82f6",
         population: country.population,
         budget: country.budget,
         military: country.military,

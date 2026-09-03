@@ -28,6 +28,7 @@ import ElectionModal from "@/components/ElectionModal";
 import VictoryScreen from "@/components/VictoryScreen";
 import AchievementsModal from "@/components/AchievementsModal";
 import NewsTicker from "@/components/NewsTicker";
+import NewspaperIntro from "@/components/NewspaperIntro";
 import { GameEvent, DominoEffect, Sector, GameState, WorldCountryState } from "@/lib/types";
 import { playClickSound, playTurnSound, playAlertSound } from "@/lib/audio";
 import { generateAdvisorHints, AdvisorHint } from "@/lib/advisor";
@@ -46,6 +47,7 @@ function GameContent() {
   const [game, setGame] = useState<GameData | null>(null);
   const [previousGame, setPreviousGame] = useState<GameState | null>(null);
   const [toasts, setToasts] = useState<{id: number, message: string}[]>([]);
+  const [showIntro, setShowIntro] = useState(false);
 
   const addToast = (message: string) => {
     const id = Date.now() + Math.random();
@@ -108,6 +110,14 @@ function GameContent() {
       }
 
       setGame(data.game);
+      
+      // Show Intro if turn 1 and not seen
+      if (data.game.turn === 1 && !localStorage.getItem(`intro_seen_${data.game.id}`)) {
+        console.log("📰 Turn 1 detected! Showing intro.");
+        setShowIntro(true);
+      } else {
+        console.log("📰 Intro not shown. Turn:", data.game.turn, "Seen:", localStorage.getItem(`intro_seen_${data.game.id}`));
+      }
       
       // Save state check for Continue feature
       if (!data.game.isGameOver) {
@@ -507,9 +517,20 @@ function GameContent() {
 
   return (
     <div 
-      className={`min-h-screen transition-colors duration-1000 ${theme} ${bg} ${overlays} text-foreground overflow-hidden flex font-[family-name:var(--font-body)]`}
+      className={`min-h-screen transition-colors duration-1000 ${theme} ${bg} ${overlays} text-foreground overflow-hidden flex font-[family-name:var(--font-body)] pt-8`}
       style={{ zoom: `${uiScale}%` }}
     >
+      
+      {showIntro && game && (
+        <NewspaperIntro 
+          game={game} 
+          onComplete={() => {
+            setShowIntro(false);
+            localStorage.setItem(`intro_seen_${game.id}`, 'true');
+          }} 
+        />
+      )}
+
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
       <div className="flex-1 flex flex-col min-w-0 h-full pb-20 md:pb-4 p-2 md:p-4 max-w-[1600px] mx-auto overflow-hidden relative">

@@ -150,13 +150,27 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         {/* Sol: Yönetim & Siyaset */}
         <div className="flex flex-wrap items-center gap-2">
           
-          <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${leaderProfile.color}`}>
-            <span className="text-xl">{leaderProfile.icon}</span>
-            <div>
-              <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">LİDER DOKTRİNİ</p>
-              <p className="font-[family-name:var(--font-display)] font-bold text-sm leading-none">{leaderProfile.name}</p>
+          {gameData ? (
+            <div className="flex items-center gap-3 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner" style={{ borderColor: gameData.partyColor || '#3b82f6' }}>
+              <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 bg-slate-800" style={{ borderColor: gameData.partyColor || '#3b82f6' }}>
+                <span className="text-3xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%]">{gameData.presidentAvatar || '👤'}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-white leading-none whitespace-nowrap">{gameData.presidentName || 'Lider'}</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-90 whitespace-nowrap" style={{ color: gameData.partyColor || '#3b82f6' }}>
+                  {gameData.partyLogo || '🕊️'} {gameData.partyName || 'Bağımsız'}
+                </span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${leaderProfile.color}`}>
+              <span className="text-xl">{leaderProfile.icon}</span>
+              <div>
+                <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">LİDER DOKTRİNİ</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-sm leading-none">{leaderProfile.name}</p>
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border border-white/10 shadow-inner">
             <span className="text-xl">📅</span>

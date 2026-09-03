@@ -15,13 +15,13 @@ export default function HomePage() {
     if (saved) setSaveId(saved);
   }, []);
 
-  const handleCountrySelect = async (countryName: string, leaderProfile: string) => {
+  const handleCountrySelect = async (countryName: string, leaderProfile: string, customData: any) => {
     setLoading(true);
     try {
       const res = await fetch("/api/game/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ countryName, leaderProfile }),
+        body: JSON.stringify({ countryName, leaderProfile, customData }),
       });
 
       if (!res.ok) {

@@ -13,6 +13,11 @@ datasource db {
 model Game {
   id               String       @id @default(cuid())
   countryName      String
+  presidentName    String       @default("Lider")
+  presidentAvatar  String       @default("👤")
+  partyName        String       @default("Bağımsız")
+  partyLogo        String       @default("🕊️")
+  partyColor       String       @default("#3b82f6")
   turn             Int          @default(1)
   budget           Float        @default(5000)
   military         Float        @default(50)
