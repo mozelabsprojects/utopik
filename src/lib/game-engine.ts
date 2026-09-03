@@ -1279,6 +1279,9 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     }
   }
 
+  // 14. Enflasyonu minimum 2.0'da tut
+  state.inflation = Math.max(2.0, state.inflation);
+
   // Stringify state values back
   state.factions = JSON.stringify(factions);
   state.activeCrises = JSON.stringify(activeCrises);
