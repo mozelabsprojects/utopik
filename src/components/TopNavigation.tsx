@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { GameState } from "@/lib/types";
 import { calculateNetBudget, BudgetBreakdown } from "@/lib/game-engine";
@@ -328,74 +329,110 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
       />
 
       {/* AR-GE (RP) Detay Modalı — createPortal ile body'ye render */}
-      {isArgeModalOpen && mounted && createPortal(
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setIsArgeModalOpen(false)}>
-          <div className="bg-slate-900 border border-blue-500/30 rounded-2xl p-6 max-w-md w-full shadow-[0_0_40px_rgba(59,130,246,0.2)] max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-[family-name:var(--font-display)] font-bold text-blue-400 flex items-center gap-2">
-                <span className="text-2xl">🔬</span> Ar-Ge Puanı (RP)
-              </h3>
-              <button onClick={() => setIsArgeModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
-            </div>
-            
-            <p className="text-sm text-slate-300 mb-4 border-b border-white/10 pb-4">
-              Ar-Ge (Araştırma ve Geliştirme) puanı, Teknoloji Ağacındaki buluşları açmak için kullanılır. RP kazanmak kolay değildir; ülkenizin entelektüel ve bilimsel kapasitesine bağlıdır.
-            </p>
-
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400">Temel Üretim</span>
-                <span className="font-bold text-white">1</span>
-              </div>
-              
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400" title="Eğitim 75'i geçtiğinde bonus verir">Eğitim Seviyesi ({gameData?.education})</span>
-                <span className={`font-bold ${gameData && gameData.education >= 75 ? 'text-green-400' : 'text-slate-500'}`}>
-                  {gameData && gameData.education >= 75 ? `+${Math.floor((gameData.education - 70) / 10)}` : '0'}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400" title="Eğitim Bakanı ekstra 1 puan sağlar">Bakan (Eğitim)</span>
-                <span className={`font-bold ${gameData && Object.values(JSON.parse(gameData.ministers || "{}")).includes("min_edu") ? 'text-green-400' : 'text-slate-500'}`}>
-                  {gameData && Object.values(JSON.parse(gameData.ministers || "{}")).includes("min_edu") ? '+1' : '0'}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-400" title="Uzay Programı mega projesi +2 RP sağlar">Uzay Programı (Mega Proje)</span>
-                <span className={`font-bold ${gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? 'text-green-400' : 'text-slate-500'}`}>
-                  {gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? '+2' : '0'}
-                </span>
-              </div>
-
-              {gameData && gameData.education < 40 && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-red-400" title="Eğitim 40'ın altındayken bilim yapılamaz">Eğitim Çöküşü</span>
-                  <span className="font-bold text-red-400">Üretim Durdu</span>
-                </div>
-              )}
-
-              <div className="border-t border-white/10 my-2 pt-2 flex justify-between items-center">
-                <span className="font-bold text-blue-400">Net Tur Kazanımı</span>
-                <span className="font-bold text-xl text-blue-400">+{rpGain}</span>
-              </div>
-            </div>
-
-            <div className="text-xs text-blue-300/70 bg-blue-900/20 p-3 rounded-lg border border-blue-500/20 mb-4">
-              <strong>Nasıl Arttırılır?</strong><br/>
-              Eğitim bütçesini yüksek tutun, Eğitim bakanını görevlendirin veya büyük bilimsel Mega Projeleri tamamlayın.
-            </div>
-
-            <button
-              onClick={handleInvestScience}
-              disabled={isInvestingScience || (gameData?.budget || 0) < 5000}
-              className="w-full py-3 px-4 rounded-xl font-bold bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isArgeModalOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+              onClick={() => setIsArgeModalOpen(false)}
             >
-              {isInvestingScience ? "Fonlanıyor..." : "🧪 Bilimi Fonla (-$5000) [+5 RP]"}
-            </button>
-          </div>
-        </div>,
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="glass-premium border border-white/10 rounded-3xl p-8 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto"
+              >
+                <button
+                  onClick={() => setIsArgeModalOpen(false)}
+                  className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="text-5xl">🔬</div>
+                  <div>
+                    <h2 className="text-2xl font-black font-[family-name:var(--font-display)] text-white uppercase tracking-widest">
+                      Ar-Ge Puanı (RP)
+                    </h2>
+                    <div className="text-sm font-bold uppercase tracking-widest text-blue-400">
+                      Teknoloji Kaynağı
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 p-4 rounded-2xl border border-white/5 mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider text-xs">Toplam RP Kazanımı (Tur Başına)</span>
+                    <span className="text-2xl font-black text-blue-400">
+                      +{rpGain}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                  Ar-Ge (Araştırma ve Geliştirme) puanı, Teknoloji Ağacındaki buluşları açmak için kullanılır. RP kazanmak kolay değildir; ülkenizin entelektüel ve bilimsel kapasitesine bağlıdır.
+                </p>
+
+                <div className="bg-slate-900/80 p-5 rounded-2xl border border-white/5 space-y-3 mb-6">
+                  <h4 className="text-sm font-bold text-slate-100 mb-2 uppercase tracking-widest">Üretim Detayları</h4>
+                  
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-400">Temel Üretim</span>
+                    <span className="font-bold text-white">1</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-400" title="Eğitim 75'i geçtiğinde bonus verir">Eğitim Seviyesi ({gameData?.education})</span>
+                    <span className={`font-bold ${gameData && gameData.education >= 75 ? 'text-green-400' : 'text-slate-500'}`}>
+                      {gameData && gameData.education >= 75 ? `+${Math.floor((gameData.education - 70) / 10)}` : '0'}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-400" title="Eğitim Bakanı ekstra 1 puan sağlar">Bakan (Eğitim)</span>
+                    <span className={`font-bold ${gameData && Object.values(JSON.parse(gameData.ministers || "{}")).includes("min_edu") ? 'text-green-400' : 'text-slate-500'}`}>
+                      {gameData && Object.values(JSON.parse(gameData.ministers || "{}")).includes("min_edu") ? '+1' : '0'}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-400" title="Uzay Programı mega projesi +2 RP sağlar">Uzay Programı (Mega Proje)</span>
+                    <span className={`font-bold ${gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? 'text-green-400' : 'text-slate-500'}`}>
+                      {gameData && JSON.parse(gameData.megaProjects || "[]").includes("space_program") ? '+2' : '0'}
+                    </span>
+                  </div>
+
+                  {gameData && gameData.education < 40 && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-red-400" title="Eğitim 40'ın altındayken bilim yapılamaz">Eğitim Çöküşü</span>
+                      <span className="font-bold text-red-400">Üretim Durdu</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-slate-900/80 p-5 rounded-2xl border border-white/5 space-y-3 mb-6">
+                  <div className="flex gap-3 items-start">
+                    <span className="text-blue-400 mt-0.5">💡</span>
+                    <p className="text-sm text-slate-300"><strong className="text-slate-100 block mb-0.5">Nasıl Arttırılır?</strong> Eğitim bütçesini yüksek tutun, Eğitim bakanını görevlendirin veya büyük bilimsel Mega Projeleri tamamlayın.</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleInvestScience}
+                  disabled={isInvestingScience || (gameData?.budget || 0) < 5000}
+                  className="w-full py-4 px-6 rounded-xl font-bold bg-[var(--color-accent-primary)] hover:bg-blue-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(37,99,235,0.3)] border border-blue-400/30 flex items-center justify-center gap-3"
+                >
+                  {isInvestingScience ? "Fonlanıyor..." : "🧪 Bilimi Fonla (-$5000) [+5 RP]"}
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
         document.body
       )}
     </div>
