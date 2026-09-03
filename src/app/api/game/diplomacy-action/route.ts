@@ -33,8 +33,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Bu ülkeyle zaten aktif bir savaş/ittifak durumu var." }, { status: 400 });
     }
     
-    if (action === "peace" && diplomacyState[partnerName]?.type !== "war") {
-      return NextResponse.json({ error: "Barış ilan etmek için bu ülkeyle savaşta olmalısınız." }, { status: 400 });
+    if (action === "peace" && !diplomacyState[partnerName]) {
+      return NextResponse.json({ error: "Bu ülkeyle aktif bir savaş veya ittifak durumu yok." }, { status: 400 });
     }
 
     let updatedBudget = game.budget;

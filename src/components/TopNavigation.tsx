@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { GameState } from "@/lib/types";
 import { calculateNetBudget, BudgetBreakdown } from "@/lib/game-engine";
 import { INITIAL_FACTIONS } from "@/lib/factions";
+import { COUNTRIES } from "@/lib/countries-data";
 import ResourceDetailsModal from "./ResourceDetailsModal";
 import BudgetDetailsModal from "./BudgetDetailsModal";
 
@@ -98,14 +99,21 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
     const hasSpaceProgram = megaProjects.includes("space_program");
     if (hasSpaceProgram) baseRP += 2;
     
-    // 4. Eksi Yaptırım (Eğitim düşükse veya bütçe eksi ise Ar-Ge durur)
+    // 4. Eksi Yaptırım (Eğitim düşükse Ar-Ge durur)
     if (gameData.education < 40) baseRP = 0;
-    if (netIncome < 0) baseRP = Math.max(0, baseRP - 1);
     
     // 5. Kuantum Çarpanı
     if (unlockedTechs.includes("quantum_computing")) {
       baseRP = Math.round(baseRP * 1.5);
     }
+    
+    // 6. Zorluk çarpanı (game-engine ile senkron)
+    const playerDifficulty = COUNTRIES?.find((c: any) => c.name === gameData.countryName)?.difficulty || "Orta";
+    let rpDiffMult = 1.0;
+    if (playerDifficulty === "Kolay") rpDiffMult = 1.5;
+    else if (playerDifficulty === "Zor") rpDiffMult = 0.75;
+    else if (playerDifficulty === "Çok Zor") rpDiffMult = 0.5;
+    baseRP = Math.floor(baseRP * rpDiffMult);
     
     // Güvenlik: Asla sıfırın altına inmesin
     rpGain = Math.max(0, baseRP);

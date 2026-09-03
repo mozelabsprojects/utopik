@@ -365,7 +365,8 @@ export async function POST(request: Request) {
           }
           
           // 2. Yüksek ilişki + AI zayıfsa ittifak teklifi (Kolay modda daha sık)
-          if (relationship > 60 && !dip && Math.random() < aiAllianceOfferChance) {
+          // Guard: diplomacyState[ai.name] zaten bu turda set edilmiş olabilir (savaş ilanı vb.)
+          if (relationship > 60 && !dip && !diplomacyState[ai.name] && Math.random() < aiAllianceOfferChance) {
             diplomacyState[ai.name] = { type: 'alliance', turnsRemaining: 5 };
             aiMessages.push(`🤝 İTTİFAK TEKLİFİ: ${ai.name} güçlü ilişkilerimizi değerlendirerek bize ittifak teklif etti ve kabul edildi!`);
           }
