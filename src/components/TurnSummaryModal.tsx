@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { DominoEffect } from "@/lib/types";
 import { AdvisorHint } from "@/lib/advisor";
 
@@ -29,7 +30,12 @@ export default function TurnSummaryModal({
   budgetBreakdown,
   onComplete,
 }: TurnSummaryModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<"loading" | "results" | "hidden">("hidden");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isVisible) {
@@ -45,9 +51,9 @@ export default function TurnSummaryModal({
     }
   }, [phase, isDataReady]);
 
-  if (phase === "hidden") return null;
+  if (!mounted || phase === "hidden") return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
       {phase === "loading" && (
         <div className="text-center animate-slide-up">
@@ -327,6 +333,7 @@ export default function TurnSummaryModal({
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
