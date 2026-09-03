@@ -182,6 +182,33 @@ export default function TurnSummaryModal({
                         </div>
                       )}
 
+                      {budgetBreakdown.techs !== 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-300">🔬 Teknolojiler</span>
+                          <span className={`text-sm font-bold ${budgetBreakdown.techs > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {budgetBreakdown.techs > 0 ? '+' : '-'}${Math.abs(budgetBreakdown.techs).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      {budgetBreakdown.crises !== 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-red-300">🚨 Aktif Krizler</span>
+                          <span className="text-sm font-bold text-red-500">
+                            -${Math.abs(budgetBreakdown.crises).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      {budgetBreakdown.special !== 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-purple-300">⭐ Ülkeye Özel</span>
+                          <span className="text-sm font-bold text-purple-400">
+                            +${budgetBreakdown.special.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between pt-2 border-t border-slate-700/50 mt-2">
                         <span className="text-sm text-gray-300 font-bold">Net Bilanço Değişimi</span>
                         <span className={`text-xl font-bold ${budgetBreakdown.totalNet >= 0 ? "text-green-400 animate-pop-in" : "text-red-400 animate-pop-in"}`}>
