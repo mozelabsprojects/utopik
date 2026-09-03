@@ -52,6 +52,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Aynı anda maksimum 5 ticaret anlaşmanız olabilir." }, { status: 400 });
     }
 
+    let marketState: any = {};
+    try { marketState = JSON.parse(game.marketState || "{}"); } catch {}
+    if (!marketState.tradesThisTurn || marketState.tradesThisTurn.turn !== game.turn) {
+      marketState.tradesThisTurn = { turn: game.turn, counts: {} };
+    }
+    const currentTradesCount = marketState.tradesThisTurn.counts[partner.name] || 0;
+    if (currentTradesCount >= 2) {
+      return NextResponse.json({ error: "Bu ülkeye bu turda maksimum yatırım (2) limitine ulaştınız. Sonraki tur tekrar deneyin." }, { status: 400 });
+    }
+
     const isSuccess = Math.random() < riskProfile.successChance;
     
     if (!isSuccess) {
@@ -70,10 +80,12 @@ export async function POST(request: Request) {
     }
 
     // Başarılı anlaşma
-    const baseReturn = 1 + riskProfile.minReturn;
-    const totalExpectedReturn = investmentAmount * baseReturn;
+    const actualReturnPerc = riskProfile.minReturn + (Math.random() * (riskProfile.maxReturn - riskProfile.minReturn));
+    const totalExpectedReturn = investmentAmount * (1 + actualReturnPerc);
     // Base income per turn (will fluctuate in next-turn)
     const baseIncomePerTurn = Math.round(totalExpectedReturn / 5);
+
+    marketState.tradesThisTurn.counts[partner.name] = currentTradesCount + 1;
 
     if (!partner.isPlayer) {
       game.foreignRelations = Math.min(100, game.foreignRelations + 2);
@@ -101,7 +113,8 @@ export async function POST(request: Request) {
       data: {
         budget: game.budget - investmentAmount,
         foreignRelations: game.foreignRelations,
-        diplomacyState: JSON.stringify(diplomacyState)
+        diplomacyState: JSON.stringify(diplomacyState),
+        marketState: JSON.stringify(marketState)
       }
     });
 
@@ -115,7 +128,7 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json({ agreement, newBudget: game.budget - investmentAmount });
+    return NextResponse.json({ agreement, newBudget: game.budget - investmentAmount, returnPercentage: Math.round(actualReturnPerc * 100) });
   } catch (error) {
     console.error("Ticaret hatası:", error);
     return NextResponse.json(

@@ -30,6 +30,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Aynı anda maksimum 5 ticaret anlaşmanız olabilir." }, { status: 400 });
     }
 
+    let marketState: any = {};
+    try { marketState = JSON.parse(game.marketState || "{}"); } catch {}
+    if (!marketState.tradesThisTurn || marketState.tradesThisTurn.turn !== game.turn) {
+      marketState.tradesThisTurn = { turn: game.turn, counts: {} };
+    }
+    const currentTradesCount = marketState.tradesThisTurn.counts["Yerel Endüstri"] || 0;
+    if (currentTradesCount >= 2) {
+      return NextResponse.json({ error: "İç piyasaya bu turda maksimum yatırım (2) limitine ulaştınız. Sonraki tur tekrar deneyin." }, { status: 400 });
+    }
+
     // İstikrar maliyeti (Bürokratik yük)
     const stabilityCost = 1;
 
@@ -39,18 +49,23 @@ export async function POST(request: Request) {
     const isSuccess = Math.random() < successChance;
     
     let totalExpectedReturn = 0;
+    let actualReturnPerc = 0;
     if (isSuccess) {
       // Başarılı yatırım: +%20 ile +%50 arası kar
-      const baseReturn = 1.20;
+      const baseReturn = 0.20;
       const variableReturn = Math.random() * 0.30;
-      totalExpectedReturn = investmentAmount * (baseReturn + variableReturn);
+      actualReturnPerc = baseReturn + variableReturn;
+      totalExpectedReturn = investmentAmount * (1 + actualReturnPerc);
     } else {
       // Başarısız yatırım (Zarar): %10 ile %50 arası zarar
       const lossSeverity = 0.1 + (Math.random() * 0.4); // 0.1 - 0.5
-      totalExpectedReturn = investmentAmount * (1 - lossSeverity);
+      actualReturnPerc = -lossSeverity;
+      totalExpectedReturn = investmentAmount * (1 + actualReturnPerc);
     }
     
     const incomePerTurn = Math.round(totalExpectedReturn / 5);
+
+    marketState.tradesThisTurn.counts["Yerel Endüstri"] = currentTradesCount + 1;
 
     // Bütçeden ve istikrardan düş
     await prisma.game.update({
@@ -58,6 +73,7 @@ export async function POST(request: Request) {
       data: {
         budget: game.budget - investmentAmount,
         stability: Math.max(0, game.stability - stabilityCost),
+        marketState: JSON.stringify(marketState)
       }
     });
 
@@ -71,7 +87,7 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json({ agreement, newBudget: game.budget - investmentAmount });
+    return NextResponse.json({ agreement, newBudget: game.budget - investmentAmount, returnPercentage: Math.round(actualReturnPerc * 100) });
   } catch (error) {
     console.error("İç Ticaret hatası:", error);
     return NextResponse.json(

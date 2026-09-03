@@ -357,12 +357,13 @@ function GameContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ gameId: game.id, partnerName, investmentAmount: amount }),
     });
+    const data = await res.json();
     if (!res.ok) {
-      const data = await res.json();
       throw new Error(data.error);
     }
     // Update budget locally for instant feedback
     setGame(prev => prev ? { ...prev, budget: prev.budget - amount } : null);
+    return data;
   };
 
   const handleReadReports = async () => {

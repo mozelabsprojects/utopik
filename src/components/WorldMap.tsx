@@ -7,7 +7,7 @@ import { calculateRelationship, calculateTradeRiskProfile } from "@/lib/game-eng
 interface WorldMapProps {
   countries: WorldCountryState[];
   gameState: GameState;
-  onTrade: (partnerName: string, amount: number, isInternal?: boolean) => Promise<void>;
+  onTrade: (partnerName: string, amount: number, isInternal?: boolean) => Promise<any>;
   onUpdate?: () => void;
 }
 
@@ -30,8 +30,11 @@ export default function WorldMap({ countries, gameState, onTrade, onUpdate }: Wo
     setIsTrading(true);
     setTradeMessage(null);
     try {
-      await onTrade(selectedCountry.name, tradeAmount, selectedCountry.isPlayer);
-      setTradeMessage({ text: selectedCountry.isPlayer ? "Yerel şirketlere yatırım yapıldı. Ekonomiye can suyu!" : "Ticaret anlaşması imzalandı! Önümüzdeki 5 tur boyunca kar getirecek.", type: "success" });
+      const data = await onTrade(selectedCountry.name, tradeAmount, selectedCountry.isPlayer);
+      
+      const profitStr = data && data.returnPercentage ? `%${data.returnPercentage} kar oranı ile` : "";
+      
+      setTradeMessage({ text: selectedCountry.isPlayer ? `Yerel şirketlere yatırım yapıldı. Ekonomiye can suyu! (${profitStr})` : `Ticaret anlaşması imzalandı! Önümüzdeki 5 tur boyunca ${profitStr} getiri sağlayacak.`, type: "success" });
     } catch (e: any) {
       setTradeMessage({ text: e.message || "İşlem yapılamadı.", type: "error" });
     } finally {
