@@ -487,6 +487,7 @@ export async function POST(request: Request) {
       inflation: game.inflation,
       activeBonds: JSON.stringify(remainingBonds),
       achievements: game.achievements,
+      activeSnowballEffect: (game as any).activeSnowballEffect || "null",
     };
 
     // Tur hesaplamalarını çalıştır (usedEventIds ve eventFlags aktarılıyor)
@@ -563,6 +564,7 @@ export async function POST(request: Request) {
         inflation: newState.inflation,
         activeBonds: newState.activeBonds,
         achievements: newState.achievements,
+        activeSnowballEffect: newState.activeSnowballEffect,
       },
       include: {
         worldCountries: { orderBy: { name: 'asc' } },

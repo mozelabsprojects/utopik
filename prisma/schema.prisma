@@ -57,6 +57,7 @@ model Game {
   inflation        Float        @default(5.0)  // Yıllık/Turluk Enflasyon Oranı (%)
   activeBonds      String       @default("[]") // JSON (İhraç Edilen Tahviller / Borçlar)
   achievements     String       @default("[]") // JSON (Kazanılan Başarımlar)
+  activeSnowballEffect String   @default("null") // JSON (Devam Eden Kartopu Etkisi)
 
   isGameOver       Boolean      @default(false)
   gameOverReason   String?

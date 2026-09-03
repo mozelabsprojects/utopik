@@ -2879,6 +2879,103 @@ export const EVENTS: GameEvent[] = [
         hint: "Risksiz tutum."
       }
     ]
+  },
+  // --- SNOWBALL (KARTOPU) EVENTLERİ ---
+  {
+    id: "snowball_martial_law",
+    title: "Sıkıyönetim Kararnamesi",
+    description: "Ülke genelindeki protestolar kontrolden çıkıyor. Meclis, orduya sınırsız yetki veren ve ülkeyi 5 tur boyunca Sıkıyönetim ile yönetecek olan kararnameyi oylamanızı bekliyor.",
+    category: "kriz",
+    minTurn: 15,
+    isSnowball: true,
+    choices: [
+      {
+        label: "A",
+        text: "Sıkıyönetim İlan Et! Ordu sokaklara insin.",
+        effects: { stability: -5, popularity: -10 },
+        factionEffects: { military: 20, intellectuals: -30, workers: -15 },
+        triggerSnowball: {
+          id: "effect_martial_law",
+          name: "Sıkıyönetim (Martial Law)",
+          themeColor: "red",
+          description: "Ordu sokaklarda. Suç oranları sıfır ama dış ilişkiler ve ekonomi çöküşte.",
+          turnsRemaining: 5,
+          statModifiers: { stability: 15, military: 10, budget: -1500, foreignRelations: -15, happiness: -5 }
+        },
+        hint: "5 Tur boyunca çok yüksek istikrar ve askeri güç kazanırsınız ancak bütçeniz erir, dış dünya size ambargo boyutunda tepki gösterir."
+      },
+      {
+        label: "B",
+        text: "Demokrasiden taviz verme, polis güçleriyle yatıştır.",
+        effects: { stability: -15, happiness: -5, budget: -500 },
+        factionEffects: { nationalists: -10, intellectuals: 10 },
+        hint: "Kriz devam eder, büyük bir istikrar kaybı yaşanır ama ülke kartopu etkisine girmez."
+      }
+    ]
+  },
+  {
+    id: "snowball_tech_revolution",
+    title: "Yapay Zeka Devrimi (Singularity Öncesi)",
+    description: "Ulusal teknoloji enstitümüz, otonom yapay zeka devrimini başlatacak altyapıyı tamamladı. Bu, 4 tur boyunca ülkeyi bir hiper-üretim merkezine çevirecek ancak enerji ve materyal kaynaklarını tüketecek.",
+    category: "cevre",
+    minTurn: 20,
+    isSnowball: true,
+    choices: [
+      {
+        label: "A",
+        text: "Sistemi Aktif Et (Yapay Zeka Devrimi)",
+        effects: { education: 10, budget: -5000 },
+        factionEffects: { capitalists: 20, intellectuals: 15, workers: -20 },
+        triggerSnowball: {
+          id: "effect_ai_revolution",
+          name: "Yapay Zeka Devrimi",
+          themeColor: "purple",
+          description: "Otonom yapay zeka devrede. Eğitim ve sağlıkta devrim yaşanıyor ancak kaynaklar hızla tükeniyor.",
+          turnsRemaining: 4,
+          statModifiers: { education: 15, health: 10, budget: 3000, energy: -30, materials: -20 }
+        },
+        hint: "4 Tur boyunca muazzam bütçe, sağlık ve eğitim geliri alırsınız, ancak inanılmaz miktarda enerji ve hammadde harcarsınız (Enerji krizine dikkat!)."
+      },
+      {
+        label: "B",
+        text: "Çok tehlikeli. Projeyi durdur ve regüle et.",
+        effects: { happiness: 5, stability: 5 },
+        factionEffects: { workers: 10, intellectuals: -15 },
+        hint: "Devrim fırsatını tepersiniz ama işçi sınıfı işsiz kalmaktan kurtulur."
+      }
+    ]
+  },
+  {
+    id: "snowball_great_strike",
+    title: "Büyük Genel Grev",
+    description: "Tüm ülke genelinde sendikalar üretimi durdurma kararı aldı. Bu karar, ekonomiyi 3 tur boyunca tamamen felç edebilir.",
+    category: "ekonomi",
+    minTurn: 10,
+    isSnowball: true,
+    choices: [
+      {
+        label: "A",
+        text: "Talepleri reddet ve sendikaları yasa dışı ilan et.",
+        effects: { stability: -10, popularity: -15 },
+        factionEffects: { workers: -40, capitalists: 15 },
+        triggerSnowball: {
+          id: "effect_general_strike",
+          name: "Genel Grev ve İsyan",
+          themeColor: "orange",
+          description: "Ülke çapında grev ve sabotaj eylemleri ekonomiyi durma noktasına getirdi.",
+          turnsRemaining: 3,
+          statModifiers: { budget: -3000, stability: -15, food: -20, happiness: -10 }
+        },
+        hint: "3 Tur boyunca eksiye düşen bütçe ve eriyen gıda/istikrar ile yüzleşmek zorunda kalırsınız."
+      },
+      {
+        label: "B",
+        text: "Sendikalarla masaya otur ve maaşlara %50 zam yap.",
+        effects: { budget: -8000, inflation: 15, happiness: 15 },
+        factionEffects: { workers: 30, capitalists: -20 },
+        hint: "Grev anında engellenir ancak devasa bir hazine açığı (8000$) ve enflasyon patlaması yaşanır."
+      }
+    ]
   }
 ];
 

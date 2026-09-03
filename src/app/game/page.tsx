@@ -401,17 +401,30 @@ function GameContent() {
   const getThemeClass = () => {
     if (!game) return { theme: "theme-default", bg: "bg-bureaucracy" };
     
+    // SNOWBALL ETKİSİ KONTROLÜ
+    let activeSnowballEffectStr = (game as any).activeSnowballEffect;
+    if (activeSnowballEffectStr && activeSnowballEffectStr !== "null") {
+      try {
+        const snowball = JSON.parse(activeSnowballEffectStr);
+        if (snowball && snowball.turnsRemaining > 0) {
+          if (snowball.themeColor === "red") return { theme: "theme-dystopia", bg: "bg-bureaucracy", glow: "ring-4 ring-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.3)]" };
+          if (snowball.themeColor === "purple") return { theme: "theme-cyber", bg: "bg-cyber-scan", glow: "ring-4 ring-purple-500/50 shadow-[0_0_50px_rgba(168,85,247,0.3)]" };
+          if (snowball.themeColor === "orange") return { theme: "theme-crisis", bg: "bg-industrial", glow: "ring-4 ring-orange-500/50 shadow-[0_0_50px_rgba(249,115,22,0.3)]" };
+        }
+      } catch (e) {}
+    }
+
     // Eğer oyunda bir diktatörlük/baskı eventFlag'i varsa
     const eventFlags = game.eventFlags ? (typeof game.eventFlags === 'string' ? JSON.parse(game.eventFlags) : game.eventFlags) : [];
-    if (eventFlags.includes("dictatorship")) return { theme: "theme-dystopia", bg: "bg-bureaucracy" };
-    if (eventFlags.includes("ai_singularity")) return { theme: "theme-cyber", bg: "bg-cyber-scan" };
+    if (eventFlags.includes("dictatorship")) return { theme: "theme-dystopia", bg: "bg-bureaucracy", glow: "" };
+    if (eventFlags.includes("ai_singularity")) return { theme: "theme-cyber", bg: "bg-cyber-scan", glow: "" };
     
-    if (game.isBankrupt) return { theme: "theme-bankrupt", bg: "bg-bureaucracy" };
+    if (game.isBankrupt) return { theme: "theme-bankrupt", bg: "bg-bureaucracy", glow: "" };
     
     // Duruma göre renkler
-    if (game.stability < 30 || game.happiness < 30) return { theme: "theme-crisis", bg: "bg-bureaucracy" };
-    if (game.military > 80 && game.stability < 50) return { theme: "theme-war", bg: "bg-industrial" };
-    if (game.budget > 1000000 && game.happiness > 80 && game.stability > 80) return { theme: "theme-utopia", bg: "bg-stars" };
+    if (game.stability < 30 || game.happiness < 30) return { theme: "theme-crisis", bg: "bg-bureaucracy", glow: "" };
+    if (game.military > 80 && game.stability < 50) return { theme: "theme-war", bg: "bg-industrial", glow: "" };
+    if (game.budget > 1000000 && game.happiness > 80 && game.stability > 80) return { theme: "theme-utopia", bg: "bg-stars", glow: "" };
     
     const era = calculateEra(game);
     let bg = "bg-blueprint";
@@ -419,7 +432,7 @@ function GameContent() {
     if (era === 3) bg = "bg-cyber-scan";
     if (era === 4) bg = "bg-stars";
 
-    return { theme: `theme-era-${era}`, bg };
+    return { theme: `theme-era-${era}`, bg, glow: "" };
   };
 
   if (!gameId) {
@@ -463,12 +476,19 @@ function GameContent() {
   if (megaProjects.includes("space_program")) overlays += " space-overlay";
   if (unlockedTechs.includes("quantum_computing")) overlays += " glitch-effect";
 
+  // Active Snowball Effect banner logic
+  let activeSnowball = null;
+  if ((game as any).activeSnowballEffect && (game as any).activeSnowballEffect !== "null") {
+    try {
+      activeSnowball = JSON.parse((game as any).activeSnowballEffect);
+      if (activeSnowball.turnsRemaining <= 0) activeSnowball = null;
+    } catch(e) {}
+  }
+
   return (
     <div 
-      className={`min-h-screen text-slate-100 flex transition-colors duration-1000 ${theme} ${bg} ${overlays}`}
-      style={{
-        zoom: `${uiScale}%`
-      }}
+      className={`min-h-screen transition-colors duration-1000 ${theme} ${bg} ${overlays} text-foreground overflow-hidden flex font-[family-name:var(--font-body)]`}
+      style={{ zoom: `${uiScale}%` }}
     >
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
@@ -508,7 +528,29 @@ function GameContent() {
           projectedInvestments={projectedInvestments}
         />
         
-        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-12 custom-scrollbar">
+        {/* AKTİF KARTOPU ETKİSİ BİLDİRİMİ */}
+        {activeSnowball && (
+          <div className={`mx-4 mt-4 p-4 rounded-xl shadow-lg border-2 flex items-center justify-between font-[family-name:var(--font-display)] animate-pulse ${
+            activeSnowball.themeColor === 'red' ? 'bg-red-950/40 border-red-500/50 text-red-100' :
+            activeSnowball.themeColor === 'purple' ? 'bg-purple-950/40 border-purple-500/50 text-purple-100' :
+            activeSnowball.themeColor === 'orange' ? 'bg-orange-950/40 border-orange-500/50 text-orange-100' :
+            'bg-blue-950/40 border-blue-500/50 text-blue-100'
+          }`}>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">⚠️</span>
+              <div>
+                <h3 className="text-lg font-bold uppercase tracking-wider">{activeSnowball.name}</h3>
+                <p className="text-sm opacity-80">{activeSnowball.description}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold">{activeSnowball.turnsRemaining}</div>
+              <div className="text-xs uppercase opacity-80">Tur Kaldı</div>
+            </div>
+          </div>
+        )}
+
+        <div className={`flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto w-full transition-all duration-300 relative z-10 ${glow}`}>
           <PetitionsModal 
             gameId={game.id}
             activePetitionsJson={game.activePetitions} 

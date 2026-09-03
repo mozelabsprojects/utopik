@@ -79,6 +79,15 @@ export interface StatEffects {
 
 import { FactionId } from "./factions";
 
+export interface SnowballEffect {
+  id: string;
+  name: string;
+  themeColor: string; // e.g., 'red', 'purple', 'yellow'
+  description: string;
+  turnsRemaining: number;
+  statModifiers: StatEffects;
+}
+
 export interface Choice {
   label: string; // "A", "B", "C", "D"
   text: string;
@@ -88,6 +97,7 @@ export interface Choice {
   flagsToSet?: string[]; // Kelebek Etkisi: Bu seçim yapılırsa hangi bayraklar eklenecek
   hint: string;
   requiredMinister?: string; // Bu seçenek sadece bu bakan ID'si kabinenizde varsa aktif olur
+  triggerSnowball?: SnowballEffect; // Eğer bu şık seçilirse kartopu etkisi başlat
 }
 
 export interface GameEvent {
@@ -100,6 +110,7 @@ export interface GameEvent {
   forbiddenFlags?: string[]; // Bu bayraklar varsa ASLA tetiklenmez
   condition?: (state: GameState) => boolean; // Belirli stat şartlarına göre tetiklenmesi için
   minTurn?: number; // Hangi turdan sonra çıkabileceği (Oyun zorluk eğrisi)
+  isSnowball?: boolean; // Bu event'in özel renkli bir Kartopu Eventi olup olmadığı
 }
 
 export interface CountryTemplate {
@@ -170,6 +181,7 @@ export interface GameState {
   usedEventIds?: string;
   eventFlags?: string; // JSON string array of flags
   achievements?: string; // JSON string array of unlocked achievements
+  activeSnowballEffect?: string; // JSON string of SnowballEffect or "null"
 }
 
 export interface Achievement {

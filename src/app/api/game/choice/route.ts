@@ -142,28 +142,37 @@ export async function POST(request: Request) {
       }
     }
 
+    // Snowball Efekti kontrolü
+    let activeSnowballEffectStr = (game as any).activeSnowballEffect || "null";
+    if (choice.triggerSnowball) {
+      activeSnowballEffectStr = JSON.stringify(choice.triggerSnowball);
+    }
+
     // Veritabanını güncelle
+    const updateData: any = {
+      budget: newState.budget,
+      military: newState.military,
+      happiness: newState.happiness,
+      health: newState.health,
+      environment: newState.environment,
+      education: newState.education,
+      stability: newState.stability,
+      foreignRelations: newState.foreignRelations,
+      popularity: newState.popularity,
+      politicalCapital: newState.politicalCapital,
+      energy: newState.energy,
+      food: newState.food,
+      materials: newState.materials,
+      factions: factionsStr,
+      eventFlags: eventFlagsStr,
+      currentEventId: newCurrentEventIdValue,
+      marketState: marketStateStr,
+      activeSnowballEffect: activeSnowballEffectStr
+    };
+
     const updatedGame = await prisma.game.update({
       where: { id: gameId },
-      data: {
-        budget: newState.budget,
-        military: newState.military,
-        happiness: newState.happiness,
-        health: newState.health,
-        environment: newState.environment,
-        education: newState.education,
-        stability: newState.stability,
-        foreignRelations: newState.foreignRelations,
-        popularity: newState.popularity,
-        politicalCapital: newState.politicalCapital,
-        energy: newState.energy,
-        food: newState.food,
-        materials: newState.materials,
-        factions: factionsStr,
-        eventFlags: eventFlagsStr,
-        currentEventId: newCurrentEventIdValue,
-        marketState: marketStateStr
-      },
+      data: updateData,
     });
 
     return NextResponse.json({

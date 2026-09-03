@@ -1018,6 +1018,45 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
     turnReports.push(`👔 Kabine Üyelerinin Etkisi: ${formatEffects(minEffects)}`);
   }
 
+  // ============================================
+  // SNOWBALL (KARTOPU) EFEKTİ İŞLEME
+  // ============================================
+  let activeSnowballEffectStr = (state as any).activeSnowballEffect;
+  if (activeSnowballEffectStr && activeSnowballEffectStr !== "null") {
+    try {
+      const snowball = JSON.parse(activeSnowballEffectStr);
+      if (snowball && snowball.turnsRemaining > 0) {
+        // Efektleri uygula
+        const mods = snowball.statModifiers;
+        if (mods.budget) state.budget += mods.budget;
+        if (mods.stability) state.stability = clampStat(state.stability + mods.stability);
+        if (mods.happiness) state.happiness = clampStat(state.happiness + mods.happiness);
+        if (mods.health) state.health = clampStat(state.health + mods.health);
+        if (mods.military) state.military = clampStat(state.military + mods.military);
+        if (mods.environment) state.environment = clampStat(state.environment + mods.environment);
+        if (mods.education) state.education = clampStat(state.education + mods.education);
+        if (mods.foreignRelations) state.foreignRelations = clampStat(state.foreignRelations + mods.foreignRelations);
+        if (mods.energy) state.energy += mods.energy;
+        if (mods.food) state.food += mods.food;
+        if (mods.materials) state.materials += mods.materials;
+        
+        turnReports.push(`❄️ KARTOPU ETKİSİ (${snowball.name}): ${formatEffects(mods)} (Kalan Tur: ${snowball.turnsRemaining})`);
+        
+        snowball.turnsRemaining -= 1;
+        if (snowball.turnsRemaining <= 0) {
+          turnReports.push(`🔚 KARTOPU ETKİSİ BİTTİ: ${snowball.name} etkisini yitirdi.`);
+          (state as any).activeSnowballEffect = "null";
+        } else {
+          (state as any).activeSnowballEffect = JSON.stringify(snowball);
+        }
+      } else {
+        (state as any).activeSnowballEffect = "null";
+      }
+    } catch (e) {
+      console.error("Snowball Effect Parse Error", e);
+    }
+  }
+
   // 1.7 Lider Profili Etkileri (Sistemik)
   if (eventFlags.includes("LEADER_TECHNOCRAT")) {
     state.education = clampStat(state.education + 2);

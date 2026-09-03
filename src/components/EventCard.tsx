@@ -76,26 +76,40 @@ export default function EventCard({ event, onChoice, disabled, ministersJson }: 
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="tutorial-event bg-slate-900/80 rounded-3xl p-4 shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-slate-700 backdrop-blur-md relative overflow-hidden"
+      className={`tutorial-event rounded-3xl p-4 shadow-[0_0_20px_rgba(0,0,0,0.5)] border backdrop-blur-md relative overflow-hidden ${
+        event.isSnowball 
+          ? "bg-gradient-to-br from-red-950/90 to-orange-950/90 border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.4)]" 
+          : "bg-slate-900/80 border-slate-700"
+      }`}
     >
       {/* Holographic accent */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 opacity-50"></div>
+      <div className={`absolute top-0 left-0 w-full h-1 opacity-50 ${
+        event.isSnowball 
+          ? "bg-gradient-to-r from-yellow-500 via-orange-500 to-red-600 h-2" 
+          : "bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500"
+      }`}></div>
 
       {/* Category Badge */}
       <div className="flex justify-between items-center mb-4">
-        <span className={`badge-${event.category} text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg`}>
-          {CATEGORY_LABELS[event.category] || event.category}
+        <span className={`badge-${event.category} text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg ${
+          event.isSnowball ? "ring-2 ring-red-500 animate-pulse bg-red-600 text-white" : ""
+        }`}>
+          {event.isSnowball ? "⚠️ KARTOPU KARARI" : (CATEGORY_LABELS[event.category] || event.category)}
         </span>
-        <span className="text-slate-500 text-xs font-mono">DOKÜMAN NO: {event.id.split('_')[1] || (event.id.length * 777).toString().slice(0, 4)}</span>
+        <span className={`${event.isSnowball ? 'text-red-300' : 'text-slate-500'} text-xs font-mono font-bold`}>
+          {event.isSnowball ? "KIRMIZI KOD" : `DOKÜMAN NO: ${event.id.split('_')[1] || (event.id.length * 777).toString().slice(0, 4)}`}
+        </span>
       </div>
 
       {/* Title */}
-      <h3 className="text-xl font-bold text-slate-100 mb-2 leading-tight">
+      <h3 className={`text-xl font-bold mb-2 leading-tight ${event.isSnowball ? 'text-red-100' : 'text-slate-100'}`}>
         {event.title}
       </h3>
 
       {/* Description */}
-      <p className="text-slate-300 leading-relaxed mb-3 text-[13px] border-l-2 border-slate-600 pl-3 py-1">
+      <p className={`leading-relaxed mb-3 text-[13px] border-l-2 pl-3 py-1 ${
+        event.isSnowball ? 'text-red-200/90 border-red-500/50 bg-red-950/30' : 'text-slate-300 border-slate-600'
+      }`}>
         {event.description}
       </p>
 
