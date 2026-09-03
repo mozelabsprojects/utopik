@@ -79,8 +79,9 @@ export async function POST(request: Request) {
     const aiMessages: string[] = [];
 
     // Diplomacy ve Market State'lerini parse et
-    let diplomacyState: Record<string, { type: 'war' | 'alliance', turnsRemaining: number }> = {};
-    try { diplomacyState = JSON.parse(game.diplomacyState); } catch {}
+    let diplomacyState: any = {};
+    try {
+      diplomacyState = JSON.parse(game.diplomacyState); } catch {}
     
     // Fraksiyonları parse et (Savaş domino etkileri için)
     let factions: FactionsState = INITIAL_FACTIONS;
