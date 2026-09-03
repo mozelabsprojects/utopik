@@ -424,7 +424,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                   </div>
                   <div className="flex justify-between items-center text-sm border-b border-white/5 pb-2">
                     <span className="text-slate-400">Kuantum Bilgisayar</span>
-                    <span className="font-bold text-green-400">+5 RP (Enflasyon %2 altı ise ekstra +5)</span>
+                    <span className="font-bold text-green-400">+5 RP (Enflasyon %2 ise ekstra +5)</span>
                   </div>
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-slate-400">Füzyon Enerjisi</span>

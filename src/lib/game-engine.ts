@@ -695,7 +695,7 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   
   if (unlockedTechs.includes("quantum_computing")) {
     baseRP += 5;
-    if (state.inflation <= 2.0) baseRP += 5; // Düşük enflasyon ek bonusu
+    if (state.inflation === 2.0) baseRP += 5; // Düşük enflasyon ek bonusu
   }
   
   if (unlockedTechs.includes("fusion_power")) {
