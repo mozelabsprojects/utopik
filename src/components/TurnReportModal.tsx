@@ -9,7 +9,7 @@ export default function TurnReportModal({ reports, onClose }: TurnReportModalPro
   if (!reports || reports.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
       <div className="glass-strong rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden border border-cyan-500/30 shadow-[0_0_50px_rgba(0,240,255,0.15)]">
         
         <div className="p-6 border-b border-white/10 bg-gradient-to-r from-cyan-900/40 to-transparent">

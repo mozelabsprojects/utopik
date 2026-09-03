@@ -46,7 +46,7 @@ export default function TurnSummaryModal({
   if (phase === "hidden") return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
       {phase === "loading" && (
         <div className="text-center animate-slide-up">
           {/* Spinning gear */}

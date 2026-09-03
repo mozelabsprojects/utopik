@@ -383,8 +383,22 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                   
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-slate-400">Temel Üretim</span>
-                    <span className="font-bold text-white">1</span>
+                    <span className="font-bold text-white">3</span>
                   </div>
+                  
+                  {gameData && JSON.parse(gameData.unlockedTechs || "[]").includes("ai_infrastructure") && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-400" title="Yapay Zeka Altyapısı Teknolojisi">Yapay Zeka Altyapısı (Teknoloji)</span>
+                      <span className="font-bold text-green-400">+1</span>
+                    </div>
+                  )}
+                  
+                  {gameData && JSON.parse(gameData.unlockedTechs || "[]").includes("advanced_robotics") && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-400" title="İleri Robotik Teknolojisi">İleri Robotik (Teknoloji)</span>
+                      <span className="font-bold text-green-400">+1</span>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-slate-400" title="Eğitim 75'i geçtiğinde bonus verir">Eğitim Seviyesi ({gameData?.education})</span>
