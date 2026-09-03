@@ -20,6 +20,7 @@ export default function DiplomacyPanel({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
 
   let dipState: any = { westernRelations: 50, easternRelations: 50, activeEmbargoes: [] };
   try {
@@ -48,6 +49,17 @@ export default function DiplomacyPanel({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      
+      let msg = "";
+      if (action === "alliance") msg = `${targetCountry.name} ile Müttefik olundu! 🤝`;
+      if (action === "embargo") msg = `${targetCountry.name} ülkesine Ambargo uygulandı! 🚫`;
+      if (action === "lift_embargo") msg = `${targetCountry.name} ile Ambargo kaldırıldı! 🔓`;
+      if (action === "peace") msg = `${targetCountry.name} ile Barış antlaşması imzalandı! 🕊️`;
+      if (action === "war") msg = data.message || `${targetCountry.name} ülkesine Savaş açıldı! ⚔️`;
+
+      setSuccessMsg(msg);
+      setTimeout(() => setSuccessMsg(""), 5000);
+
       onUpdate();
     } catch (err: any) {
       setError(err.message);
@@ -81,6 +93,14 @@ export default function DiplomacyPanel({
       </div>
       
       {error && <div className="bg-red-500/20 border border-red-500/50 text-red-300 p-4 rounded-xl mb-6 shadow-lg">{error}</div>}
+
+      {/* Toast Notification */}
+      {successMsg && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[9999] bg-green-950/90 backdrop-blur-md text-green-300 px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(34,197,94,0.3)] border border-green-500/50 font-bold animate-slide-up flex items-center gap-3">
+          <span className="text-2xl drop-shadow-md">✅</span>
+          <span>{successMsg}</span>
+        </div>
+      )}
 
       {/* East vs West Global Balance */}
       <div className="bg-black/30 rounded-2xl p-6 border border-white/5 mb-8 relative z-10">

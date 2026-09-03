@@ -103,15 +103,16 @@ export default function StatBar({ label, value, icon, color, previousValue, proj
 
       {/* Tooltip */}
       {showTooltip && pressures && pressures.length > 0 && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-[#111827] border border-gray-700 rounded-lg p-3 shadow-2xl z-[100] animate-fade-in pointer-events-none">
-          <p className="text-xs text-gray-400 font-bold uppercase tracking-wider border-b border-gray-700 pb-2 mb-2">
-            Pasif Etkiler ({label})
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl p-4 shadow-[0_10px_40px_rgba(0,0,0,0.8)] z-[9999] animate-slide-up pointer-events-none">
+          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-black/95 border-b border-r border-white/20 transform rotate-45"></div>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest border-b border-white/10 pb-2 mb-3 flex items-center gap-2">
+            <span className="text-sm">⚡</span> Aktif Etkiler ({label})
           </p>
-          <div className="space-y-1.5 text-sm font-medium">
+          <div className="space-y-2 text-xs font-medium relative z-10">
             {pressures.map((p, i) => (
-              <div key={i} className={`flex justify-between items-center ${p.value > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                <span className="truncate pr-2">{p.source}</span>
-                <span className="shrink-0">{p.value > 0 ? "+" : ""}{p.value}</span>
+              <div key={i} className={`flex justify-between items-center bg-white/5 px-3 py-2 rounded-lg border ${p.value > 0 ? 'border-green-500/20 text-green-300' : 'border-red-500/20 text-red-300'}`}>
+                <span className="truncate pr-2 font-semibold">{p.source}</span>
+                <span className="shrink-0 bg-black/50 px-2 py-1 rounded text-[10px] font-black">{p.value > 0 ? "+" : ""}{p.value}/tur</span>
               </div>
             ))}
           </div>
