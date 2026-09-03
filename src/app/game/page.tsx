@@ -177,6 +177,9 @@ function GameContent() {
       } else if (keyBuffer.endsWith("ozan")) {
         triggerCheat("ozan");
         keyBuffer = "";
+      } else if (keyBuffer.endsWith("kaos")) {
+        triggerCheat("kaos");
+        keyBuffer = "";
       }
     };
     
@@ -464,7 +467,7 @@ function GameContent() {
     );
   }
 
-  const { theme, bg } = getThemeClass();
+  const { theme, bg, glow } = getThemeClass();
   
   // Achievement/State overlays
   let overlays = "";

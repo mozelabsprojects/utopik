@@ -29,6 +29,8 @@ export async function POST(request: Request) {
       updatedData.popularity = 100;
     } else if (code === "ozan") {
       updatedData.researchPoints = game.researchPoints + 1000;
+    } else if (code === "kaos") {
+      updatedData.currentEventId = JSON.stringify(["snowball_martial_law"]);
     } else {
       return NextResponse.json({ error: "Geçersiz şifre" }, { status: 400 });
     }

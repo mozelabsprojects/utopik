@@ -103,7 +103,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Oyun başlatma hatası:", error);
     return NextResponse.json(
-      { error: "Oyun başlatılamadı" },
+      { error: "Oyun başlatılamadı: " + error.message },
       { status: 500 }
     );
   }
