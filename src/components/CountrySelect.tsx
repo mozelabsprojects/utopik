@@ -19,17 +19,39 @@ const DIFFICULTY_BADGES: Record<string, string> = {
   "Çok Zor": "badge-extreme",
 };
 
+// ── Sprite-based Avatar & Logo Data ──
+// Leader portraits from the sprite sheet (3x2 grid)
+const LEADER_AVATARS = [
+  { id: "leader_1", label: "Genç Lider", row: 0, col: 0 },
+  { id: "leader_2", label: "Kadın Lider", row: 0, col: 1 },
+  { id: "leader_3", label: "Tecrübeli Devlet Adamı", row: 0, col: 2 },
+  { id: "leader_4", label: "Başörtülü Lider", row: 1, col: 0 },
+  { id: "leader_5", label: "Karizmatik Lider", row: 1, col: 1 },
+  { id: "leader_6", label: "Akademisyen Lider", row: 1, col: 2 },
+];
+
+// Party logos from the sprite sheet (1x7 grid)
+const PARTY_LOGOS = [
+  { id: "logo_bulb", label: "Ampül Partisi", col: 0, color: "#f97316" },
+  { id: "logo_arrows", label: "Ok Partisi", col: 1, color: "#ef4444" },
+  { id: "logo_crescent", label: "Hilal Partisi", col: 2, color: "#22c55e" },
+  { id: "logo_phoenix", label: "Anka Partisi", col: 3, color: "#a855f7" },
+  { id: "logo_scales", label: "Adalet Partisi", col: 4, color: "#3b82f6" },
+  { id: "logo_wheat", label: "Başak Partisi", col: 5, color: "#eab308" },
+  { id: "logo_shield", label: "Kalkan Partisi", col: 6, color: "#dc2626" },
+];
+
 export default function CountrySelect({ onSelect, onContinue, saveId, loading }: CountrySelectProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [leaderProfile, setLeaderProfile] = useState<string>("default");
   
   // Customization States
   const [step, setStep] = useState<1 | 2>(1);
-  const [presidentName, setPresidentName] = useState("Kendi İsminiz");
-  const [presidentAvatar, setPresidentAvatar] = useState("👨‍💼");
+  const [presidentName, setPresidentName] = useState("Başkan");
+  const [presidentAvatar, setPresidentAvatar] = useState("leader_1");
   const [partyName, setPartyName] = useState("Yeni Parti");
-  const [partyLogo, setPartyLogo] = useState("🦅");
-  const [partyColor, setPartyColor] = useState("#3b82f6");
+  const [partyLogo, setPartyLogo] = useState("logo_bulb");
+  const [partyColor, setPartyColor] = useState("#f97316");
 
   const [isStarting, setIsStarting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -49,8 +71,15 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
     if (selected) {
       setIsStarting(true);
       setTimeout(() => {
+        // Map avatar & logo IDs to their sprite position data for rendering elsewhere
+        const avatarData = LEADER_AVATARS.find(a => a.id === presidentAvatar);
+        const logoData = PARTY_LOGOS.find(l => l.id === partyLogo);
         onSelect(selected, leaderProfile, {
-          presidentName, presidentAvatar, partyName, partyLogo, partyColor
+          presidentName,
+          presidentAvatar: presidentAvatar,
+          partyName,
+          partyLogo: partyLogo,
+          partyColor
         });
       }, 800);
     }
@@ -66,6 +95,44 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: 350, behavior: "smooth" });
     }
+  };
+
+  // ── Sprite renderers ──
+  const renderLeaderAvatar = (avatarId: string, size: number = 80) => {
+    const avatar = LEADER_AVATARS.find(a => a.id === avatarId);
+    if (!avatar) return null;
+    // 3 columns x 2 rows sprite sheet
+    const bgPosX = -(avatar.col * (100 / 2)); // percentage based
+    const bgPosY = -(avatar.row * (100)); // percentage based
+    return (
+      <div 
+        className="rounded-xl overflow-hidden border-2 border-slate-600/50 shadow-lg"
+        style={{
+          width: size,
+          height: size,
+          backgroundImage: 'url("/assets/leader_portraits.jpg")',
+          backgroundSize: '300%',
+          backgroundPosition: `${avatar.col * 50}% ${avatar.row * 100}%`,
+        }}
+      />
+    );
+  };
+
+  const renderPartyLogo = (logoId: string, size: number = 48) => {
+    const logo = PARTY_LOGOS.find(l => l.id === logoId);
+    if (!logo) return null;
+    return (
+      <div 
+        className="rounded-full overflow-hidden border-2 border-slate-600/50 shadow-lg bg-white"
+        style={{
+          width: size,
+          height: size,
+          backgroundImage: 'url("/assets/party_logos.jpg")',
+          backgroundSize: '700%',
+          backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
+        }}
+      />
+    );
   };
 
   return (
@@ -206,186 +273,341 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
         </div>
       </div>
 
-      {/* Start Game Modal */}
+      {/* ════════════════════════════════════════════════════════ */}
+      {/* ═══ CHARACTER CREATION MODAL ═══ */}
+      {/* ════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {selected && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md"
             onClick={() => !loading && setSelected(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.9, y: 30 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
+              exit={{ scale: 0.9, y: 30 }}
               onClick={(e) => e.stopPropagation()}
-              className={`glass-strong rounded-3xl p-8 max-w-md w-full relative shadow-2xl flex flex-col items-center text-center overflow-hidden ${isStarting ? 'animate-warp' : ''}`}
+              className={`relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 rounded-3xl max-w-lg w-full shadow-[0_0_80px_rgba(6,182,212,0.15)] overflow-hidden border border-slate-700/50 ${isStarting ? 'animate-warp' : ''}`}
             >
+              {/* Top accent bar */}
+              <div className="h-1 w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500" />
+              
+              {/* Close button */}
               {!loading && (
                 <button
                   onClick={() => setSelected(null)}
-                  className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                  className="absolute top-4 right-4 z-30 w-8 h-8 flex items-center justify-center rounded-full bg-slate-800/80 text-slate-400 hover:text-white hover:bg-red-500/60 transition-all"
                 >
                   ✕
                 </button>
               )}
-              
-              <div className="w-28 h-20 bg-[#e5d9c5] border-4 border-double border-[var(--color-border)] rounded-sm shadow-xl overflow-hidden flex items-center justify-center mb-4 p-1 transform -rotate-2">
-                <img 
-                  src={`https://flagcdn.com/w160/${COUNTRIES.find(c => c.name === selected)?.code}.png`} 
-                  alt={selected} 
-                  className="w-full h-full object-cover sepia-[.6] saturate-[.4] contrast-125 brightness-90"
-                />
+
+              {/* Header with flag */}
+              <div className="relative px-8 pt-6 pb-4 text-center">
+                <div className="flex items-center justify-center gap-4 mb-3">
+                  <div className="w-16 h-11 bg-[#e5d9c5] border-2 border-double border-slate-600 rounded-sm shadow-xl overflow-hidden flex items-center justify-center p-0.5 transform -rotate-2">
+                    <img 
+                      src={`https://flagcdn.com/w160/${COUNTRIES.find(c => c.name === selected)?.code}.png`} 
+                      alt={selected} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h2 className={`text-2xl font-black font-[family-name:var(--font-display)] ${selected === 'Kuzey Kore' ? 'text-red-500' : 'text-white'}`}>
+                      {selected}
+                    </h2>
+                    <p className="text-xs text-slate-500 font-medium uppercase tracking-widest">
+                      {step === 1 ? "Karakter Oluştur" : "Lider Profili Seç"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step indicator */}
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className={`h-1.5 rounded-full transition-all duration-500 ${step === 1 ? 'w-12 bg-cyan-400' : 'w-6 bg-slate-700'}`} />
+                  <div className={`h-1.5 rounded-full transition-all duration-500 ${step === 2 ? 'w-12 bg-cyan-400' : 'w-6 bg-slate-700'}`} />
+                </div>
               </div>
-              <h2 className={`text-3xl font-black font-[family-name:var(--font-display)] mb-2 ${selected === 'Kuzey Kore' ? 'text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]' : 'text-white'}`}>
-                {selected}
-              </h2>
-              <p className="text-slate-400 mb-6">
-                {selected === 'Kuzey Kore' 
-                  ? "Tüm dünya sana düşman. Hayatta kalmak için ne kadar ileri gideceksin?"
-                  : "Bu ulusun kaderi senin ellerinde. Nasıl bir lider olacaksın?"}
-              </p>
 
-              {step === 1 ? (
-                <div className="w-full animate-fade-in text-left">
-                  <div className="mb-4">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Başkan İsmi</label>
-                    <input 
-                      type="text" 
-                      value={presidentName} 
-                      onChange={(e) => setPresidentName(e.target.value)}
-                      className="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
-                      placeholder="Kendi İsminiz"
-                      maxLength={30}
-                    />
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Başkan Profili</label>
-                    <div className="flex gap-2">
-                      {["👨‍💼", "👩‍💼", "👴", "🧕", "🧔", "👨‍🎓"].map(emoji => (
-                        <button
-                          key={emoji}
-                          onClick={() => setPresidentAvatar(emoji)}
-                          className={`w-12 h-12 flex items-center justify-center text-2xl rounded-xl border-2 transition-all ${presidentAvatar === emoji ? "border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/20" : "border-slate-700 bg-slate-800/50 opacity-50 hover:opacity-100"}`}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Parti İsmi</label>
-                    <input 
-                      type="text" 
-                      value={partyName} 
-                      onChange={(e) => setPartyName(e.target.value)}
-                      className="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
-                      placeholder="Yeni Parti"
-                      maxLength={30}
-                    />
-                  </div>
-
-                  <div className="mb-6 grid grid-cols-2 gap-4">
+              {/* Step Content */}
+              <div className="px-8 pb-8">
+                {step === 1 ? (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="space-y-5"
+                  >
+                    {/* ── President Name ── */}
                     <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Parti Logosu</label>
-                      <div className="flex flex-wrap gap-2">
-                        {["🦅", "⚖️", "🌹", "🕊️", "✊", "☀️"].map(logo => (
+                      <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-2">
+                        <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">1</span>
+                        Başkan İsmi
+                      </label>
+                      <input 
+                        type="text" 
+                        value={presidentName} 
+                        onChange={(e) => setPresidentName(e.target.value)}
+                        className="w-full bg-slate-800/60 border border-slate-700/80 rounded-xl px-4 py-3 text-white text-lg font-semibold focus:outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 transition-all placeholder:text-slate-600"
+                        placeholder="İsminizi girin"
+                        maxLength={30}
+                      />
+                    </div>
+
+                    {/* ── President Avatar (Sprite-based) ── */}
+                    <div>
+                      <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-2">
+                        <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">2</span>
+                        Başkan Görseli
+                      </label>
+                      <div className="grid grid-cols-6 gap-2">
+                        {LEADER_AVATARS.map(avatar => (
                           <button
-                            key={logo}
-                            onClick={() => setPartyLogo(logo)}
-                            className={`w-10 h-10 flex items-center justify-center text-xl rounded-lg border-2 transition-all ${partyLogo === logo ? "border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/20" : "border-slate-700 bg-slate-800/50 opacity-50 hover:opacity-100"}`}
+                            key={avatar.id}
+                            onClick={() => setPresidentAvatar(avatar.id)}
+                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-200 group/avatar ${
+                              presidentAvatar === avatar.id 
+                                ? "border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.5)] scale-105 ring-2 ring-cyan-400/30" 
+                                : "border-slate-700 opacity-60 hover:opacity-100 hover:border-slate-500 hover:scale-105"
+                            }`}
+                            title={avatar.label}
                           >
-                            {logo}
+                            <div 
+                              className="w-full h-full"
+                              style={{
+                                backgroundImage: 'url("/assets/leader_portraits.jpg")',
+                                backgroundSize: '300%',
+                                backgroundPosition: `${avatar.col * 50}% ${avatar.row * 100}%`,
+                              }}
+                            />
+                            {presidentAvatar === avatar.id && (
+                              <div className="absolute bottom-0 left-0 right-0 bg-cyan-400/90 text-[8px] font-bold text-slate-900 text-center py-0.5">
+                                SEÇİLDİ
+                              </div>
+                            )}
                           </button>
                         ))}
                       </div>
                     </div>
+
+                    {/* ── Party Name ── */}
                     <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Parti Rengi</label>
-                      <div className="flex flex-wrap gap-2">
-                        {["#3b82f6", "#ef4444", "#22c55e", "#a855f7", "#f97316", "#eab308"].map(color => (
+                      <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-2">
+                        <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">3</span>
+                        Parti İsmi
+                      </label>
+                      <input 
+                        type="text" 
+                        value={partyName} 
+                        onChange={(e) => setPartyName(e.target.value)}
+                        className="w-full bg-slate-800/60 border border-slate-700/80 rounded-xl px-4 py-3 text-white text-lg font-semibold focus:outline-none focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20 transition-all placeholder:text-slate-600"
+                        placeholder="Parti adı"
+                        maxLength={30}
+                      />
+                    </div>
+
+                    {/* ── Party Logo (Sprite-based) & Color ── */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-2">
+                          <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">4</span>
+                          Parti Logosu
+                        </label>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {PARTY_LOGOS.map(logo => (
+                            <button
+                              key={logo.id}
+                              onClick={() => {
+                                setPartyLogo(logo.id);
+                                setPartyColor(logo.color);
+                              }}
+                              className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white ${
+                                partyLogo === logo.id 
+                                  ? "border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.5)] scale-110" 
+                                  : "border-slate-700 opacity-50 hover:opacity-100 hover:border-slate-500"
+                              }`}
+                              title={logo.label}
+                            >
+                              <div 
+                                className="w-full h-full"
+                                style={{
+                                  backgroundImage: 'url("/assets/party_logos.jpg")',
+                                  backgroundSize: '700%',
+                                  backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
+                                }}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-2">
+                          <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">5</span>
+                          Parti Rengi
+                        </label>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {[
+                            { color: "#f97316", name: "Turuncu" },
+                            { color: "#ef4444", name: "Kırmızı" },
+                            { color: "#22c55e", name: "Yeşil" },
+                            { color: "#3b82f6", name: "Mavi" },
+                            { color: "#a855f7", name: "Mor" },
+                            { color: "#eab308", name: "Sarı" },
+                            { color: "#ec4899", name: "Pembe" },
+                            { color: "#14b8a6", name: "Turkuaz" },
+                          ].map(c => (
+                            <button
+                              key={c.color}
+                              onClick={() => setPartyColor(c.color)}
+                              className={`aspect-square rounded-lg border-2 transition-all duration-200 ${
+                                partyColor === c.color 
+                                  ? "border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.4)]" 
+                                  : "border-transparent opacity-50 hover:opacity-100"
+                              }`}
+                              style={{ backgroundColor: c.color }}
+                              title={c.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ── Preview Card ── */}
+                    <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 flex items-center gap-4">
+                      <div className="shrink-0">
+                        {(() => {
+                          const avatar = LEADER_AVATARS.find(a => a.id === presidentAvatar);
+                          if (!avatar) return null;
+                          return (
+                            <div 
+                              className="w-16 h-16 rounded-xl overflow-hidden border-2 shadow-lg"
+                              style={{
+                                borderColor: partyColor,
+                                backgroundImage: 'url("/assets/leader_portraits.jpg")',
+                                backgroundSize: '300%',
+                                backgroundPosition: `${avatar.col * 50}% ${avatar.row * 100}%`,
+                              }}
+                            />
+                          );
+                        })()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-bold text-sm truncate">{presidentName || "İsimsiz Başkan"}</p>
+                        <p className="text-xs truncate" style={{ color: partyColor }}>{partyName || "Partisiz"}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">{selected} • Başkomutan</p>
+                      </div>
+                      <div className="shrink-0">
+                        {(() => {
+                          const logo = PARTY_LOGOS.find(l => l.id === partyLogo);
+                          if (!logo) return null;
+                          return (
+                            <div 
+                              className="w-10 h-10 rounded-full overflow-hidden border-2 bg-white shadow-lg"
+                              style={{
+                                borderColor: partyColor,
+                                backgroundImage: 'url("/assets/party_logos.jpg")',
+                                backgroundSize: '700%',
+                                backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
+                              }}
+                            />
+                          );
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Next Button */}
+                    <button
+                      onClick={() => setStep(2)}
+                      className="w-full relative group px-8 py-4 rounded-xl font-black text-lg transition-all bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        İleri
+                        <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                      </span>
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    key="step2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-5"
+                  >
+                    {/* Leader Profile Selection */}
+                    <div>
+                      <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-3">
+                        <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">6</span>
+                        Lider Profili
+                      </label>
+                      <div className="grid grid-cols-1 gap-2">
+                        {[
+                          { id: "default", icon: "⚖️", name: "Dengeli", desc: "Sıradan bir yönetim. Özel mekanik yok.", color: "from-slate-700 to-slate-800" },
+                          { id: "technocrat", icon: "🧠", name: "Teknokrat", desc: "Her tur pasif Eğitim artar ama Mutluluk kalıcı düşer.", color: "from-blue-900/60 to-slate-800" },
+                          { id: "general", icon: "🎖️", name: "General", desc: "Tüm altyapı bakım masrafları -%20, ama Dış İlişkiler düşer.", color: "from-green-900/60 to-slate-800" },
+                          { id: "economist", icon: "💼", name: "Ekonomist", desc: "Tüm vergi gelirleri +%25, ama Çevre her tur kirlenir.", color: "from-yellow-900/60 to-slate-800" },
+                          { id: "populist", icon: "🤝", name: "Halk Adamı", desc: "Her tur pasif Mutluluk artar ama Siyasi Sermaye erir.", color: "from-rose-900/60 to-slate-800" },
+                        ].map(profile => (
                           <button
-                            key={color}
-                            onClick={() => setPartyColor(color)}
-                            className={`w-10 h-10 rounded-lg border-2 transition-all ${partyColor === color ? "border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.5)]" : "border-transparent opacity-50 hover:opacity-100"}`}
-                            style={{ backgroundColor: color }}
-                          />
+                            key={profile.id}
+                            onClick={() => setLeaderProfile(profile.id)}
+                            className={`flex items-center gap-4 p-3.5 rounded-xl border-2 transition-all text-left ${
+                              leaderProfile === profile.id
+                                ? "border-cyan-400/60 bg-gradient-to-r " + profile.color + " shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                                : "border-slate-700/50 bg-slate-800/30 hover:border-slate-600 hover:bg-slate-800/60"
+                            }`}
+                          >
+                            <span className="text-3xl shrink-0">{profile.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <span className="font-bold text-white text-sm">{profile.name}</span>
+                              <p className="text-[11px] text-slate-400 leading-snug mt-0.5">{profile.desc}</p>
+                            </div>
+                            {leaderProfile === profile.id && (
+                              <div className="shrink-0 w-6 h-6 rounded-full bg-cyan-400 flex items-center justify-center">
+                                <span className="text-slate-900 text-xs font-black">✓</span>
+                              </div>
+                            )}
+                          </button>
                         ))}
                       </div>
                     </div>
-                  </div>
 
-                  <button
-                    onClick={() => setStep(2)}
-                    className="w-full relative group px-8 py-4 rounded-xl font-black text-xl transition-all btn-primary"
-                  >
-                    <span>İleri ➔</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="w-full animate-fade-in">
-                  {/* Lider Profili Seçimi */}
-                  <div className="w-full text-left mb-8 space-y-2">
-                    <label className="text-sm font-bold text-[var(--color-accent-primary)] uppercase tracking-widest ml-1">Lider Profili</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { id: "default", icon: "👤", name: "Dengeli", desc: "Sıradan bir yönetim. Özel mekanik yok." },
-                        { id: "technocrat", icon: "🧠", name: "Teknokrat", desc: "Her tur pasif Eğitim artar ama Mutluluk kalıcı düşer." },
-                        { id: "general", icon: "🎖️", name: "General", desc: "Tüm altyapı bakım masrafları -%20, ama Dış İlişkiler pasif düşer." },
-                        { id: "economist", icon: "💼", name: "Ekonomist", desc: "Tüm vergi gelirleri +%25, ama Çevre her tur kirlenir." },
-                        { id: "populist", icon: "🤝", name: "Halk Adamı", desc: "Her tur pasif Mutluluk artar ama Siyasi Sermaye erir." },
-                      ].map(profile => (
-                        <button
-                          key={profile.id}
-                          onClick={() => setLeaderProfile(profile.id)}
-                          className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
-                            leaderProfile === profile.id
-                              ? "bg-[var(--color-accent-glow)] border-[var(--color-accent-primary)] text-white"
-                              : "bg-slate-800/50 border-slate-700 text-[var(--color-text-muted)] hover:border-[var(--color-border)] hover:text-white"
-                          }`}
-                        >
-                          <span className="text-2xl mb-1">{profile.icon}</span>
-                          <span className="font-bold text-sm">{profile.name}</span>
-                          <span className="text-[10px] opacity-70">{profile.desc}</span>
-                        </button>
-                      ))}
+                    {/* Action Buttons */}
+                    <div className="flex gap-3 pt-2">
+                      <button 
+                        onClick={() => setStep(1)} 
+                        className="w-1/3 py-3.5 rounded-xl font-bold border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-all flex items-center justify-center gap-2"
+                      >
+                        <span className="text-lg">←</span> Geri
+                      </button>
+                      <button
+                        onClick={handleStart}
+                        disabled={loading}
+                        className={`w-2/3 relative group px-8 py-3.5 rounded-xl font-black text-lg transition-all disabled:opacity-70 disabled:cursor-wait ${
+                          selected === 'Kuzey Kore'
+                            ? "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white shadow-[0_0_30px_rgba(239,68,68,0.3)]"
+                            : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
+                        }`}
+                      >
+                        {loading ? (
+                          <span className="flex items-center justify-center gap-3">
+                            <span className="animate-spin-gear text-2xl">⚙️</span>
+                            Kuruluyor...
+                          </span>
+                        ) : (
+                          <span className="flex items-center justify-center gap-3">
+                            🚀 Oyunu Başlat
+                          </span>
+                        )}
+                      </button>
                     </div>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <button onClick={() => setStep(1)} className="w-1/3 py-4 rounded-xl font-bold border border-slate-700 hover:bg-slate-800 transition-colors">
-                      Geri
-                    </button>
-                    <button
-                      onClick={handleStart}
-                      disabled={loading}
-                      className={`w-2/3 relative group px-8 py-4 rounded-xl font-black text-xl transition-all disabled:opacity-70 disabled:cursor-wait ${
-                        selected === 'Kuzey Kore'
-                          ? "bg-red-600 hover:bg-red-500 text-white shadow-xl hover:shadow-2xl"
-                          : "btn-primary"
-                      }`}
-                    >
-                      {loading ? (
-                        <span className="flex items-center justify-center gap-3">
-                          <span className="animate-spin-gear text-2xl">⚙️</span>
-                          Kuruluyor...
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-3">
-                          🚀 Oyunu Başlat
-                        </span>
-                      )}
-                      {!loading && (
-                        <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
+                  </motion.div>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}

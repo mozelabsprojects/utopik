@@ -59,16 +59,81 @@ export default function NewspaperIntro({ game, onComplete }: NewspaperIntroProps
               </div>
 
               <div className="flex flex-col md:flex-row items-center gap-8 mb-6">
-                <div className="w-32 h-32 flex items-center justify-center text-7xl bg-[#d5c5ad] rounded-sm border-2 border-[#555] shadow-inner shrink-0 p-2 transform -rotate-3">
-                  {game.presidentAvatar || "👤"}
-                </div>
+                {(() => {
+                  const LEADER_AVATARS = [
+                    { id: "leader_1", row: 0, col: 0 },
+                    { id: "leader_2", row: 0, col: 1 },
+                    { id: "leader_3", row: 0, col: 2 },
+                    { id: "leader_4", row: 1, col: 0 },
+                    { id: "leader_5", row: 1, col: 1 },
+                    { id: "leader_6", row: 1, col: 2 },
+                  ];
+                  const PARTY_LOGOS_DATA = [
+                    { id: "logo_bulb", col: 0 },
+                    { id: "logo_arrows", col: 1 },
+                    { id: "logo_crescent", col: 2 },
+                    { id: "logo_phoenix", col: 3 },
+                    { id: "logo_scales", col: 4 },
+                    { id: "logo_wheat", col: 5 },
+                    { id: "logo_shield", col: 6 },
+                  ];
+                  const avatar = LEADER_AVATARS.find(a => a.id === game.presidentAvatar);
+                  const logo = PARTY_LOGOS_DATA.find(l => l.id === game.partyLogo);
+                  
+                  return (
+                    <>
+                      <div 
+                        className="w-32 h-32 rounded-sm border-2 border-[#555] shadow-inner shrink-0 transform -rotate-3"
+                        style={
+                          avatar ? {
+                            backgroundImage: 'url("/assets/leader_portraits.jpg")',
+                            backgroundSize: '300%',
+                            backgroundPosition: `${avatar.col * 50}% ${avatar.row * 100}%`,
+                          } : {
+                            backgroundColor: '#d5c5ad',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '4.5rem',
+                          }
+                        }
+                      >
+                        {!avatar && <span>{game.presidentAvatar || "👤"}</span>}
+                      </div>
+                    </>
+                  );
+                })()}
                 
                 <div className="text-left">
                   <h2 className="text-3xl md:text-5xl font-black text-[#2a2a2a] uppercase leading-none mb-4 font-serif">
                     {game.presidentName || "YENİ LİDER"}, {game.countryName || "ÜLKENİN"} BAŞKANI OLDU!
                   </h2>
-                  <h3 className="text-xl font-bold text-[#444] italic mb-4">
-                    {game.partyLogo} {game.partyName || "Bağımsız Parti"} iktidara yürürken, halk yeni dönemi coşkuyla karşılıyor.
+                  <h3 className="text-xl font-bold text-[#444] italic mb-4 flex items-center gap-2 flex-wrap">
+                    {(() => {
+                      const PARTY_LOGOS_DATA = [
+                        { id: "logo_bulb", col: 0 },
+                        { id: "logo_arrows", col: 1 },
+                        { id: "logo_crescent", col: 2 },
+                        { id: "logo_phoenix", col: 3 },
+                        { id: "logo_scales", col: 4 },
+                        { id: "logo_wheat", col: 5 },
+                        { id: "logo_shield", col: 6 },
+                      ];
+                      const logo = PARTY_LOGOS_DATA.find(l => l.id === game.partyLogo);
+                      return logo ? (
+                        <span 
+                          className="inline-block w-6 h-6 rounded-full overflow-hidden bg-white border border-[#555] shrink-0"
+                          style={{
+                            backgroundImage: 'url("/assets/party_logos.jpg")',
+                            backgroundSize: '700%',
+                            backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
+                          }}
+                        />
+                      ) : (
+                        <span>{game.partyLogo}</span>
+                      );
+                    })()}
+                    {game.partyName || "Bağımsız Parti"} iktidara yürürken, halk yeni dönemi coşkuyla karşılıyor.
                   </h3>
                 </div>
               </div>

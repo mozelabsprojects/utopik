@@ -150,19 +150,66 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         {/* Sol: Yönetim & Siyaset */}
         <div className="flex flex-wrap items-center gap-2">
           
-          {gameData ? (
-            <div className="flex items-center gap-3 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner" style={{ borderColor: gameData.partyColor || '#3b82f6' }}>
-              <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 bg-slate-800" style={{ borderColor: gameData.partyColor || '#3b82f6' }}>
-                <span className="text-3xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%]">{gameData.presidentAvatar || '👤'}</span>
+          {gameData ? (() => {
+            // Sprite-based avatar rendering
+            const LEADER_AVATARS = [
+              { id: "leader_1", row: 0, col: 0 },
+              { id: "leader_2", row: 0, col: 1 },
+              { id: "leader_3", row: 0, col: 2 },
+              { id: "leader_4", row: 1, col: 0 },
+              { id: "leader_5", row: 1, col: 1 },
+              { id: "leader_6", row: 1, col: 2 },
+            ];
+            const PARTY_LOGOS_DATA = [
+              { id: "logo_bulb", col: 0 },
+              { id: "logo_arrows", col: 1 },
+              { id: "logo_crescent", col: 2 },
+              { id: "logo_phoenix", col: 3 },
+              { id: "logo_scales", col: 4 },
+              { id: "logo_wheat", col: 5 },
+              { id: "logo_shield", col: 6 },
+            ];
+            const avatar = LEADER_AVATARS.find(a => a.id === gameData.presidentAvatar);
+            const logo = PARTY_LOGOS_DATA.find(l => l.id === gameData.partyLogo);
+            
+            return (
+              <div className="flex items-center gap-3 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner" style={{ borderColor: gameData.partyColor || '#3b82f6' }}>
+                {avatar ? (
+                  <div 
+                    className="w-10 h-10 rounded-full overflow-hidden border-2 shadow-lg shrink-0"
+                    style={{ 
+                      borderColor: gameData.partyColor || '#3b82f6',
+                      backgroundImage: 'url("/assets/leader_portraits.jpg")',
+                      backgroundSize: '300%',
+                      backgroundPosition: `${avatar.col * 50}% ${avatar.row * 100}%`,
+                    }}
+                  />
+                ) : (
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 bg-slate-800" style={{ borderColor: gameData.partyColor || '#3b82f6' }}>
+                    <span className="text-3xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%]">{gameData.presidentAvatar || '👤'}</span>
+                  </div>
+                )}
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-white leading-none whitespace-nowrap">{gameData.presidentName || 'Lider'}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-90 whitespace-nowrap flex items-center gap-1" style={{ color: gameData.partyColor || '#3b82f6' }}>
+                    {logo ? (
+                      <span 
+                        className="inline-block w-3.5 h-3.5 rounded-full overflow-hidden bg-white shrink-0"
+                        style={{
+                          backgroundImage: 'url("/assets/party_logos.jpg")',
+                          backgroundSize: '700%',
+                          backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
+                        }}
+                      />
+                    ) : (
+                      <span>{gameData.partyLogo || '🕊️'}</span>
+                    )}
+                    {gameData.partyName || 'Bağımsız'}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-white leading-none whitespace-nowrap">{gameData.presidentName || 'Lider'}</span>
-                <span className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-90 whitespace-nowrap" style={{ color: gameData.partyColor || '#3b82f6' }}>
-                  {gameData.partyLogo || '🕊️'} {gameData.partyName || 'Bağımsız'}
-                </span>
-              </div>
-            </div>
-          ) : (
+            );
+          })() : (
             <div className={`flex items-center gap-2 px-3 py-1.5 bg-black/40 rounded-lg border shadow-inner ${leaderProfile.color}`}>
               <span className="text-xl">{leaderProfile.icon}</span>
               <div>
