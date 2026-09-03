@@ -30,15 +30,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Aynı anda maksimum 5 ticaret anlaşmanız olabilir." }, { status: 400 });
     }
 
+    const activeAgreementsWithPartnerCount = await prisma.tradeAgreement.count({
+      where: { gameId: game.id, partnerName: "Yerel Endüstri" }
+    });
+    if (activeAgreementsWithPartnerCount >= 2) {
+      return NextResponse.json({ error: "İç piyasada aynı anda maksimum 2 aktif yatırımınız olabilir. Önceki yatırımların süresinin bitmesini bekleyin." }, { status: 400 });
+    }
+
     let marketState: any = {};
     try { marketState = JSON.parse(game.marketState || "{}"); } catch {}
-    if (!marketState.tradesThisTurn || marketState.tradesThisTurn.turn !== game.turn) {
-      marketState.tradesThisTurn = { turn: game.turn, counts: {} };
-    }
-    const currentTradesCount = marketState.tradesThisTurn.counts["Yerel Endüstri"] || 0;
-    if (currentTradesCount >= 2) {
-      return NextResponse.json({ error: "İç piyasaya bu turda maksimum yatırım (2) limitine ulaştınız. Sonraki tur tekrar deneyin." }, { status: 400 });
-    }
 
     // İstikrar maliyeti (Bürokratik yük)
     const stabilityCost = 1;
@@ -71,8 +71,6 @@ export async function POST(request: Request) {
     const actualReturnPerc = baseReturn + variableReturn;
     const totalExpectedReturn = investmentAmount * (1 + actualReturnPerc);
     const incomePerTurn = Math.round(totalExpectedReturn / 5);
-
-    marketState.tradesThisTurn.counts["Yerel Endüstri"] = currentTradesCount + 1;
 
     // Bütçeden ve istikrardan düş
     await prisma.game.update({

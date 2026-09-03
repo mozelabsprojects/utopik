@@ -52,15 +52,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Aynı anda maksimum 5 ticaret anlaşmanız olabilir." }, { status: 400 });
     }
 
+    const activeAgreementsWithPartnerCount = await prisma.tradeAgreement.count({
+      where: { gameId: game.id, partnerName: partner.name }
+    });
+    if (activeAgreementsWithPartnerCount >= 2) {
+      return NextResponse.json({ error: `${partner.name} ile aynı anda maksimum 2 aktif ticaret anlaşmanız olabilir. Önceki anlaşmaların süresinin bitmesini bekleyin.` }, { status: 400 });
+    }
+
     let marketState: any = {};
     try { marketState = JSON.parse(game.marketState || "{}"); } catch {}
-    if (!marketState.tradesThisTurn || marketState.tradesThisTurn.turn !== game.turn) {
-      marketState.tradesThisTurn = { turn: game.turn, counts: {} };
-    }
-    const currentTradesCount = marketState.tradesThisTurn.counts[partner.name] || 0;
-    if (currentTradesCount >= 2) {
-      return NextResponse.json({ error: "Bu ülkeye bu turda maksimum yatırım (2) limitine ulaştınız. Sonraki tur tekrar deneyin." }, { status: 400 });
-    }
 
     const isSuccess = Math.random() < riskProfile.successChance;
     
@@ -87,8 +87,6 @@ export async function POST(request: Request) {
     const totalExpectedReturn = investmentAmount * (1 + actualReturnPerc);
     // Base income per turn (will fluctuate in next-turn)
     const baseIncomePerTurn = Math.round(totalExpectedReturn / 5);
-
-    marketState.tradesThisTurn.counts[partner.name] = currentTradesCount + 1;
 
     if (!partner.isPlayer) {
       game.foreignRelations = Math.min(100, game.foreignRelations + 2);
