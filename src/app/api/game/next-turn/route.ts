@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { processNextTurn, clampStat, calculateRelationship, checkAchievements } from "@/lib/game-engine";
+import { processNextTurn, clampStat, calculateRelationship, checkAchievements, calculateNetBudget } from "@/lib/game-engine";
 import { GameState, MarketState, HistoryRecord } from "@/lib/types";
 import { INITIAL_FACTIONS, modifyFactionSupport, FactionsState } from "@/lib/factions";
 import { COUNTRIES } from "@/lib/countries-data";
@@ -546,6 +546,21 @@ export async function POST(request: Request) {
 
     // Tur hesaplamalarını çalıştır (usedEventIds ve eventFlags aktarılıyor)
     const usedIds: string[] = JSON.parse(game.usedEventIds || '[]');
+    
+    // Budget breakdown hesapla
+    let activeLaws: string[] = [];
+    try { activeLaws = JSON.parse(currentState.activeLaws || "[]"); } catch {}
+    let unlockedTechs: string[] = [];
+    try { unlockedTechs = JSON.parse(currentState.unlockedTechs || "[]"); } catch {}
+    let ministers: Record<string, string> = {};
+    try { ministers = JSON.parse(currentState.ministers || "{}"); } catch {}
+    let activeCrises: string[] = [];
+    try { activeCrises = JSON.parse(currentState.activeCrises || "[]"); } catch {}
+    
+    const budgetBreakdown = calculateNetBudget(
+      currentState, factions, activeLaws, unlockedTechs, ministers, activeCrises, eventFlags, game.tradeAgreements
+    );
+    
     const turnResult = processNextTurn(currentState, tradeIncome, usedIds, eventFlags);
     const newState = turnResult.gameState;
 
@@ -650,9 +665,10 @@ export async function POST(request: Request) {
       turnResult: {
         taxIncome: turnResult.taxIncome,
         maintenanceCost: turnResult.maintenanceCost,
-        dominoEffects: turnResult.dominoEffects,
         tradeIncome: turnResult.tradeIncome,
-        newEvents: turnResult.newEvents,
+        budgetBreakdown,
+        dominoEffects: turnResult.dominoEffects,
+        newEvent: turnResult.newEvents.length > 0
       },
     });
   } catch (error) {

@@ -13,6 +13,7 @@ interface TurnSummaryModalProps {
   dominoEffects: DominoEffect[];
   reports: string[];
   hints: AdvisorHint[];
+  budgetBreakdown?: any;
   onComplete: () => void;
 }
 
@@ -25,6 +26,7 @@ export default function TurnSummaryModal({
   dominoEffects,
   reports,
   hints,
+  budgetBreakdown,
   onComplete,
 }: TurnSummaryModalProps) {
   const [phase, setPhase] = useState<"loading" | "results" | "hidden">("hidden");
@@ -90,24 +92,125 @@ export default function TurnSummaryModal({
               <div className="bg-slate-900/50 p-5 rounded-xl border border-slate-700">
                 <h3 className="text-lg font-bold text-slate-200 mb-3 border-b border-slate-700 pb-2">Ekonomik Bilanço</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-300">📈 Vergi Geliri</span>
-                    <span className="text-sm font-bold text-green-400">
-                      +${taxIncome}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-300">🔧 Bakım Gideri</span>
-                    <span className="text-sm font-bold text-red-400">
-                      -${maintenanceCost}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-700/50">
-                    <span className="text-sm text-gray-300 font-bold">Net Dönem Karı</span>
-                    <span className={`text-xl font-bold ${taxIncome - maintenanceCost >= 0 ? "text-green-400 animate-pop-in" : "text-red-400 animate-pop-in"}`}>
-                      {taxIncome - maintenanceCost >= 0 ? "+" : ""}${taxIncome - maintenanceCost}
-                    </span>
-                  </div>
+                  {budgetBreakdown ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-300">📈 Toplam Vergi Geliri</span>
+                        <span className="text-sm font-bold text-green-400">
+                          +${budgetBreakdown.tax.toLocaleString()}
+                        </span>
+                      </div>
+                      
+                      {budgetBreakdown.tradeIncome > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-300">🚢 Ticaret ve İhracat</span>
+                          <span className="text-sm font-bold text-blue-400">
+                            +${budgetBreakdown.tradeIncome.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {budgetBreakdown.laws > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-300">⚖️ Yasal Düzenleme Gelirleri</span>
+                          <span className="text-sm font-bold text-green-400">
+                            +${budgetBreakdown.laws.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="w-full h-px bg-slate-700/50 my-2" />
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-300">🏛️ Temel Bakım Giderleri</span>
+                        <span className="text-sm font-bold text-red-400">
+                          -${budgetBreakdown.maintenance.toLocaleString()}
+                        </span>
+                      </div>
+                      
+                      {budgetBreakdown.bureaucraticWaste > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-red-300">⚠️ Bürokratik İsraf (Zenginlik Vergisi)</span>
+                          <span className="text-sm font-bold text-red-500">
+                            -${budgetBreakdown.bureaucraticWaste.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {budgetBreakdown.corruptionPenalty > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-orange-300">⚠️ Yolsuzluk Kaybı</span>
+                          <span className="text-sm font-bold text-red-500">
+                            -${budgetBreakdown.corruptionPenalty.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {budgetBreakdown.inflationPenalty > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-orange-300">⚠️ Enflasyon Farkı</span>
+                          <span className="text-sm font-bold text-red-500">
+                            -${budgetBreakdown.inflationPenalty.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {budgetBreakdown.sickPenalty > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-red-300">⚠️ Salgın/Hastalık Zararı</span>
+                          <span className="text-sm font-bold text-red-500">
+                            -${budgetBreakdown.sickPenalty.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      {budgetBreakdown.laws < 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-300">⚖️ Aktif Yasa Giderleri</span>
+                          <span className="text-sm font-bold text-red-400">
+                            -${Math.abs(budgetBreakdown.laws).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {budgetBreakdown.ministers < 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-300">👔 Bakan Bütçeleri</span>
+                          <span className="text-sm font-bold text-red-400">
+                            -${Math.abs(budgetBreakdown.ministers).toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-700/50 mt-2">
+                        <span className="text-sm text-gray-300 font-bold">Net Bilanço Değişimi</span>
+                        <span className={`text-xl font-bold ${budgetBreakdown.totalNet >= 0 ? "text-green-400 animate-pop-in" : "text-red-400 animate-pop-in"}`}>
+                          {budgetBreakdown.totalNet >= 0 ? "+" : ""}${budgetBreakdown.totalNet.toLocaleString()}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-300">📈 Vergi Geliri</span>
+                        <span className="text-sm font-bold text-green-400">
+                          +${taxIncome.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-300">🔧 Bakım Gideri</span>
+                        <span className="text-sm font-bold text-red-400">
+                          -${maintenanceCost.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-700/50">
+                        <span className="text-sm text-gray-300 font-bold">Net Dönem Karı</span>
+                        <span className={`text-xl font-bold ${taxIncome - maintenanceCost >= 0 ? "text-green-400 animate-pop-in" : "text-red-400 animate-pop-in"}`}>
+                          {taxIncome - maintenanceCost >= 0 ? "+" : ""}${(taxIncome - maintenanceCost).toLocaleString()}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 

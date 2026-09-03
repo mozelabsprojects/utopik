@@ -70,6 +70,7 @@ function GameContent() {
     maintenanceCost: 0,
     dominoEffects: [] as DominoEffect[],
     tradeIncome: 0,
+    budgetBreakdown: undefined as any,
     reports: [] as string[],
     hints: [] as AdvisorHint[],
   });
@@ -338,6 +339,7 @@ function GameContent() {
         maintenanceCost: data.turnResult.maintenanceCost,
         dominoEffects: data.turnResult.dominoEffects,
         tradeIncome: data.turnResult.tradeIncome || 0,
+        budgetBreakdown: data.turnResult.budgetBreakdown,
         reports: parsedReports,
         hints,
       });
@@ -736,6 +738,7 @@ function GameContent() {
         turnNumber={turnData.turnNumber}
         taxIncome={turnData.taxIncome}
         maintenanceCost={turnData.maintenanceCost}
+        budgetBreakdown={turnData.budgetBreakdown}
         dominoEffects={turnData.dominoEffects}
         reports={turnData.reports}
         hints={turnData.hints}
