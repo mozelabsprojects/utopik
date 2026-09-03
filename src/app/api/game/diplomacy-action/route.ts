@@ -159,7 +159,7 @@ export async function POST(request: Request) {
 
     for (const ai of game.worldCountries) {
       if (!ai.isPlayer) {
-        const powerScore = ai.military + (ai.budget / 1000) + ai.stability;
+        const powerScore = (ai.budget / 500) + (ai.military * 2) + ai.stability + ai.happiness + ai.education + ai.health;
         totalPower += powerScore;
         const cData = COUNTRIES.find(c => c.name === ai.name);
         if (cData?.alignment === 'western') westPower += powerScore;
@@ -167,7 +167,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const playerPowerScore = game.military + (updatedBudget / 1000) + updatedStability;
+    const playerPowerScore = (updatedBudget / 500) + (game.military * 2) + updatedStability + game.happiness + game.education + game.health;
     totalPower += playerPowerScore;
     
     let playerIsWestern = false;

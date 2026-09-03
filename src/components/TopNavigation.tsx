@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 import { GameState } from "@/lib/types";
 import { calculateNetBudget, BudgetBreakdown } from "@/lib/game-engine";
@@ -30,6 +31,9 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
   const [isArgeModalOpen, setIsArgeModalOpen] = useState(false);
   const [isInvestingScience, setIsInvestingScience] = useState(false);
   const [selectedResource, setSelectedResource] = useState<"energy" | "food" | "materials" | "popularity" | "politicalCapital" | null>(null);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => { setMounted(true); }, []);
 
   const handleInvestScience = async () => {
     if (!gameData || gameData.budget < 5000) return;
@@ -323,10 +327,10 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
         projectedInvestments={projectedInvestments}
       />
 
-      {/* AR-GE (RP) Detay Modalı */}
-      {isArgeModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-blue-500/30 rounded-2xl p-6 max-w-sm w-full shadow-[0_0_40px_rgba(59,130,246,0.2)]">
+      {/* AR-GE (RP) Detay Modalı — createPortal ile body'ye render */}
+      {isArgeModalOpen && mounted && createPortal(
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setIsArgeModalOpen(false)}>
+          <div className="bg-slate-900 border border-blue-500/30 rounded-2xl p-6 max-w-md w-full shadow-[0_0_40px_rgba(59,130,246,0.2)] max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-[family-name:var(--font-display)] font-bold text-blue-400 flex items-center gap-2">
                 <span className="text-2xl">🔬</span> Ar-Ge Puanı (RP)
@@ -365,12 +369,6 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                 </span>
               </div>
 
-              {netIncome < 0 && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-red-400" title="Bütçe açığı Ar-Ge yatırımlarını yavaşlatır">Bütçe Açığı Cezası</span>
-                  <span className="font-bold text-red-400">-1</span>
-                </div>
-              )}
               {gameData && gameData.education < 40 && (
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-red-400" title="Eğitim 40'ın altındayken bilim yapılamaz">Eğitim Çöküşü</span>
@@ -397,7 +395,8 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
               {isInvestingScience ? "Fonlanıyor..." : "🧪 Bilimi Fonla (-$5000) [+5 RP]"}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

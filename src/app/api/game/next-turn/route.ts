@@ -390,7 +390,7 @@ export async function POST(request: Request) {
           }
         }));
 
-        const powerScore = clampStat(newMilitary) + (newBudget / 1000) + clampStat(newStability);
+        const powerScore = (newBudget / 500) + (clampStat(newMilitary) * 2) + clampStat(newStability) + clampStat(newHappiness) + clampStat(newEducation) + clampStat(newHealth);
         totalPower += powerScore;
         const cData = COUNTRIES.find(c => c.name === ai.name);
         if (cData?.alignment === 'western') westPower += powerScore;
@@ -399,7 +399,7 @@ export async function POST(request: Request) {
     }
 
     // Oyuncu Güç Katkısı (İttifaklara Göre)
-    const playerPowerScore = game.military + (game.budget / 1000) + game.stability;
+    const playerPowerScore = (game.budget / 500) + (game.military * 2) + game.stability + game.happiness + game.education + game.health;
     totalPower += playerPowerScore;
     
     let playerIsWestern = false;

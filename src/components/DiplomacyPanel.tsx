@@ -164,14 +164,17 @@ export default function DiplomacyPanel({
 
       {/* DÜNYA GÜÇ SIRALAMASI */}
       <div className="bg-black/30 rounded-2xl p-6 border border-white/5 mb-8 relative z-10">
-        <h3 className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center justify-center gap-2">
+        <h3 className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center justify-center gap-2">
           <span className="text-lg">🏆</span> Dünya Güç Sıralaması
         </h3>
+        <p className="text-center text-[10px] text-slate-500 mb-4">
+          Güç Puanı = Ekonomi (Bütçe/500) + Askeri Güç (×2) + İstikrar + Eğitim + Sağlık + Mutluluk
+        </p>
         
         {(() => {
-          // Güç puanı: Askeri + Bütçe/1000 + İstikrar + Mutluluk + Eğitim + Sağlık
+          // Güç puanı: Bütçe ağırlıklı + Askeri 2x ağırlıklı + diğer statlar
           const allCountries = worldCountries.map((c: any) => {
-            const power = Math.round(c.military + (c.budget / 1000) + c.stability + c.happiness + c.education + c.health);
+            const power = Math.round((c.budget / 500) + (c.military * 2) + c.stability + c.happiness + c.education + c.health);
             return { ...c, power };
           }).sort((a: any, b: any) => b.power - a.power);
           
@@ -261,8 +264,8 @@ export default function DiplomacyPanel({
               
               {/* Güç Skoru Karşılaştırması */}
               {(() => {
-                const aiPower = Math.round(country.military + (country.budget / 1000) + country.stability + country.happiness + country.education + country.health);
-                const playerPower = Math.round(military + ((gameState?.budget || 0) / 1000) + (gameState?.stability || 0) + (gameState?.happiness || 0) + (gameState?.education || 0) + (gameState?.health || 0));
+                const aiPower = Math.round((country.budget / 500) + (country.military * 2) + country.stability + country.happiness + country.education + country.health);
+                const playerPower = Math.round(((gameState?.budget || 0) / 500) + (military * 2) + (gameState?.stability || 0) + (gameState?.happiness || 0) + (gameState?.education || 0) + (gameState?.health || 0));
                 const diff = playerPower - aiPower;
                 return (
                   <div className={`mt-2 p-2 rounded-lg border text-xs font-bold text-center ${diff > 0 ? 'bg-green-950/30 border-green-500/20 text-green-400' : diff < -20 ? 'bg-red-950/30 border-red-500/20 text-red-400' : 'bg-yellow-950/30 border-yellow-500/20 text-yellow-400'}`}>
