@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameState } from "@/lib/types";
+import PartyLogo from "./PartyLogo";
 
 interface NewspaperIntroProps {
   game: any;
@@ -108,32 +109,12 @@ export default function NewspaperIntro({ game, onComplete }: NewspaperIntroProps
                   <h2 className="text-3xl md:text-5xl font-black text-[#2a2a2a] uppercase leading-none mb-4 font-serif">
                     {game.presidentName || "YENİ LİDER"}, {game.countryName || "ÜLKENİN"} BAŞKANI OLDU!
                   </h2>
-                  <h3 className="text-xl font-bold text-[#444] italic mb-4 flex items-center gap-2 flex-wrap">
-                    {(() => {
-                      const PARTY_LOGOS_DATA = [
-                        { id: "logo_bulb", col: 0 },
-                        { id: "logo_arrows", col: 1 },
-                        { id: "logo_crescent", col: 2 },
-                        { id: "logo_phoenix", col: 3 },
-                        { id: "logo_scales", col: 4 },
-                        { id: "logo_wheat", col: 5 },
-                        { id: "logo_shield", col: 6 },
-                      ];
-                      const logo = PARTY_LOGOS_DATA.find(l => l.id === game.partyLogo);
-                      return logo ? (
-                        <span 
-                          className="inline-block w-6 h-6 rounded-full overflow-hidden bg-white border border-[#555] shrink-0"
-                          style={{
-                            backgroundImage: 'url("/assets/party_logos.jpg")',
-                            backgroundSize: '700%',
-                            backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
-                          }}
-                        />
-                      ) : (
-                        <span>{game.partyLogo}</span>
-                      );
-                    })()}
-                    {game.partyName || "Bağımsız Parti"} iktidara yürürken, halk yeni dönemi coşkuyla karşılıyor.
+                  <h3 className="text-xl font-bold text-[#333] italic mb-4 flex items-center gap-3 flex-wrap">
+                    <PartyLogo logoId={game.partyLogo} color={game.partyColor || '#3b82f6'} size={52} className="shadow-md shrink-0 border-2 border-[#444]" />
+                    <span className="text-2xl font-black text-[#2a2a2a] not-italic underline decoration-amber-700/40">
+                      {game.partyName || "Bağımsız Parti"}
+                    </span>
+                    <span className="text-base text-[#444] font-medium">iktidara yürürken, halk yeni dönemi coşkuyla karşılıyor.</span>
                   </h3>
                 </div>
               </div>

@@ -10,6 +10,7 @@ import { INITIAL_FACTIONS } from "@/lib/factions";
 import { COUNTRIES } from "@/lib/countries-data";
 import ResourceDetailsModal from "./ResourceDetailsModal";
 import BudgetDetailsModal from "./BudgetDetailsModal";
+import PartyLogo from "./PartyLogo";
 
 interface TopNavigationProps {
   turn: number;
@@ -191,19 +192,8 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
                 )}
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-white leading-none whitespace-nowrap">{gameData.presidentName || 'Lider'}</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-90 whitespace-nowrap flex items-center gap-1" style={{ color: gameData.partyColor || '#3b82f6' }}>
-                    {logo ? (
-                      <span 
-                        className="inline-block w-3.5 h-3.5 rounded-full overflow-hidden bg-white shrink-0"
-                        style={{
-                          backgroundImage: 'url("/assets/party_logos.jpg")',
-                          backgroundSize: '700%',
-                          backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
-                        }}
-                      />
-                    ) : (
-                      <span>{gameData.partyLogo || '🕊️'}</span>
-                    )}
+                  <span className="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-90 whitespace-nowrap flex items-center gap-1.5" style={{ color: gameData.partyColor || '#3b82f6' }}>
+                    <PartyLogo logoId={gameData.partyLogo} color={gameData.partyColor} size={16} showBg={false} />
                     {gameData.partyName || 'Bağımsız'}
                   </span>
                 </div>

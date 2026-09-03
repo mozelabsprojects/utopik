@@ -4,6 +4,7 @@ import { CountryTemplate } from "@/lib/types";
 import { COUNTRIES } from "@/lib/countries-data";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import PartyLogo, { PartyLogoList } from "./PartyLogo";
 
 interface CountrySelectProps {
   onSelect: (countryName: string, leaderProfile: string, customData?: any) => void;
@@ -19,8 +20,7 @@ const DIFFICULTY_BADGES: Record<string, string> = {
   "Çok Zor": "badge-extreme",
 };
 
-// ── Sprite-based Avatar & Logo Data ──
-// Leader portraits from the sprite sheet (3x2 grid)
+// ── Sprite-based Avatar Data ──
 const LEADER_AVATARS = [
   { id: "leader_1", label: "Genç Lider", row: 0, col: 0 },
   { id: "leader_2", label: "Kadın Lider", row: 0, col: 1 },
@@ -28,17 +28,6 @@ const LEADER_AVATARS = [
   { id: "leader_4", label: "Başörtülü Lider", row: 1, col: 0 },
   { id: "leader_5", label: "Karizmatik Lider", row: 1, col: 1 },
   { id: "leader_6", label: "Akademisyen Lider", row: 1, col: 2 },
-];
-
-// Party logos from the sprite sheet (1x7 grid)
-const PARTY_LOGOS = [
-  { id: "logo_bulb", label: "Ampül Partisi", col: 0, color: "#f97316" },
-  { id: "logo_arrows", label: "Ok Partisi", col: 1, color: "#ef4444" },
-  { id: "logo_crescent", label: "Hilal Partisi", col: 2, color: "#22c55e" },
-  { id: "logo_phoenix", label: "Anka Partisi", col: 3, color: "#a855f7" },
-  { id: "logo_scales", label: "Adalet Partisi", col: 4, color: "#3b82f6" },
-  { id: "logo_wheat", label: "Başak Partisi", col: 5, color: "#eab308" },
-  { id: "logo_shield", label: "Kalkan Partisi", col: 6, color: "#dc2626" },
 ];
 
 export default function CountrySelect({ onSelect, onContinue, saveId, loading }: CountrySelectProps) {
@@ -50,8 +39,8 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
   const [presidentName, setPresidentName] = useState("Başkan");
   const [presidentAvatar, setPresidentAvatar] = useState("leader_1");
   const [partyName, setPartyName] = useState("Yeni Parti");
-  const [partyLogo, setPartyLogo] = useState("logo_bulb");
-  const [partyColor, setPartyColor] = useState("#f97316");
+  const [partyLogo, setPartyLogo] = useState("logo_eagle");
+  const [partyColor, setPartyColor] = useState("#3b82f6");
 
   const [isStarting, setIsStarting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -71,14 +60,11 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
     if (selected) {
       setIsStarting(true);
       setTimeout(() => {
-        // Map avatar & logo IDs to their sprite position data for rendering elsewhere
-        const avatarData = LEADER_AVATARS.find(a => a.id === presidentAvatar);
-        const logoData = PARTY_LOGOS.find(l => l.id === partyLogo);
         onSelect(selected, leaderProfile, {
           presidentName,
-          presidentAvatar: presidentAvatar,
+          presidentAvatar,
           partyName,
-          partyLogo: partyLogo,
+          partyLogo,
           partyColor
         });
       }, 800);
@@ -95,44 +81,6 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: 350, behavior: "smooth" });
     }
-  };
-
-  // ── Sprite renderers ──
-  const renderLeaderAvatar = (avatarId: string, size: number = 80) => {
-    const avatar = LEADER_AVATARS.find(a => a.id === avatarId);
-    if (!avatar) return null;
-    // 3 columns x 2 rows sprite sheet
-    const bgPosX = -(avatar.col * (100 / 2)); // percentage based
-    const bgPosY = -(avatar.row * (100)); // percentage based
-    return (
-      <div 
-        className="rounded-xl overflow-hidden border-2 border-slate-600/50 shadow-lg"
-        style={{
-          width: size,
-          height: size,
-          backgroundImage: 'url("/assets/leader_portraits.jpg")',
-          backgroundSize: '300%',
-          backgroundPosition: `${avatar.col * 50}% ${avatar.row * 100}%`,
-        }}
-      />
-    );
-  };
-
-  const renderPartyLogo = (logoId: string, size: number = 48) => {
-    const logo = PARTY_LOGOS.find(l => l.id === logoId);
-    if (!logo) return null;
-    return (
-      <div 
-        className="rounded-full overflow-hidden border-2 border-slate-600/50 shadow-lg bg-white"
-        style={{
-          width: size,
-          height: size,
-          backgroundImage: 'url("/assets/party_logos.jpg")',
-          backgroundSize: '700%',
-          backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
-        }}
-      />
-    );
   };
 
   return (
@@ -358,7 +306,7 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
                       />
                     </div>
 
-                    {/* ── President Avatar (Sprite-based) ── */}
+                    {/* ── President Avatar ── */}
                     <div>
                       <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-2">
                         <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">2</span>
@@ -410,62 +358,63 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
                       />
                     </div>
 
-                    {/* ── Party Logo (Sprite-based) & Color ── */}
+                    {/* ── Party Logo & Color ── */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-2">
                           <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">4</span>
                           Parti Logosu
                         </label>
-                        <div className="grid grid-cols-4 gap-1.5">
-                          {PARTY_LOGOS.map(logo => (
+                        <div className="grid grid-cols-4 gap-2">
+                          {PartyLogoList.LOGOS.map(logo => (
                             <button
                               key={logo.id}
+                              type="button"
                               onClick={() => {
                                 setPartyLogo(logo.id);
-                                setPartyColor(logo.color);
+                                setPartyColor(logo.defaultColor);
                               }}
-                              className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200 bg-white ${
+                              className={`flex items-center justify-center p-1.5 rounded-xl border-2 transition-all duration-200 aspect-square ${
                                 partyLogo === logo.id 
-                                  ? "border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.5)] scale-110" 
-                                  : "border-slate-700 opacity-50 hover:opacity-100 hover:border-slate-500"
+                                  ? "border-cyan-400 bg-cyan-400/15 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-105 ring-1 ring-cyan-400/50" 
+                                  : "border-slate-800 bg-slate-900/60 opacity-60 hover:opacity-100 hover:border-slate-600"
                               }`}
-                              title={logo.label}
+                              title={logo.name}
                             >
-                              <div 
-                                className="w-full h-full"
-                                style={{
-                                  backgroundImage: 'url("/assets/party_logos.jpg")',
-                                  backgroundSize: '700%',
-                                  backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
-                                }}
+                              <PartyLogo
+                                logoId={logo.id}
+                                color={partyLogo === logo.id ? partyColor : logo.defaultColor}
+                                size={28}
+                                showBg={false}
                               />
                             </button>
                           ))}
                         </div>
                       </div>
+
                       <div>
                         <label className="flex items-center gap-2 text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-2">
                           <span className="w-5 h-5 flex items-center justify-center rounded bg-cyan-500/20 text-cyan-400 text-[10px] font-black">5</span>
                           Parti Rengi
                         </label>
-                        <div className="grid grid-cols-4 gap-1.5">
+                        <div className="grid grid-cols-4 gap-2">
                           {[
-                            { color: "#f97316", name: "Turuncu" },
-                            { color: "#ef4444", name: "Kırmızı" },
-                            { color: "#22c55e", name: "Yeşil" },
                             { color: "#3b82f6", name: "Mavi" },
                             { color: "#a855f7", name: "Mor" },
-                            { color: "#eab308", name: "Sarı" },
-                            { color: "#ec4899", name: "Pembe" },
-                            { color: "#14b8a6", name: "Turkuaz" },
+                            { color: "#f59e0b", name: "Altın Sarısı" },
+                            { color: "#0284c7", name: "Gök Mavi" },
+                            { color: "#06b6d4", name: "Turkuaz" },
+                            { color: "#10b981", name: "Zümrüt Yeşil" },
+                            { color: "#6366f1", name: "İndigo" },
+                            { color: "#ef4444", name: "Kırmızı" },
                           ].map(c => (
                             <button
                               key={c.color}
+                              type="button"
                               onClick={() => setPartyColor(c.color)}
-                              className={`aspect-square rounded-lg border-2 transition-all duration-200 ${
+                              className={`aspect-square rounded-xl border-2 transition-all duration-200 ${
                                 partyColor === c.color 
-                                  ? "border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.4)]" 
+                                  ? "border-white scale-105 shadow-[0_0_15px_rgba(255,255,255,0.4)] ring-2 ring-white/30" 
                                   : "border-transparent opacity-50 hover:opacity-100"
                               }`}
                               style={{ backgroundColor: c.color }}
@@ -484,7 +433,7 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
                           if (!avatar) return null;
                           return (
                             <div 
-                              className="w-16 h-16 rounded-xl overflow-hidden border-2 shadow-lg"
+                              className="w-14 h-14 rounded-xl overflow-hidden border-2 shadow-lg"
                               style={{
                                 borderColor: partyColor,
                                 backgroundImage: 'url("/assets/leader_portraits.jpg")',
@@ -497,25 +446,11 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-white font-bold text-sm truncate">{presidentName || "İsimsiz Başkan"}</p>
-                        <p className="text-xs truncate" style={{ color: partyColor }}>{partyName || "Partisiz"}</p>
+                        <p className="text-xs truncate font-semibold" style={{ color: partyColor }}>{partyName || "Partisiz"}</p>
                         <p className="text-[10px] text-slate-500 mt-0.5">{selected} • Başkomutan</p>
                       </div>
                       <div className="shrink-0">
-                        {(() => {
-                          const logo = PARTY_LOGOS.find(l => l.id === partyLogo);
-                          if (!logo) return null;
-                          return (
-                            <div 
-                              className="w-10 h-10 rounded-full overflow-hidden border-2 bg-white shadow-lg"
-                              style={{
-                                borderColor: partyColor,
-                                backgroundImage: 'url("/assets/party_logos.jpg")',
-                                backgroundSize: '700%',
-                                backgroundPosition: `${(logo.col / 6) * 100}% 50%`,
-                              }}
-                            />
-                          );
-                        })()}
+                        <PartyLogo logoId={partyLogo} color={partyColor} size={36} showBg={true} />
                       </div>
                     </div>
 
@@ -548,7 +483,7 @@ export default function CountrySelect({ onSelect, onContinue, saveId, loading }:
                         {[
                           { id: "default", icon: "⚖️", name: "Dengeli", desc: "Sıradan bir yönetim. Özel mekanik yok.", color: "from-slate-700 to-slate-800" },
                           { id: "technocrat", icon: "🧠", name: "Teknokrat", desc: "Her tur pasif Eğitim artar ama Mutluluk kalıcı düşer.", color: "from-blue-900/60 to-slate-800" },
-                          { id: "general", icon: "🎖️", name: "General", desc: "Tüm altyapı bakım masrafları -%20, ama Dış İlişkiler düşer.", color: "from-green-900/60 to-slate-800" },
+                          { id: "general", icon: "🎖️", name: "General", desc: "Tüm altyapı bakım masrafları -%20, ama Dış İlişkiler düşer.", color: "from-orange-900/60 to-slate-800" },
                           { id: "economist", icon: "💼", name: "Ekonomist", desc: "Tüm vergi gelirleri +%25, ama Çevre her tur kirlenir.", color: "from-yellow-900/60 to-slate-800" },
                           { id: "populist", icon: "🤝", name: "Halk Adamı", desc: "Her tur pasif Mutluluk artar ama Siyasi Sermaye erir.", color: "from-rose-900/60 to-slate-800" },
                         ].map(profile => (
