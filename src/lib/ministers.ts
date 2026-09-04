@@ -8,9 +8,12 @@ export type MinisterId =
   | "for_globalist" | "for_nationalist"
   | "edu_academic" | "edu_vocational"
   | "hlt_social" | "hlt_private"
-  | "env_radical" | "env_industrial";
+  | "env_radical" | "env_industrial"
+  | "ai_luvi" | "ai_luddite"
+  | "soc_viral" | "soc_censor"
+  | "esp_gamer" | "esp_boomer";
 
-export type MinistryType = "economy" | "defense" | "internal" | "foreign" | "education" | "health" | "environment";
+export type MinistryType = "economy" | "defense" | "internal" | "foreign" | "education" | "health" | "environment" | "ai" | "social_media" | "esports";
 
 export interface Minister {
   id: MinisterId;
@@ -108,26 +111,104 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   for_globalist: {
     id: "for_globalist",
     name: "Creed İpekci",
-    title: "Küresel Vizyoner",
+    title: "Küresel Sermaye Temsilcisi",
     ministry: "foreign",
-    description: "Ticareti kolaylaştırır. Her tur +2 Dış İlişkiler ve +$600 Bütçe sağlar ancak İstikrarı -1 düşürür.",
-    avatar: "🌍",
+    description: "Sınırları kaldırıp küresel sermayeyi çekmeyi hedefler. Dış İlişkiler +1, İstikrar -1.",
+    avatar: "💼",
     requiredFactionId: "capitalists",
     hireCost: 20,
-    passiveEffects: { foreignRelations: 2, budget: 600, stability: -1 },
+    passiveEffects: { foreignRelations: 1, stability: -1 },
     passiveFactionEffects: { capitalists: 1, nationalists: -2 },
   },
   for_nationalist: {
     id: "for_nationalist",
     name: "Ulrich Von Blitz",
-    title: "Milli Çıkarlar Muhafızı",
+    title: "Aşırı Milliyetçi Diplomat",
     ministry: "foreign",
-    description: "İzolasyonist politika izler. Her tur +2 İstikrar ve +1 Askeriye sağlar ancak Dış İlişkileri -3 düşürür.",
-    avatar: "🛡️",
+    description: "Sınırları kapatıp izolasyonist bir politika izler. Askeriye +1, Bütçe -$500.",
+    avatar: "🏰",
     requiredFactionId: "nationalists",
+    hireCost: 25,
+    passiveEffects: { military: 1, budget: -500 },
+    passiveFactionEffects: { nationalists: 2, intellectuals: -1 },
+  },
+
+  // === YAPAY ZEKA VE TEKNOLOJİ ===
+  ai_luvi: {
+    id: "ai_luvi",
+    name: "Luvi Wright",
+    title: "Yapay Zeka Mimarı & Teknofütürist",
+    ministry: "ai",
+    description: "Tüm devleti algoritmalarla yönetmek ister. Bütçe +$1500, ancak İşsizlik artışıyla Mutluluk -2.",
+    avatar: "🤖",
+    requiredFactionId: "capitalists",
+    hireCost: 35,
+    passiveEffects: { budget: 1500, happiness: -2 },
+    passiveFactionEffects: { intellectuals: 1, workers: -2 },
+  },
+  ai_luddite: {
+    id: "ai_luddite",
+    name: "Dr. Aslı Data",
+    title: "Siber Etik Savunucusu",
+    ministry: "ai",
+    description: "Yapay zekaya sıkı kotalar getirir. Mutluluk +1, Bütçe -$800.",
+    avatar: "🛡️",
+    requiredFactionId: "intellectuals",
     hireCost: 20,
-    passiveEffects: { foreignRelations: -3, stability: 2, military: 1 },
-    passiveFactionEffects: { nationalists: 3, capitalists: -1 },
+    passiveEffects: { happiness: 1, budget: -800 },
+    passiveFactionEffects: { workers: 1, capitalists: -1 },
+  },
+
+  // === SOSYAL MEDYA VE İLETİŞİM ===
+  soc_viral: {
+    id: "soc_viral",
+    name: "Berkecan Streamer",
+    title: "Viral Fenomen",
+    ministry: "social_media",
+    description: "Kanunları TikTok danslarıyla açıklar. Mutluluk +2, İstikrar -1.",
+    avatar: "🤳",
+    requiredFactionId: "intellectuals", // Default youth not defined
+    hireCost: 25,
+    passiveEffects: { happiness: 2, stability: -1 },
+    passiveFactionEffects: { intellectuals: 2 },
+  },
+  soc_censor: {
+    id: "soc_censor",
+    name: "Güvenlikçi Turgut",
+    title: "Dezenformasyon Şefi",
+    ministry: "social_media",
+    description: "İnterneti kısıtlar ve muhalif mizahı yasaklar. İstikrar +2, Mutluluk -2.",
+    avatar: "🚫",
+    requiredFactionId: "nationalists",
+    hireCost: 25,
+    passiveEffects: { stability: 2, happiness: -2 },
+    passiveFactionEffects: { nationalists: 1 },
+  },
+
+  // === ESPOR VE DİJİTAL GENÇLİK ===
+  esp_gamer: {
+    id: "esp_gamer",
+    name: "Emre 'Headshot' Kaya",
+    title: "Pro Gamer",
+    ministry: "esports",
+    description: "Milli Eğitim bütçesini gaming salonlarına aktarır. Mutluluk +2, Eğitim -1, Bütçe -$500.",
+    avatar: "🎮",
+    requiredFactionId: "intellectuals",
+    hireCost: 20,
+    passiveEffects: { happiness: 2, education: -1, budget: -500 },
+    passiveFactionEffects: { intellectuals: 2 },
+  },
+  esp_boomer: {
+    id: "esp_boomer",
+    name: "Mürebbiye Hatice",
+    title: "Ekran Kısıtlayıcı",
+    ministry: "esports",
+    description: "Gençleri doğa yürüyüşüne zorlar. İstikrar +1, Mutluluk -1.",
+    avatar: "👵",
+    requiredFactionId: "nationalists",
+    hireCost: 15,
+    passiveEffects: { stability: 1, happiness: -1 },
+    passiveFactionEffects: { nationalists: 2 },
   },
 
   // === EĞİTİM ===

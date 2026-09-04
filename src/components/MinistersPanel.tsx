@@ -140,7 +140,7 @@ export default function MinistersPanel({
     }
   };
 
-  const ministries: MinistryType[] = ["economy", "defense", "internal", "foreign", "education", "health", "environment"];
+  const ministries: MinistryType[] = ["economy", "defense", "internal", "foreign", "education", "health", "environment", "ai", "social_media", "esports"];
   const ministryLabels: Record<MinistryType, string> = {
     economy: "Ekonomi Bakanlığı",
     defense: "Savunma Bakanlığı",
@@ -149,6 +149,9 @@ export default function MinistersPanel({
     education: "Eğitim Bakanlığı",
     health: "Sağlık Bakanlığı",
     environment: "Çevre Bakanlığı",
+    ai: "Yapay Zeka ve Teknoloji Bakanlığı",
+    social_media: "Sosyal Medya ve İletişim Bakanlığı",
+    esports: "Espor ve Dijital Gençlik Bakanlığı",
   };
 
   return (

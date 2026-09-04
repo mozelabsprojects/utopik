@@ -164,16 +164,50 @@ export function generateNews(state: GameState): string[] {
     }
   }
 
+  // Yeni Bakan Yorumları
+  if (activeMinisters.ai === "ai_luvi") {
+    ministerQuotes.push("KABİNE (Yapay Zeka - Luvi Wright): 'Kodlara fısıldayan kadın olarak söylüyorum; eski usül bakanlıklara gerek yok. Siber altyapımız saat gibi işliyor, sadece birkaç işçiyi işten çıkardık.'");
+  } else if (activeMinisters.ai === "ai_luddite") {
+    ministerQuotes.push("KABİNE (Yapay Zeka - Dr. Aslı Data): 'Yapay zeka modellerinin fişini çekmeye ant içtim! Makineler insanlıktan üstün değildir. Mutluyuz ama bütçemiz biraz eksildi.'");
+  }
+
+  if (activeMinisters.social_media === "soc_viral") {
+    ministerQuotes.push("KABİNE (Sosyal Medya - Berkecan Streamer): 'Yeni vergi paketini TikTok dansı eşliğinde açıkladık. 50 milyon izlendi, like'lara boğulduk!'");
+  } else if (activeMinisters.social_media === "soc_censor") {
+    ministerQuotes.push("KABİNE (Sosyal Medya - Güvenlikçi Turgut): 'Mizah amaçlı paylaşılan o kedi videosunda devlet otoritesini sarsıcı unsurlar tespit ettik, anında erişim engeli geldi.'");
+  }
+
+  if (activeMinisters.esports === "esp_gamer") {
+    ministerQuotes.push("KABİNE (Espor - Emre 'Headshot' Kaya): 'Gençlik merkezlerindeki tüm PC'lere ekran kartı taktırdım! Eğitim düştü diyorlar, kardeşim asıl eğitim sunucuda hayatta kalmaktır.'");
+  } else if (activeMinisters.esports === "esp_boomer") {
+    ministerQuotes.push("KABİNE (Espor - Mürebbiye Hatice): 'Akşam 8'den sonra oyun oynamak yasak! Herkes doğa yürüyüşüne çıkacak, gözleri bozuldu çocukların!'");
+  }
+
   // Rastgele genel magazin / espri
-  const randomNews = [
+  const randomNewsPool = [
     "TEKNOLOJİ: Yerli otomobilin tekerleği nihayet icat edildi.",
     "MAGAZİN: Ünlü popçu, devlete olan vergi borcunu konser vererek ödemeyi teklif etti.",
     "SPOR: Milli takımımız, hiç gol atamadan 'centilmenlik' kontenjanından gruptan çıktı.",
     "BİLİM: Araştırmacılar, günde 10 saat oyun oynayan gençlerde 'Başkanlık' yeteneği keşfetti.",
+    "SİBER GÜVENLİK: Bakanlık sistemlerine hack saldırısı yapıldı, şifrenin '123456' olduğu ortaya çıktı.",
+    "YAPAY ZEKA: Devlet dairesinde işe başlayan AI, memurlarla birlikte çay molasına çıkmayı öğrendi.",
+    "SOSYAL MEDYA: 'Devlet yıkılsa da canlı yayınım kesilmesin' diyen influencer gözaltına alındı.",
+    "GÜNDEM: Sokakta röportaj veren dayı 'Çıkar telefonunu!' derken kendi telefonu akıllı çıkmayınca kaçtı.",
+    "EKONOMİ (Mox Özel): 'Zenginin yatını batırma şenlikleri' için kayıtlar başladı, kontenjan sınırlı!",
+    "SAVUNMA (Bard Özel): Ordu, düşman hatlarına barış güvercini yerine karga yollamaya karar verdi.",
+    "TREND: Luvi Wright hayranları 'Silikon Vadisi Saç Modeli' için berberlerde kuyruk oluşturdu.",
+    "TEKNOLOJİ: Sokak köpekleri çiple takip edilmek yerine, doğrudan kripto cüzdanı açmaya yönlendirildi.",
+    "MAGAZİN: Bakanların kabine toplantısında gizlice 'Among Us' oynadığı iddiaları yalanlandı."
   ];
 
+  // Haber sayısını tamamlamak için benzersiz (unique) rastgele haberler seç
   if (news.length < 5) {
-    add(randomNews[Math.floor(Math.random() * randomNews.length)]);
+    const needed = 5 - news.length;
+    // Fisher-Yates shuffle
+    const shuffledPool = [...randomNewsPool].sort(() => 0.5 - Math.random());
+    for (let i = 0; i < Math.min(needed, shuffledPool.length); i++) {
+      add(shuffledPool[i]);
+    }
   }
 
   return news;
