@@ -240,7 +240,7 @@ export const MINISTERS: Record<MinisterId, Minister> = {
   // === SAĞLIK ===
   hlt_social: {
     id: "hlt_social",
-    name: "Dr. Aylin",
+    name: "Zei Bernie",
     title: "Halk Sağlığı Uzmanı",
     ministry: "health",
     description: "Herkese ücretsiz sağlık hedefler. Her tur +2 Sağlık ve +1 Mutluluk sağlar ancak -$1000 Bütçe açığı yaratır.",

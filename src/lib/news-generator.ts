@@ -51,7 +51,7 @@ export function generateNews(state: GameState): string[] {
   } else if (state.energy > 900) {
     add("ENERJİ: Ülke o kadar çok enerji üretiyor ki, sokak lambaları gündüz bile kapatılmıyor.");
   }
-  
+
   if (state.food < 20) {
     add("GIDA: Marketlerde makarna kuyrukları uzaydan görünür hale geldi.");
   } else if (state.food > 900) {
@@ -60,8 +60,8 @@ export function generateNews(state: GameState): string[] {
 
   // Savaş ve Diplomasi
   let diplomacyState: any = {};
-  try { diplomacyState = JSON.parse(state.diplomacyState || "{}"); } catch {}
-  
+  try { diplomacyState = JSON.parse(state.diplomacyState || "{}"); } catch { }
+
   let isAtWar = false;
   for (const [country, dip] of Object.entries(diplomacyState)) {
     if ((dip as any).type === 'war') {
@@ -80,8 +80,8 @@ export function generateNews(state: GameState): string[] {
 
   // Mega Projeler
   let megaProjects: string[] = [];
-  try { megaProjects = JSON.parse(state.megaProjects || "[]"); } catch {}
-  
+  try { megaProjects = JSON.parse(state.megaProjects || "[]"); } catch { }
+
   if (megaProjects.includes("space_program")) {
     add("UZAY: Mars'a fırlatılan milli roketimiz yörüngeye başarıyla oturdu. 'Uzayda da çay demleriz!'");
   }
@@ -91,18 +91,18 @@ export function generateNews(state: GameState): string[] {
 
   // Yasalar
   let activeLaws: string[] = [];
-  try { activeLaws = JSON.parse(state.activeLaws || "[]"); } catch {}
-  
+  try { activeLaws = JSON.parse(state.activeLaws || "[]"); } catch { }
+
   if (activeLaws.includes("censorship")) {
     add("MEDYA: Ana haber bülteni yine 'Her Şey Harika' manşetiyle açıldı. Sansür tıkır tıkır işliyor.");
   }
   if (activeLaws.includes("open_borders")) {
     add("GÖÇMENLER: Açık sınır politikası nedeniyle sınır kapılarında izdiham yaşanıyor.");
   }
-  
+
   // Bakan Yorumları (Kabine Dinamikleri)
   let activeMinisters: Record<string, string> = {};
-  try { activeMinisters = JSON.parse(state.ministers || "{}"); } catch {}
+  try { activeMinisters = JSON.parse(state.ministers || "{}"); } catch { }
 
   const ministerQuotes: string[] = [];
 
@@ -143,7 +143,7 @@ export function generateNews(state: GameState): string[] {
 
   // Sağlık Bakanı
   if (activeMinisters.health === "hlt_social") {
-    ministerQuotes.push("KABİNE (Sağlık - Dr. Aylin): 'Tüm hastaneler bedava, ilaçlar devletten. Bütçe mi battı? Olsun, sağlıklı battık!'");
+    ministerQuotes.push("KABİNE (Sağlık - Zei Bernie): 'Tüm hastaneler bedava, ilaçlar devletten. Bütçe mi battı? Olsun, sağlıklı battık!'");
   } else if (activeMinisters.health === "hlt_private") {
     ministerQuotes.push("KABİNE (Sağlık - CEO Barkın): 'Hastaneleri 5 yıldızlı otel yaptık. Hastalar müşteri, hastalıklar ise fırsattır. Bütçe fazla veriyor, mükemmel!'");
   }
