@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import AnimatedNumber from "./AnimatedNumber";
 
 import { GameState } from "@/lib/types";
 import { calculateNetBudget, BudgetBreakdown } from "@/lib/game-engine";
@@ -213,7 +214,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
             <span className="text-xl">📅</span>
             <div>
               <p className="hidden md:block text-[9px] text-gray-400 font-bold uppercase tracking-wider">TUR</p>
-              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none text-white">{turn}</p>
+              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none text-white"><AnimatedNumber value={turn} /></p>
             </div>
           </div>
 
@@ -224,7 +225,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
             <span className="text-xl">📜</span>
             <div>
               <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">POLİTİK SERMAYE</p>
-              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{politicalCapital}</p>
+              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none"><AnimatedNumber value={politicalCapital} /></p>
             </div>
           </div>
 
@@ -236,7 +237,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
               <span className="text-xl">👑</span>
               <div>
                 <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">POPÜLARİTE</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">%{gameData.popularity}</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none"><AnimatedNumber value={gameData.popularity} prefix="%" /></p>
               </div>
             </div>
           )}
@@ -246,7 +247,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
               <span className="text-xl">👥</span>
               <div>
                 <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">NÜFUS</p>
-                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">{gameData.population?.toFixed(1) || "10.0"}M</p>
+                <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none"><AnimatedNumber value={gameData.population || 10} format="compact" suffix="M" /></p>
               </div>
             </div>
           )}
@@ -258,7 +259,7 @@ export default function TopNavigation({ turn, budget, politicalCapital, gameData
             <span className="text-xl">💰</span>
             <div>
               <p className="hidden md:block text-[9px] font-bold uppercase tracking-wider opacity-70">BÜTÇE</p>
-              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none">${budget.toLocaleString()}</p>
+              <p className="font-[family-name:var(--font-display)] font-bold text-lg leading-none"><AnimatedNumber value={budget} format="compact" prefix="$" /></p>
             </div>
           </div>
 

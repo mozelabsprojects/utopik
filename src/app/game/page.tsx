@@ -307,11 +307,10 @@ function GameContent() {
     if (!game || actionLoading) return;
     setActionLoading(true);
 
-    // OPTIMISTIC UI: Sunucuyu beklemeden geçiş ekranını başlat
-    // Data henüz hazır değil.
-    setTurnData(prev => ({ ...prev, turnNumber: game.turn }));
-    setIsTransitionDataReady(false);
-    setShowTransition(true);
+    // OPTIMISTIC UI: Sadece buton loading'de kalacak, modal sadece veri geldiğinde açılacak
+    // setTurnData(prev => ({ ...prev, turnNumber: game.turn }));
+    // setIsTransitionDataReady(false);
+    // setShowTransition(true);
 
     try {
       playTurnSound();
@@ -357,6 +356,7 @@ function GameContent() {
         hints,
       });
       setIsTransitionDataReady(true);
+      setShowTransition(true);
 
       // Update game state after transition
       setPreviousGame(game);

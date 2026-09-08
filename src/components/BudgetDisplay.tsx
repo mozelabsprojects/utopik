@@ -1,4 +1,5 @@
 "use client";
+import AnimatedNumber from "./AnimatedNumber";
 
 interface BudgetDisplayProps {
   budget: number;
@@ -47,7 +48,7 @@ export default function BudgetDisplay({
               : "text-[var(--color-gold)]"
           }`}
         >
-          ${formatBudget(budget)}
+          <AnimatedNumber value={budget} format="compact" prefix="$" />
         </span>
         {diff !== 0 && (
           <span

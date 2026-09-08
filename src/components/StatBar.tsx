@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { StatPressure } from "@/lib/game-engine";
+import AnimatedNumber from "./AnimatedNumber";
 
 interface StatBarProps {
   label: string;
@@ -79,7 +80,7 @@ export default function StatBar({ label, value, icon, color, previousValue, proj
               isCritical ? "text-red-400" : "text-white"
             }`}
           >
-            {Math.round(value)}%
+            <AnimatedNumber value={value} suffix="%" />
           </span>
         </div>
       </div>
