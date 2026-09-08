@@ -1219,6 +1219,22 @@ export function processNextTurn(currentState: GameState, tradeIncome: number = 0
   
   state.activeQuests = JSON.stringify(remainingQuests);
 
+  // ==========================================
+  // 8.9 LATE GAME MEGA KRİZLER (SNOWBALL)
+  // ==========================================
+  if (state.turn >= 80 && state.budget >= 1000000 && Math.random() < 0.10) {
+    const crisisRoll = Math.random();
+    if (crisisRoll < 0.5) {
+      state.budget = Math.floor(state.budget / 2);
+      state.unlockedTechs = "[]"; // Tüm teknolojiler silinir
+      turnReports.push(`🚨 SİYAH KUĞU: KÜRESEL SİBER SAVAŞ! Düşman devletler finansal ağları ve Ar-Ge sunucularını çökertti. Bütçenin yarısı buharlaştı ve tüm teknolojik arşivler hacklenip silindi!`);
+    } else {
+      state.inflation += 50;
+      state.stability = Math.max(0, state.stability - 30);
+      turnReports.push(`🚨 SİYAH KUĞU: KÜRESEL HİPERENFLASYON! Dünya piyasaları çöktü, arz zincirleri kırıldı. Enflasyon kontrolden çıktı (+%50) ve istikrar yerle bir oldu (-30)!`);
+    }
+  }
+
   // 9. Seçim Kontrolü
   if (state.turn === state.nextElectionTurn) {
     if (state.popularity < 40) {

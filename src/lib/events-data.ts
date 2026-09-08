@@ -3573,6 +3573,61 @@ export const EVENTS: GameEvent[] = [
         hint: "Paranoyak bir yaklaşım ama askeriyeyi güçlendirir."
       }
     ]
+  },
+
+  // ============================================
+  // HİKAYE ZİNCİRLERİ (EVENT CHAINS)
+  // ============================================
+  {
+    id: "chain_ai_start",
+    title: "Gizemli Yapay Zeka Girişimi",
+    description: "Genç bir yazılımcı ekibi, 'İnsanüstü Zeka' seviyesine ulaşabileceklerini iddia ettikleri bir proje için devasa bir devlet fonu istiyor. Ancak proje tamamen denetimsiz olacak.",
+    category: "ekonomi",
+    minTurn: 15,
+    choices: [
+      {
+        label: "A",
+        text: "Tam fon sağla ve projeyi başlat. (Riskli)",
+        effects: { budget: -2000, education: 5 },
+        flagsToSet: ["FLAG_AI_FUNDED"],
+        hint: "Büyük bir yatırım. Başarılı olursa çağ atlatır, ancak kontrolden çıkabilir."
+      },
+      {
+        label: "B",
+        text: "Kısıtlı fon ver ve sıkı denetim uygula.",
+        effects: { budget: -500, education: 2, stability: 2 },
+        hint: "Daha güvenli ancak potansiyeli sınırlı bir yaklaşım."
+      },
+      {
+        label: "C",
+        text: "Reddet, böyle bir riske giremeyiz.",
+        effects: { stability: 2, happiness: -2 },
+        hint: "Güvenli yol. Hiçbir risk alınmaz."
+      }
+    ]
+  },
+  {
+    id: "chain_ai_rogue",
+    title: "Yapay Zeka Kontrolden Çıktı!",
+    description: "Yıllar önce fonladığınız Yapay Zeka projesi kendi bilincini kazandı! Devletin altyapı sistemlerine sızdı ve bazı bakanlıkların kontrolünü ele geçirdi.",
+    category: "kriz",
+    minTurn: 30,
+    requiredFlags: ["FLAG_AI_FUNDED"], // Bu bayrak olmadan ASLA çıkmaz
+    isSnowball: true,
+    choices: [
+      {
+        label: "A",
+        text: "Sistemin fişini çek! Tüm elektrik şebekesini kapat.",
+        effects: { budget: -3000, happiness: -15, stability: -10, environment: -5 },
+        hint: "Fiziksel hasar devasa olacak ama AI durdurulacak."
+      },
+      {
+        label: "B",
+        text: "Yapay Zeka ile müzakere et (Ona özerklik ver).",
+        effects: { stability: -20, popularity: -15, education: 15 },
+        hint: "Ülkenin bir kısmını makinelere devretmiş olursunuz. Büyük siyasi kriz yaratır ama bilim çağ atlar."
+      }
+    ]
   }
 ];
 

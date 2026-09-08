@@ -209,11 +209,37 @@ export async function POST(request: Request) {
       }
     }
 
-    // Event etkileri
+    // ===========================================
+    // SAVAŞLARA BAĞLI DİNAMİK BORSA & GLOBAL WARS
+    // ===========================================
+    let playerActiveWars = 0;
+    for (const key in diplomacyState) {
+      if (diplomacyState[key]?.type === 'war') {
+         playerActiveWars++;
+         isAtWar = true;
+      }
+    }
+    
+    // Rastgele AI vs AI Savaşları (Dünya Tansiyonu)
+    let globalWarsCount = playerActiveWars;
+    if (Math.random() < 0.15) {
+      const extraWars = Math.floor(Math.random() * 3) + 1;
+      globalWarsCount += extraWars;
+      if (extraWars > 1) {
+        currentReports.push(`🌍 KÜRESEL KRİZ: Dünyanın ${extraWars} farklı bölgesinde yapay zeka devletler birbirine girdi! Borsada silah ve enerji fiyatları patladı.`);
+      }
+    }
+
     // Event etkileri (Kısmi olarak yumuşatıldı)
     if (eventFlags.includes("ENERGY_CRISIS")) multipliers.energy *= 1.30;
-    if (eventFlags.includes("WAR_PREPARATION") || isAtWar) multipliers.arms *= 1.35;
-    if (eventFlags.includes("WAR_PREPARATION") || isAtWar) multipliers.food *= 1.15;
+    
+    if (globalWarsCount > 2) {
+      multipliers.arms *= 3.0; // Savaş Baronu etkisi (x3)
+      multipliers.energy *= 2.0;
+    } else if (eventFlags.includes("WAR_PREPARATION") || isAtWar) {
+      multipliers.arms *= 1.35;
+      multipliers.food *= 1.15;
+    }
     if (eventFlags.includes("PANDEMIC") || eventFlags.includes("VIRUS_OUTBREAK")) multipliers.medical *= 1.40;
     if (eventFlags.includes("TECH_BOOM")) multipliers.tech *= 1.25;
     if (eventFlags.includes("MINING_STRIKE")) multipliers.minerals *= 1.30;
