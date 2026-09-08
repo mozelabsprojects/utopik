@@ -674,7 +674,8 @@ export async function POST(request: Request) {
         tradeIncome: turnResult.tradeIncome,
         budgetBreakdown,
         dominoEffects: turnResult.dominoEffects,
-        newEvent: turnResult.newEvents.length > 0
+        newEvent: turnResult.newEvents.length > 0,
+        newEvents: turnResult.newEvents
       },
     });
   } catch (error) {

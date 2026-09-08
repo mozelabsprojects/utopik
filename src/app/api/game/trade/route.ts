@@ -62,7 +62,19 @@ export async function POST(request: Request) {
     let marketState: any = {};
     try { marketState = JSON.parse(game.marketState || "{}"); } catch {}
 
-    const isSuccess = Math.random() < riskProfile.successChance;
+    // --- DİPLOMASİ VE İTTİFAK ETKİSİ ---
+    let diplomacyState: DiplomacyState = { westernRelations: 50, easternRelations: 50, activeEmbargoes: [] };
+    try { diplomacyState = JSON.parse(game.diplomacyState || "{}"); } catch {}
+    if (diplomacyState.westernRelations === undefined) diplomacyState.westernRelations = 50;
+    if (diplomacyState.easternRelations === undefined) diplomacyState.easternRelations = 50;
+
+    let actualSuccessChance = riskProfile.successChance;
+    const dip = (diplomacyState as any)[partner.name];
+    if (dip && dip.type === 'alliance') {
+      actualSuccessChance = Math.min(0.95, actualSuccessChance + 0.15); // İttifak olunan ülkeyle ticarette %15 ekstra başarı şansı
+    }
+
+    const isSuccess = Math.random() < actualSuccessChance;
     
     if (!isSuccess) {
       // Başarısız anlaşma - Anlaşma kurulamadı, paranızın bir kısmı heba oldu
@@ -93,10 +105,7 @@ export async function POST(request: Request) {
     }
 
     // --- FAZ 4: KÜRESEL EKSEN KAYMASI ---
-    let diplomacyState: DiplomacyState = { westernRelations: 50, easternRelations: 50, activeEmbargoes: [] };
-    try { diplomacyState = JSON.parse(game.diplomacyState || "{}"); } catch {}
-    if (diplomacyState.westernRelations === undefined) diplomacyState.westernRelations = 50;
-    if (diplomacyState.easternRelations === undefined) diplomacyState.easternRelations = 50;
+    // (diplomacyState yukarıda parse edildi)
 
     const countryTemplate = COUNTRIES.find(c => c.name === partner.name);
     if (countryTemplate) {
